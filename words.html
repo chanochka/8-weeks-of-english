@@ -1,0 +1,90 @@
+<!doctype html><html lang="en"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1"><meta name="theme-color" content="#f2a9b7"><title>Word Bank — 8 Weeks of English</title><link rel="manifest" href="manifest.webmanifest"><link rel="stylesheet" href="styles.css">
+<style>
+.wb-tools{display:flex;gap:10px;flex-wrap:wrap;align-items:center;margin:14px 0 4px}
+.wb-tools label{display:inline-flex;gap:8px;align-items:center;border:1px solid rgba(32,36,42,.12);background:rgba(255,255,255,.55);padding:9px 12px;border-radius:999px;cursor:pointer}
+.wb-progress{font-weight:800;color:var(--blue-deep)}
+.wb-card{background:var(--paper);border:1px solid rgba(32,36,42,.12);border-radius:24px;padding:20px 22px;margin:18px 0}
+.wb-card h2{margin:0 0 4px;font-size:1.5rem;letter-spacing:-.02em}
+.wb-card .hint{color:var(--muted);margin:0 0 10px}
+.wb-row{display:grid;grid-template-columns:28px minmax(150px,1.1fr) minmax(150px,1.2fr) minmax(200px,2fr) auto;gap:12px;align-items:start;padding:11px 0;border-top:1px dashed var(--line)}
+.wb-row:first-of-type{border-top:0}
+.wb-row .w{font-weight:800}
+.wb-row .w .star{color:var(--pink-deep);font-size:.85em;margin-left:4px}
+.wb-row .m{color:var(--muted)}
+.wb-row input{width:18px;height:18px;margin-top:3px;accent-color:var(--pink-deep)}
+.play{border:1px solid rgba(32,36,42,.15);background:#fff;border-radius:999px;width:34px;height:34px;cursor:pointer;font-size:.8rem;line-height:1}
+.play:hover{background:var(--blue)}
+body.test .wb-row .w{filter:blur(6px);cursor:pointer;user-select:none}
+body.test .wb-row .w.shown{filter:none}
+body.test .wb-row .e{visibility:hidden}
+body.test .wb-row .e.shown{visibility:visible}
+.gp-formula{display:grid;gap:8px;margin:12px 0}
+.gp-formula div{background:rgba(217,203,234,.35);border-radius:14px;padding:10px 14px}
+.gp-formula b{display:block;font-size:.72rem;letter-spacing:.16em;color:#8c6bb3}
+.gp-mistake{display:grid;grid-template-columns:1fr 1fr;gap:10px;margin:12px 0}
+.gp-mistake div{border-radius:14px;padding:10px 14px}
+.gp-mistake .x{background:rgba(242,169,183,.22);text-decoration:line-through;text-decoration-color:var(--pink-deep)}
+.gp-mistake .ok{background:rgba(185,215,238,.4);font-weight:700}
+.examples{margin:8px 0;padding-left:0;list-style:none}.examples li{padding:4px 0}.examples li:before{content:"— ";color:var(--muted)}
+.q{padding:10px 0;border-top:1px dashed var(--line)}.q:first-of-type{border-top:0}
+.q details{display:inline-block;margin-left:8px}
+.q summary{cursor:pointer;color:var(--blue-deep);font-weight:700;font-size:.9rem}
+.q .ans{font-weight:800;color:var(--pink-deep)}
+.say li{padding:6px 0}
+@media(max-width:820px){.wb-row{grid-template-columns:24px 1fr auto;gap:4px 10px}.wb-row .m,.wb-row .e{grid-column:2/3}.wb-row .play{grid-row:1;grid-column:3}.gp-mistake{grid-template-columns:1fr}}
+</style></head><body>
+<header class="topbar"><div class="shell topbar-inner"><a class="brand" href="index.html"><img src="assets/cover.jpg" alt=""><span>8 WEEKS OF ENGLISH</span></a><nav class="nav"><a href="index.html">Home</a><a href="reader.html">Workbook</a><a href="roadmap.html">Roadmap</a><a href="writing.html">Writing</a></nav></div></header>
+<main class="shell page">
+<div class="eyebrow">WORD BANK + GRAMMAR PLUS · 言葉</div><h1>Words that work</h1>
+<p class="subhead">Everything from the “Words that work” page in your printed book, plus the rest. <strong>★ = on your printed page.</strong> Tick a box only when you have said the phrase out loud in a real sentence of your own.</p>
+<div class="actions no-print" id="weekButtons"></div>
+<div class="wb-tools no-print"><label><input type="checkbox" id="testMode"> Test me: hide the phrases</label><span class="wb-progress" id="progress"></span></div>
+<div id="wb"></div>
+</main>
+<footer class="footer"><div class="shell footer-inner"><span>USE ENGLISH. DON'T JUST STUDY ENGLISH.</span><span class="jp">毎日少しずつ · A little every day</span></div></footer>
+<script src="data.js"></script><script src="words-data.js"></script><script>
+const store={get(k){try{return localStorage.getItem(k)}catch(e){return null}},set(k,v){try{localStorage.setItem(k,v)}catch(e){}}};
+const canSpeak='speechSynthesis' in window;
+let voice=null;
+function pickVoice(){if(!canSpeak)return;const vs=speechSynthesis.getVoices();voice=vs.find(v=>v.lang==='en-GB')||vs.find(v=>v.lang&&v.lang.startsWith('en'))||null}
+if(canSpeak){pickVoice();speechSynthesis.onvoiceschanged=pickVoice}
+function speak(text){if(!canSpeak)return;speechSynthesis.cancel();const u=new SpeechSynthesisUtterance(text.replace(/______/g,'blank'));if(voice)u.voice=voice;u.lang=voice?voice.lang:'en-GB';u.rate=.95;speechSynthesis.speak(u)}
+const esc=s=>String(s).replace(/[&<>"]/g,c=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;'}[c]));
+const playBtn=text=>canSpeak?`<button class="play" data-say="${esc(text)}" title="Listen" aria-label="Listen">▶</button>`:'<span></span>';
+
+const buttons=document.getElementById('weekButtons'),wb=document.getElementById('wb');
+let week=Math.min(8,Math.max(1,Number(new URLSearchParams(location.search).get('week'))||1));
+WORKBOOK.weeks.forEach(w=>buttons.insertAdjacentHTML('beforeend',`<button class="btn ${w.week===week?'pink':'secondary'}" data-week="${w.week}">W${w.week}</button>`));
+
+function list(kind,items,printed){
+  return items.map((it,i)=>{const [w,m,e]=kind==='colloc'?[it[0],'',it[1]]:it;const key=`said-w${week}-${kind}-${i}`;
+    return `<div class="wb-row"><input type="checkbox" data-key="${key}" ${store.get(key)==='1'?'checked':''} aria-label="I said it"><div class="w">${esc(w)}${i<printed?'<span class="star">★</span>':''}</div><div class="m">${esc(m)}</div><div class="e">${esc(e)}</div>${playBtn(e)}</div>`}).join('');
+}
+function questions(items){return items.map(([q,a],i)=>`<div class="q">${i+1}. ${esc(q)} <details><summary>answer</summary><span class="ans">${esc(a)}</span></details></div>`).join('')}
+
+function render(){
+  const d=WORDS[week],g=d.grammar,w=WORKBOOK.weeks[week-1];
+  wb.innerHTML=`
+  <section class="wb-card"><div class="eyebrow">WEEK ${String(week).padStart(2,'0')} · ${w.phase} · ${esc(d.theme)}</div>
+    <h2>Phrasal verbs</h2><p class="hint">The verbs people actually use. Say each example out loud after the ▶.</p>${list('phrasal',d.phrasal,PRINT.phrasal)}</section>
+  <section class="wb-card"><h2>Idioms</h2><p class="hint">The ones you will really hear — not “raining cats and dogs”.</p>${list('idioms',d.idioms,PRINT.idioms)}</section>
+  <section class="wb-card"><h2>Words that go together</h2><p class="hint">Learn them as one piece. Saying “do a decision” is the kind of mistake these fix.</p>${list('colloc',d.colloc,PRINT.colloc)}</section>
+  <section class="wb-card"><div class="eyebrow">GRAMMAR PLUS</div><h2>${esc(g.title)}</h2><p>${esc(g.why)}</p>
+    <div class="gp-formula">${g.formula.map(([k,v])=>`<div><b>${esc(k)}</b>${esc(v)}</div>`).join('')}</div>
+    <div class="gp-mistake"><div class="x">${esc(g.wrong)}</div><div class="ok">${esc(g.right)}</div></div>
+    <h3>How it sounds in real English</h3><ul class="examples">${g.examples.map(x=>`<li>${esc(x)} ${canSpeak?`<button class="play" data-say="${esc(x)}" aria-label="Listen">▶</button>`:''}</li>`).join('')}</ul>
+    <p class="notice">${esc(g.note)}</p>
+    <h3>Practise — complete each one</h3>${questions(g.practice)}</section>
+  <section class="wb-card"><h2>Quick check</h2><p class="hint">Fill the gap from memory first, then open the answer.</p>${questions(d.check)}</section>
+  <section class="wb-card"><h2>Say it out loud</h2><p class="hint">Record yourself for one of these on Thursday, your speaking day.</p><ol class="say">${d.say.map(x=>`<li>${esc(x)}</li>`).join('')}</ol></section>`;
+  history.replaceState(null,'',`?week=${week}`);progress();
+}
+function progress(){const boxes=[...wb.querySelectorAll('input[data-key]')];document.getElementById('progress').textContent=`Said out loud: ${boxes.filter(b=>b.checked).length} / ${boxes.length}`}
+
+buttons.addEventListener('click',e=>{const b=e.target.closest('[data-week]');if(!b)return;week=Number(b.dataset.week);buttons.querySelectorAll('button').forEach(x=>x.className=`btn ${Number(x.dataset.week)===week?'pink':'secondary'}`);render();window.scrollTo({top:0})});
+wb.addEventListener('click',e=>{const p=e.target.closest('[data-say]');if(p){speak(p.dataset.say);return}
+  if(document.body.classList.contains('test')){const w=e.target.closest('.wb-row .w');if(w){w.classList.add('shown');w.parentElement.querySelector('.e').classList.add('shown')}}});
+wb.addEventListener('change',e=>{const k=e.target.dataset.key;if(k){store.set(k,e.target.checked?'1':'0');progress()}});
+document.getElementById('testMode').addEventListener('change',e=>{document.body.classList.toggle('test',e.target.checked);wb.querySelectorAll('.shown').forEach(x=>x.classList.remove('shown'))});
+render();
+</script><script src="app.js"></script></body></html>
