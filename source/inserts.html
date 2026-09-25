@@ -1,0 +1,268 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<title>Word Bank Inserts</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Baloo+2:wght@600;700;800&family=Quicksand:wght@400;500;600;700&display=block" rel="stylesheet">
+<!--
+  ?mode=print  one page per week, the essentials, A4 + 2 mm bleed like the print edition
+  ?mode=full   two pages per week (whole word bank, grammar plus with practice) and an
+               answer key, A4 like the full edition; &key=N is the answer key's page number
+-->
+<style>
+  :root {
+    --bg: #fffcf6;
+    --ink: #5d5452;
+    --ink-strong: #4a4240;
+    --muted: #9b908b;
+    --eyebrow: #baaea6;
+    --dots: #ddd2c6;
+    --pink: #c98a96;  --pink-bg: #fdeff1;  --pink-line: #f1d5da;
+    --lav: #b79bd0;   --lav-bg: #f7f2fc;   --lav-line: #e4d8f1;
+    --blue: #7fa6c9;  --blue-bg: #eff5fb;  --blue-line: #d2e2f0;
+    --peach: #c99b76; --peach-bg: #fdf4ea; --peach-line: #f0dcc8;
+  }
+  * { box-sizing: border-box; }
+  html, body { margin: 0; padding: 0; background: var(--bg); }
+  body { font-family: "Quicksand", sans-serif; color: var(--ink); font-size: 8.6pt; line-height: 1.32;
+         -webkit-print-color-adjust: exact; print-color-adjust: exact; }
+  a { color: inherit; }
+  .page { width: var(--pw); height: var(--ph); padding: 13mm 14mm 10mm; position: relative; overflow: hidden;
+          page-break-after: always; break-after: page; display: flex; flex-direction: column; gap: 3.2mm; }
+  .page:last-child { page-break-after: auto; break-after: auto; }
+  body.full .page { padding: 12mm 13mm 9mm; gap: 2.8mm; font-size: 8.2pt; }
+
+  .top { display: flex; justify-content: space-between; align-items: flex-start; }
+  .eyebrow { font-size: 6.6pt; letter-spacing: .28em; text-transform: uppercase; color: var(--eyebrow); font-weight: 600; }
+  h1 { font-family: "Baloo 2", sans-serif; font-weight: 800; color: var(--blue); font-size: 25pt; line-height: 1; margin: 1.4mm 0 0; letter-spacing: -.01em; }
+  h1.lav { color: var(--lav); font-size: 19pt; line-height: 1.08; max-width: 150mm; }
+  h1.peach { color: var(--peach); }
+  .sub { font-size: 7.8pt; color: var(--muted); margin-top: 1.2mm; }
+  .sub a { color: var(--blue); text-decoration: none; font-weight: 600; }
+  .mascot { width: 13mm; height: 13mm; margin-top: 1mm; flex: none; }
+
+  .band { background: var(--blue-bg); border: 1px solid var(--blue-line); border-radius: 4mm; padding: 2.6mm 4mm; font-size: 8.2pt; }
+  .band b { color: var(--blue); font-weight: 700; letter-spacing: .06em; }
+  .band .when { display: grid; grid-template-columns: repeat(3, 1fr); gap: 3mm; margin-top: 1.2mm; }
+  .band .when span b { letter-spacing: .12em; font-size: 7pt; }
+
+  .box { border: 1px solid var(--line, #eee4d8); border-radius: 4mm; padding: 2.6mm 4mm 2.2mm; background: #fffdf9; }
+  body.full .box { padding: 2.2mm 4mm 1.8mm; }
+  .box.blue { --line: var(--blue-line); --c: var(--blue); }
+  .box.pink { --line: var(--pink-line); --c: var(--pink); }
+  .box.peach { --line: var(--peach-line); --c: var(--peach); }
+  .box.lav { --line: var(--lav-line); --c: var(--lav); background: var(--lav-bg); }
+  .box.plain { --line: #eee4d8; --c: var(--ink-strong); }
+  .lbl { font-family: "Baloo 2", sans-serif; font-weight: 700; font-size: 10pt; color: var(--c); margin: 0 0 1mm; display: flex; justify-content: space-between; align-items: baseline; }
+  .lbl small { font-family: "Quicksand", sans-serif; font-size: 6.4pt; letter-spacing: .2em; color: var(--eyebrow); font-weight: 600; text-transform: uppercase; }
+
+  .row { display: grid; grid-template-columns: 4.2mm 38mm 47mm 1fr; column-gap: 2.6mm; align-items: start;
+         padding: 1.45mm 0; border-bottom: 1px dotted var(--dots); }
+  body.full .row { padding: 1.05mm 0; grid-template-columns: 4.2mm 37mm 46mm 1fr; }
+  .row:last-child { border-bottom: 0; }
+  .tick { width: 3.2mm; height: 3.2mm; border: 1px solid var(--line); border-radius: 1mm; margin-top: .45mm; }
+  .w { font-weight: 700; color: var(--ink-strong); }
+  .star { color: var(--pink); font-size: .8em; margin-left: 1mm; }
+  .m { color: var(--muted); font-size: 7.8pt; }
+  .e { color: var(--ink); }
+
+  .colgrid { display: grid; grid-template-columns: 1fr 1fr; column-gap: 6mm; }
+  .col { display: grid; grid-template-columns: 4.2mm 1fr; column-gap: 2.6mm; padding: 1.45mm 0; border-bottom: 1px dotted var(--dots); }
+  body.full .col { padding: 1.05mm 0; }
+  .col:nth-last-child(-n+2) { border-bottom: 0; }
+  .col .w { display: block; }
+  .col .e { display: block; font-size: 7.9pt; color: var(--muted); }
+
+  .gp-title { font-family: "Baloo 2", sans-serif; font-weight: 700; color: var(--c); font-size: 10pt; margin: 0; }
+  .gp-title span { color: var(--ink-strong); }
+  .gp-grid { display: grid; grid-template-columns: 1.35fr 1fr; gap: 4mm; margin-top: 1.2mm; }
+  .formula div { padding: .7mm 0; }
+  .formula b { font-size: 6.6pt; letter-spacing: .14em; color: var(--c); font-weight: 700; display: block; }
+  .mistake { background: #fffdf9; border: 1px solid var(--pink-line); border-radius: 3mm; padding: 2mm 3mm; align-self: start; }
+  .mistake .lab { font-size: 6.4pt; letter-spacing: .18em; color: var(--pink); font-weight: 700; }
+  .mistake .x { text-decoration: line-through; text-decoration-color: #e3b3bb; color: var(--muted); margin-top: .8mm; }
+  .mistake .ok { font-weight: 700; color: var(--ink-strong); margin-top: .6mm; }
+  .sayline { margin-top: 1.6mm; display: flex; gap: 3mm; align-items: flex-end; }
+  .sayline b { font-size: 6.6pt; letter-spacing: .14em; color: var(--c); white-space: nowrap; }
+  .sayline i { flex: 1; border-bottom: 1px dotted var(--dots); height: 4mm; }
+
+  .why { background: var(--lav-bg); border: 1px solid var(--lav-line); border-radius: 4mm; padding: 2.4mm 4mm; font-size: 8.4pt; }
+  .examples div { padding: .5mm 0; }
+  .examples div:before { content: "— "; color: var(--eyebrow); }
+  .note { background: var(--blue-bg); border: 1px solid var(--blue-line); border-radius: 4mm; padding: 2.2mm 4mm; font-size: 7.9pt; }
+  .note b { color: var(--blue); letter-spacing: .14em; font-size: 6.6pt; }
+  .qs .q { display: grid; grid-template-columns: 4mm 1fr; column-gap: 2mm; padding: 1.6mm 0; border-bottom: 1px dotted var(--dots); }
+  .qs .q:last-child { border-bottom: 0; }
+  .qs .n { color: var(--c); font-weight: 700; font-size: 7.6pt; }
+  .say .q { grid-template-columns: 4.2mm 1fr; }
+
+  .foot { margin-top: auto; display: flex; gap: 4mm; align-items: center; border: 1px dashed var(--line, #e7ddd0); --line: var(--peach-line);
+          border-radius: 4mm; padding: 2.4mm 3.5mm; }
+  .foot img { width: 21mm; height: 21mm; display: block; }
+  .foot .t b { font-family: "Baloo 2", sans-serif; color: var(--peach); font-size: 10pt; font-weight: 700; display: block; line-height: 1.15; }
+  .foot .t .url { font-size: 7pt; color: var(--muted); letter-spacing: .02em; margin-top: .8mm; }
+  .motto { text-align: center; font-size: 6.4pt; letter-spacing: .34em; color: var(--eyebrow); margin-top: 1.6mm; }
+  body.full .motto { margin-top: auto; }
+
+  .keygrid { display: grid; grid-template-columns: 1fr 1fr; gap: 3.4mm 6mm; }
+  .key { border: 1px solid #eee4d8; border-radius: 4mm; padding: 2.4mm 3.6mm; background: #fffdf9; font-size: 8pt; }
+  .key h3 { font-family: "Baloo 2", sans-serif; font-size: 9.6pt; color: var(--pink); margin: 0 0 .8mm; font-weight: 700; }
+  .key h3 span { color: var(--muted); font-family: "Quicksand", sans-serif; font-size: 7.2pt; font-weight: 600; }
+  .key p { margin: .8mm 0; }
+  .key b { font-size: 6.4pt; letter-spacing: .16em; color: var(--lav); display: block; }
+  .key .qc { color: var(--blue); }
+</style>
+</head>
+<body>
+<div id="book"></div>
+
+<script src="../words-data.js"></script>
+<script>
+const SITE = "chanochka.github.io/8-weeks-of-english";
+const params = new URLSearchParams(location.search);
+const MODE = params.get("mode") === "full" ? "full" : "print";
+const KEY_PAGE = params.get("key");
+document.body.classList.add(MODE);
+// print edition: A4 + 2 mm bleed (607 x 853 pt); full edition: plain A4.
+const [PW, PH] = MODE === "print" ? ["214mm", "301mm"] : ["210mm", "297mm"];
+document.head.insertAdjacentHTML("beforeend", `<style>@page { size: ${PW} ${PH}; margin: 0; } :root { --pw: ${PW}; --ph: ${PH}; }</style>`);
+
+const PHASE = {1:"ACTIVATE",2:"ACTIVATE",3:"EXPRESS",4:"EXPRESS",5:"THINK IN ENGLISH",6:"THINK IN ENGLISH",7:"FLUENCY",8:"FLUENCY"};
+
+// Line mascots in the book's style: rounded head, dot eyes, pink cheeks.
+const EARS = {
+  bear:  '<circle cx="15" cy="15" r="6"/><circle cx="37" cy="15" r="6"/>',
+  bunny: '<path d="M19 21 C15 8 15 2 19 2 C23 2 23 10 22 20"/><path d="M33 21 C37 8 37 2 33 2 C29 2 29 10 30 20"/>',
+  cat:   '<path d="M13 22 L13 8 L22 16"/><path d="M39 22 L39 8 L30 16"/>'
+};
+function mascot(kind){
+  return `<svg class="mascot" viewBox="0 0 52 52" fill="none" stroke="#7a6f6c" stroke-width="1.7" stroke-linecap="round" stroke-linejoin="round">
+    <g fill="#fffcf6">${EARS[kind]}</g>
+    <ellipse cx="26" cy="31" rx="15" ry="13.5" fill="#fffcf6"/>
+    <circle cx="20.5" cy="29.5" r="1.3" fill="#7a6f6c" stroke="none"/><circle cx="31.5" cy="29.5" r="1.3" fill="#7a6f6c" stroke="none"/>
+    <ellipse cx="16.5" cy="34" rx="2.6" ry="1.7" fill="#f6c4cd" stroke="none"/><ellipse cx="35.5" cy="34" rx="2.6" ry="1.7" fill="#f6c4cd" stroke="none"/>
+    <path d="M23.5 34.5 Q26 36.8 28.5 34.5"/></svg>`;
+}
+const KINDS = ["bear","bunny","cat"];
+const wk = n => String(n).padStart(2,"0");
+const star = (i, printed) => MODE === "full" && i < printed ? '<span class="star">★</span>' : "";
+
+function rows(list, printed){
+  return list.map(([w,m,e], i) => `<div class="row"><span class="tick"></span><span class="w">${w}${star(i, printed)}</span><span class="m">${m}</span><span class="e">${e}</span></div>`).join("");
+}
+function colloc(list, printed){
+  return `<div class="colgrid">${list.map(([w,e], i) => `<div class="col"><span class="tick"></span><span><span class="w">${w}${star(i, printed)}</span><span class="e">${e}</span></span></div>`).join("")}</div>`;
+}
+function formulaBlock(g){
+  return `<div class="gp-grid">
+      <div class="formula">${g.formula.map(([k,v]) => `<div><b>${k}</b>${v}</div>`).join("")}</div>
+      <div class="mistake"><div class="lab">THE MISTAKE ALMOST EVERYONE MAKES</div><div class="x">${g.wrong}</div><div class="ok">${g.right}</div></div>
+    </div>`;
+}
+
+// ---- print edition: one page, the essentials ----
+function printPage(n){
+  const d = WORDS[n], g = d.grammar;
+  return `
+  <section class="page">
+    <div class="top">
+      <div><div class="eyebrow">Week ${wk(n)} · ${PHASE[n]} · ${d.theme}</div><h1>Words that work</h1></div>
+      ${mascot(KINDS[(n-1)%3])}
+    </div>
+    <div class="band"><b>5 MINUTES, THREE TIMES THIS WEEK.</b> Tick a box the first time the phrase comes out of your mouth in a real sentence — reading it does not count.
+      <div class="when">
+        <span><b>MONDAY</b> · read every line out loud, then say your own sentence for three of them.</span>
+        <span><b>THURSDAY</b> · use three on purpose in your speaking day.</span>
+        <span><b>SUNDAY</b> · cover the phrases, read the meanings, retrieve them. Log the ones you used.</span>
+      </div>
+    </div>
+    <div class="box blue"><div class="lbl">Phrasal verbs <small>the verbs people actually use</small></div>${rows(d.phrasal.slice(0, PRINT.phrasal))}</div>
+    <div class="box pink"><div class="lbl">Idioms <small>the ones you will really hear</small></div>${rows(d.idioms.slice(0, PRINT.idioms))}</div>
+    <div class="box peach"><div class="lbl">Words that go together <small>learn them as one piece</small></div>${colloc(d.colloc.slice(0, PRINT.colloc))}</div>
+    <div class="box lav">
+      <p class="gp-title">Grammar plus · <span>${g.title}</span></p>
+      ${formulaBlock(g)}
+      <div class="sayline"><b>SAY THREE ABOUT YOUR LIFE, WRITE THE BEST ONE</b><i></i></div>
+    </div>
+    <div class="foot">
+      <img src="qr/qr-w${n}.svg" alt="">
+      <div class="t"><b>The full word bank for week ${n} is online</b>
+        Six more phrasal verbs, three more idioms, four more collocations, grammar practice with answers, a quick check and audio for every example. Scan it on your phone.
+        <div class="url">${SITE}/words.html?week=${n}</div></div>
+    </div>
+    <div class="motto">USE ENGLISH. DON’T JUST STUDY ENGLISH.</div>
+  </section>`;
+}
+
+// ---- full edition: the whole word bank ----
+function fullWordsPage(n){
+  const d = WORDS[n], url = `${SITE}/words.html?week=${n}`;
+  return `
+  <section class="page">
+    <div class="top">
+      <div><div class="eyebrow">Week ${wk(n)} · ${PHASE[n]} · ${d.theme} · word bank</div><h1>Words that work</h1>
+        <div class="sub">★ also on your printed page · audio for every example: <a href="https://${url}">${url}</a></div></div>
+      ${mascot(KINDS[(n-1)%3])}
+    </div>
+    <div class="band"><b>5 MINUTES, MONDAY · THURSDAY · SUNDAY.</b> Monday: read every line out loud and say your own sentence for three. Thursday: use three on purpose in your speaking day. Sunday: cover the phrases, read the meanings, retrieve them. Tick a box only when the phrase came out of your mouth in a real sentence.</div>
+    <div class="box blue"><div class="lbl">Phrasal verbs <small>the verbs people actually use</small></div>${rows(d.phrasal, PRINT.phrasal)}</div>
+    <div class="box pink"><div class="lbl">Idioms <small>the ones you will really hear</small></div>${rows(d.idioms, PRINT.idioms)}</div>
+    <div class="box peach"><div class="lbl">Words that go together <small>learn them as one piece</small></div>${colloc(d.colloc, PRINT.colloc)}</div>
+    <div class="motto">USE ENGLISH. DON’T JUST STUDY ENGLISH.</div>
+  </section>`;
+}
+
+// ---- full edition: grammar plus, practice, quick check ----
+function fullGrammarPage(n){
+  const d = WORDS[n], g = d.grammar;
+  const qs = list => list.map(([q], i) => `<div class="q"><span class="n">${i+1}</span><span>${q}</span></div>`).join("");
+  return `
+  <section class="page">
+    <div class="top">
+      <div><div class="eyebrow">Week ${wk(n)} · grammar plus + practice</div><h1 class="lav">${g.title}</h1></div>
+      ${mascot(KINDS[n%3])}
+    </div>
+    <div class="why">${g.why}</div>
+    <div class="box lav" style="background:#fffdf9">${formulaBlock(g)}</div>
+    <div class="box plain"><div class="lbl" style="--c:var(--blue)">How it sounds in real English</div>
+      <div class="examples">${g.examples.map(x => `<div>${x}</div>`).join("")}</div></div>
+    <div class="note"><b>WORTH KNOWING</b><br>${g.note}</div>
+    <div class="box lav qs"><div class="lbl">A · Practise — complete each one <small>answers at the back${KEY_PAGE ? ", page " + KEY_PAGE : ""}</small></div>${qs(g.practice)}</div>
+    <div class="box blue qs"><div class="lbl">B · Quick check — this week’s word bank <small>from memory first</small></div>${qs(d.check)}</div>
+    <div class="box pink qs say"><div class="lbl">C · Say it out loud <small>record one on thursday</small></div>
+      ${d.say.map(x => `<div class="q"><span class="tick"></span><span>${x}</span></div>`).join("")}</div>
+  </section>`;
+}
+
+// ---- full edition: answer key ----
+function answerKeyPage(){
+  const list = arr => arr.map(([, a], i) => `${i+1} ${a}`).join(" · ");
+  let blocks = "";
+  for (let n = 1; n <= 8; n++) {
+    const d = WORDS[n];
+    blocks += `<div class="key"><h3>Week ${wk(n)} <span>· ${d.grammar.title}</span></h3>
+      <p><b>A · GRAMMAR PLUS</b>${list(d.grammar.practice)}</p>
+      <p><b class="qc">B · QUICK CHECK</b>${list(d.check)}</p></div>`;
+  }
+  return `
+  <section class="page">
+    <div class="top">
+      <div><div class="eyebrow">Word bank + grammar plus</div><h1 class="peach">Answer key</h1>
+        <div class="sub">Check only after you have said your own answer out loud. A different answer can still be right — if unsure, ask the AI prompt from page 2.</div></div>
+      ${mascot("bunny")}
+    </div>
+    <div class="keygrid">${blocks}</div>
+    <div class="motto">USE ENGLISH. DON’T JUST STUDY ENGLISH.</div>
+  </section>`;
+}
+
+const book = document.getElementById("book");
+let html = "";
+for (let n = 1; n <= 8; n++) html += MODE === "print" ? printPage(n) : fullWordsPage(n) + fullGrammarPage(n);
+if (MODE === "full") html += answerKeyPage();
+book.innerHTML = html;
+</script>
+</body>
+</html>

@@ -2,7 +2,8 @@
 
 ЧТО ВНУТРИ
 - index.html — Digital Edition Hub
-- reader.html — полный 106-страничный PDF в web-reader
+- reader.html — полный 123-страничный PDF в web-reader
+- words.html + words-data.js — словарь недели (фразовые глаголы, идиомы, сочетания) и Grammar plus
 - writing.html — 8 writing tasks, автосохранение текста локально
 - roadmap.html — 8-week roadmap
 - certificate.html — digital certificate
@@ -45,3 +46,19 @@ https://username.github.io/english-workbook/
 
 ВАЖНО
 Черновики на writing.html сохраняются только в localStorage браузера на текущем устройстве. Они не отправляются на сервер этой web-версией.
+
+ДВЕ ВЕРСИИ КНИГИ
+- Печатная (самое необходимое): print/8-weeks-of-english-print.pdf — 95 страниц.
+  После шпаргалки каждой недели 1 страница «Words that work»: 6 фразовых глаголов,
+  3 идиомы, 6 сочетаний, Grammar plus и QR на words.html?week=N.
+- Полная (всё расширенное): 8-weeks-of-english-full.pdf — 123 страницы, её показывает сайт.
+  После шпаргалки каждой недели 2 страницы: весь словарь (12 / 6 / 10) и Grammar plus
+  с упражнениями, быструю проверку и «скажи вслух»; ключ с ответами на с. 120.
+
+КАК ПЕРЕСОБРАТЬ ОБЕ ВЕРСИИ
+- Слова и грамматика правятся в одном месте: words-data.js (его же читает words.html).
+- py source/build.py — соберёт обе книги заново (нужны Chrome и py -m pip install qrcode pypdf).
+- source/base/ — исходные книги без вставок (печатная на 87 страниц, полная на 106).
+- source/inserts.html — шаблон новых страниц, source/qr/ — QR-коды.
+- Если в полной книге поменяется число страниц, обнови номера в data.js
+  (build.py печатает их: opener, word bank, writing для каждой недели).

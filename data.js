@@ -1,17 +1,17 @@
 const WORKBOOK = {
   pdf: '8-weeks-of-english-full.pdf',
-  pages: 106,
+  pages: 123,
   roadmapPage: 3,
-  certificatePage: 106,
+  certificatePage: 123,
   weeks: [
-    {week:1, phase:'ACTIVATE', theme:'Everyday you', grammar:'Present simple vs present continuous', speaking:'60–90 sec monologue', writing:'A day in your life', words:'100–150', writingPage:15, openerPage:6},
-    {week:2, phase:'ACTIVATE', theme:'People and places', grammar:'Comparisons and degree', speaking:'2 min description', writing:'A person or a place', words:'120–150', writingPage:27, openerPage:18},
-    {week:3, phase:'EXPRESS', theme:'Opinions and preferences', grammar:'Opinion structures and hedging', speaking:'2–3 min opinion', writing:'An opinion post', words:'130–180', writingPage:39, openerPage:30},
-    {week:4, phase:'EXPRESS', theme:'Stories', grammar:'Narrative tenses + present perfect vs past simple', speaking:'3 min story', writing:'A story from your own life', words:'150–180', writingPage:51, openerPage:42},
-    {week:5, phase:'THINK IN ENGLISH', theme:'Work and problems', grammar:'Modals for politeness and guessing', speaking:'Problem → solution', writing:'A message that explains a problem', words:'150–200', writingPage:63, openerPage:54},
-    {week:6, phase:'THINK IN ENGLISH', theme:'Plans, guesses and what-ifs', grammar:'Future forms + conditionals', speaking:'Hypotheticals · 3 min', writing:'A hypothetical scenario', words:'170–200', writingPage:75, openerPage:66},
-    {week:7, phase:'FLUENCY', theme:'Discussing ideas', grammar:'Relative clauses + linking', speaking:'3–5 min argument', writing:'An argumentative response', words:'180–220', writingPage:87, openerPage:78},
-    {week:8, phase:'FLUENCY', theme:'Unscripted', grammar:'Personal error audit', speaking:'5+ min unscripted', writing:'Free writing — no prompt, no safety net', words:'200–250', writingPage:99, openerPage:90}
+    {week:1, phase:'ACTIVATE', theme:'Everyday you', grammar:'Present simple vs present continuous', speaking:'60–90 sec monologue', writing:'A day in your life', words:'100–150', writingPage:17, openerPage:6},
+    {week:2, phase:'ACTIVATE', theme:'People and places', grammar:'Comparisons and degree', speaking:'2 min description', writing:'A person or a place', words:'120–150', writingPage:31, openerPage:20},
+    {week:3, phase:'EXPRESS', theme:'Opinions and preferences', grammar:'Opinion structures and hedging', speaking:'2–3 min opinion', writing:'An opinion post', words:'130–180', writingPage:45, openerPage:34},
+    {week:4, phase:'EXPRESS', theme:'Stories', grammar:'Narrative tenses + present perfect vs past simple', speaking:'3 min story', writing:'A story from your own life', words:'150–180', writingPage:59, openerPage:48},
+    {week:5, phase:'THINK IN ENGLISH', theme:'Work and problems', grammar:'Modals for politeness and guessing', speaking:'Problem → solution', writing:'A message that explains a problem', words:'150–200', writingPage:73, openerPage:62},
+    {week:6, phase:'THINK IN ENGLISH', theme:'Plans, guesses and what-ifs', grammar:'Future forms + conditionals', speaking:'Hypotheticals · 3 min', writing:'A hypothetical scenario', words:'170–200', writingPage:87, openerPage:76},
+    {week:7, phase:'FLUENCY', theme:'Discussing ideas', grammar:'Relative clauses + linking', speaking:'3–5 min argument', writing:'An argumentative response', words:'180–220', writingPage:101, openerPage:90},
+    {week:8, phase:'FLUENCY', theme:'Unscripted', grammar:'Personal error audit', speaking:'5+ min unscripted', writing:'Free writing — no prompt, no safety net', words:'200–250', writingPage:115, openerPage:104}
   ],
   writing: {
     1:{phrases:['I usually…','I tend to…','At the moment I’m…','By the time I…','What I like about it is…'],prompt:'Describe one ordinary weekday from waking up to going to bed. Mix habits (present simple) with what is temporarily true this month (present continuous). Do not make it interesting — make it accurate.'},
