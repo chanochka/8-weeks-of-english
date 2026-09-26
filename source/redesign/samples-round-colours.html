@@ -1,0 +1,178 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<title>Rounded Day Page</title>
+<link href="fonts/fonts.css" rel="stylesheet">
+<!--
+  The rounded variant of the day page (p7, Day 1): bold round fonts (Fredoka, Nunito, M PLUS Rounded 1c),
+  white cards with a navy outline and a solid colour shadow, the cat peeking over the writing card.
+  The page is printed three times, once per page colour (white, pink, blue), so she can pick one.
+  Same trim and palette as samples.html (A4 + 2 mm bleed, 607 x 853 pt).
+  py source/redesign/build_samples.py samples-round-colours.html  ->  source/redesign/out/samples-round-colours/
+-->
+<style>
+  @page { size: 607pt 853pt; margin: 0; }
+  :root {
+    --pink: #E8A8BA; --cream: #F6EDDC; --blue: #C4D2E2; --starry: #486C8A; --lav: #DCCFE7;
+    --slate: #677F94; --navy: #26323D; --yellow: #FFF0C7;
+    --hl: #FFE7A6;               /* marker pill behind the phrases */
+    --dots: #8298AE;             /* dotted writing lines */
+    --line: 1.1pt solid var(--navy);
+  }
+  .bg-white { --bg: #FFFFFF; }
+  .bg-pink  { --bg: #FBE6EC; }
+  .bg-blue  { --bg: #E6EEF6; }
+
+  * { box-sizing: border-box; }
+  html, body { margin: 0; padding: 0; }
+  body { background: #d9d4cc; font-family: "Nunito", sans-serif; color: var(--navy);
+         -webkit-print-color-adjust: exact; print-color-adjust: exact; }
+  @media screen { .page { margin: 10mm auto; box-shadow: 0 2px 14px rgba(0,0,0,.18); } }
+  @media print { body { background: none; } }
+
+  .page { width: 607pt; height: 853pt; position: relative; overflow: hidden; background: var(--bg);
+          font-size: 9.7pt; font-weight: 700; line-height: 1.36; break-after: page; }
+  .page:last-child { break-after: auto; }
+  img { display: block; }
+  p { margin: 0; }
+  .abs { position: absolute; }
+
+  /* ---------- header ---------- */
+  .badge { left: 16mm; top: 11mm; width: 31mm; height: 31mm; border-radius: 50%; background: var(--pink);
+           border: 1.4pt solid var(--navy); box-shadow: 1.1mm 1.1mm 0 var(--navy);
+           display: flex; flex-direction: column; align-items: center; justify-content: center; }
+  .badge .d { font: 600 11pt/1 "Fredoka"; letter-spacing: .08em; }
+  .badge .n { font: 700 42pt/.9 "Fredoka"; }
+  .kicker { left: 55mm; top: 12.4mm; font: 900 8pt/1 "Nunito"; letter-spacing: .16em; text-transform: uppercase; color: var(--starry); }
+  .title { left: 54mm; top: 17mm; font: 700 43pt/1 "Fredoka"; white-space: nowrap; letter-spacing: -.005em; }
+  .sub { left: 55mm; top: 35.6mm; font: 800 12.6pt/1 "Nunito"; color: var(--starry); }
+  .jp { right: 16mm; top: 11mm; width: 29mm; height: 29mm; border-radius: 50%; background: var(--blue);
+        border: 1.4pt solid var(--navy); box-shadow: 1.1mm 1.1mm 0 var(--navy);
+        display: flex; flex-direction: column; align-items: center; justify-content: center; }
+  .jp .k { font: 800 22pt/1 "M PLUS Rounded 1c"; letter-spacing: .02em; }
+  .jp .k2 { font: 800 6.4pt/1 "M PLUS Rounded 1c"; margin-top: 1.4mm; letter-spacing: .06em; }
+
+  /* ---------- body ---------- */
+  .body { position: absolute; left: 16mm; right: 16mm; top: 51mm; bottom: 19mm; display: flex; flex-direction: column; gap: 6.4mm; }
+  .grow { flex: 1; min-height: 0; }
+
+  .card { position: relative; background: #fff; border: var(--line); border-radius: 5mm; padding: 6mm 5mm 4mm;
+          box-shadow: 1.2mm 1.2mm 0 var(--sh, var(--pink)); }
+  .tag { position: absolute; top: -3.4mm; left: 5mm; z-index: 2; background: var(--tc, var(--pink)); border: var(--line);
+         border-radius: 99px; padding: .9mm 3.6mm .8mm; font: 600 11pt/1 "Fredoka"; white-space: nowrap; }
+  .hint { position: absolute; top: -2.4mm; z-index: 2; background: var(--bg); border-radius: 99px; padding: .2mm 2mm;
+          font: 800 7.6pt/1.3 "Nunito"; color: var(--starry); }
+  .sm { font: 800 7.6pt/1.3 "Nunito"; color: var(--starry); }
+  b { font-weight: 900; color: #C4677F; }
+
+  .goal { display: flex; align-items: center; gap: 3.6mm; background: var(--yellow); border: var(--line); border-radius: 99px;
+          padding: 2.4mm 3mm 2.4mm 2.4mm; box-shadow: 1.2mm 1.2mm 0 var(--navy); }
+  .goal .tag { position: static; background: var(--navy); color: #fff; border-color: var(--navy); }
+  .goal p { font-weight: 900; font-size: 10.6pt; }
+
+  .num { display: inline-flex; align-items: center; justify-content: center; width: 5.6mm; height: 5.6mm; border-radius: 50%;
+         background: var(--navy); color: #fff; font: 600 9pt/1 "Fredoka"; flex: none; }
+  .phr { display: grid; grid-template-columns: 1fr 1fr; column-gap: 8mm; row-gap: 1mm; }
+  .phr .top { display: flex; align-items: center; gap: 2.4mm; font-weight: 900; font-size: 10.4pt; }
+  .phr .top span + span { background: var(--hl); border-radius: 99px; padding: .5mm 2.4mm; }
+  .wl { height: 8.4mm; border-bottom: 1.3pt dotted var(--dots); }
+
+  .two { display: grid; grid-template-columns: 1.5fr 1fr; gap: 6.4mm; align-items: start; }
+  .ci { display: grid; grid-template-columns: 6.4mm 1fr; padding: 1.2mm 0; }
+  .ck { width: 3.9mm; height: 3.9mm; border: var(--line); border-radius: 1.2mm; background: #fff; margin-top: .4mm; }
+  .card .sm.top { margin: -1.4mm 0 1.2mm; }
+
+  .daywrap { position: relative; margin-top: 11mm; }
+  .daywrap .cat { position: absolute; right: 16mm; top: -18.4mm; width: 31mm; z-index: 0;
+                  filter: drop-shadow(.32mm 0 0 var(--navy)) drop-shadow(-.32mm 0 0 var(--navy)) drop-shadow(0 -.32mm 0 var(--navy)); }
+  .daywrap .card { position: absolute; inset: 0; z-index: 1; display: flex; flex-direction: column; }
+  .ruled { flex: 1; min-height: 0; overflow: hidden; margin-top: 1mm; }
+
+  .end { display: flex; align-items: center; gap: 2.6mm; }
+  .end .lab { font: 600 11pt/1 "Fredoka"; white-space: nowrap; }
+  .end .stars { display: flex; gap: 1.4mm; }
+  .end svg { width: 6.6mm; height: 6.6mm; }
+  .end .line { flex: 1; height: 5mm; border-bottom: 1.3pt dotted var(--dots); }
+
+  .foot { position: absolute; left: 16mm; right: 16mm; bottom: 7.6mm; display: flex; align-items: center; gap: 3.6mm; }
+  .pn { background: var(--navy); color: #fff; border-radius: 99px; padding: 1mm 3mm .9mm; font: 600 9pt/1 "Fredoka"; }
+  .motto { flex: 1; font: 600 10.4pt/1 "Fredoka"; color: var(--starry); }
+</style>
+</head>
+<body>
+
+<template id="day1">
+  <div class="abs badge"><span class="d">DAY</span><span class="n">1</span></div>
+  <div class="abs kicker">Week 01 · Activate · Monday</div>
+  <div class="abs title">Speak + build</div>
+  <div class="abs sub">Your normal day, out loud</div>
+  <div class="abs jp"><span class="k">話す</span><span class="k2">一日目・月曜日</span></div>
+  <img class="abs" src="sprites/cloud-swirl.png" style="right:44mm;top:31mm;width:24mm">
+  <img class="abs" src="sprites/star-yellow.png" style="right:50mm;top:10mm;width:6.4mm;transform:rotate(-12deg)">
+  <img class="abs" src="sprites/sparkle.png" style="right:12mm;top:42mm;width:3.6mm">
+
+  <div class="body">
+    <div class="goal"><span class="tag">Today’s goal</span><p>Describe your normal day from start to finish without stopping.</p></div>
+
+    <div class="card" style="--sh:var(--lav)">
+      <span class="tag" style="--tc:var(--lav)">Today’s phrases</span><span class="hint" style="left:43mm">write your own version underneath</span>
+      <div class="phr">
+        <div><div class="top"><span class="num">1</span><span>I usually get up around…</span></div><div class="wl"></div></div>
+        <div><div class="top"><span class="num">2</span><span>The first thing I do is…</span></div><div class="wl"></div></div>
+        <div><div class="top"><span class="num">3</span><span>After that I tend to…</span></div><div class="wl"></div></div>
+        <div><div class="top"><span class="num">4</span><span>By the end of the day I’m…</span></div><div class="wl"></div></div>
+      </div>
+    </div>
+
+    <div class="two">
+      <div class="card">
+        <span class="tag">Core · 30–40 min</span><span class="hint" style="left:44mm">finish these and the day is done</span>
+        <div class="ci"><span class="ck"></span><span>Read the four phrases out loud twice each, then write your own version on the line under each one.</span></div>
+        <div class="ci"><span class="ck"></span><span>Say your four sentences out loud without looking at the page.</span></div>
+        <div class="ci"><span class="ck"></span><span>Talk for 60 seconds about your whole day. <b>Do not stop, do not restart.</b></span></div>
+        <div class="ci"><span class="ck"></span><span>Write the one word you were missing at the bottom of the page, then look it up.</span></div>
+      </div>
+      <div class="card" style="--sh:var(--blue)">
+        <span class="tag" style="--tc:var(--blue)">Bonus · 10–20 min</span>
+        <div class="sm top">Optional, always</div>
+        <div class="ci"><span class="ck"></span><span>Record the 60 seconds and listen back once. Write down one thing you would change.</span></div>
+        <div class="ci"><span class="ck"></span><span><b>ChatGPT Voice:</b> “Ask me five simple questions about my daily routine. Wait for my full answer before the next question.”</span></div>
+      </div>
+    </div>
+
+    <div class="daywrap grow">
+      <img class="cat" src="sprites/cat-peek.png">
+      <div class="card" style="--sh:var(--yellow);box-shadow:1.2mm 1.2mm 0 #F2D27E">
+        <span class="tag" style="--tc:var(--yellow)">My day, in my own words</span>
+        <div class="sm" style="margin-top:-1mm">Four sentences using today’s phrases · real details, real times</div>
+        <div class="ruled"></div>
+      </div>
+    </div>
+
+    <div class="end">
+      <span class="lab">Today felt</span>
+      <span class="stars"></span>
+      <span class="lab" style="margin-left:6mm">One word I needed</span><span class="line"></span>
+    </div>
+  </div>
+
+  <div class="foot"><span class="pn">07</span><span class="motto">Use English. Don’t just study English.</span>
+    <img src="sprites/sparkle.png" style="width:3.4mm"><img src="sprites/flower-star.png" style="width:4.4mm"></div>
+</template>
+
+<script>
+/* The same page once per page colour. */
+const STAR = '<svg viewBox="0 0 24 24"><path d="M12 2.6l2.8 5.7 6.2.9-4.5 4.4 1.1 6.2L12 16.9l-5.6 2.9 1.1-6.2L3 9.2l6.2-.9z" ' +
+             'fill="#fff" stroke="#26323D" stroke-width="1.6" stroke-linejoin="round"/></svg>';
+for (const bg of ["white", "pink", "blue"]) {
+  const page = document.createElement("section");
+  page.className = "page bg-" + bg;
+  page.appendChild(document.getElementById("day1").content.cloneNode(true));
+  page.querySelector(".stars").innerHTML = STAR.repeat(5);
+  page.querySelector(".ruled").innerHTML = '<div class="wl"></div>'.repeat(30);
+  document.body.appendChild(page);
+}
+</script>
+</body>
+</html>

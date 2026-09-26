@@ -1,0 +1,10 @@
+/* The fonts of the rounded redesign, served from the repo so the pages build without Google Fonts.
+   All three are SIL Open Font License 1.1 (OFL-*.txt), from github.com/google/fonts. */
+@font-face { font-family: "Fredoka"; src: url("Fredoka-Variable.ttf") format("truetype");
+             font-weight: 300 700; font-style: normal; }
+@font-face { font-family: "Nunito"; src: url("Nunito-Variable.ttf") format("truetype");
+             font-weight: 200 1000; font-style: normal; }
+@font-face { font-family: "Nunito"; src: url("Nunito-Italic-Variable.ttf") format("truetype");
+             font-weight: 200 1000; font-style: italic; }
+@font-face { font-family: "M PLUS Rounded 1c"; src: url("MPLUSRounded1c-ExtraBold.ttf") format("truetype");
+             font-weight: 800; font-style: normal; }

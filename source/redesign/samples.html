@@ -1,0 +1,527 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<title>Print Redesign Samples</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Oswald:wght@400;500;600;700&family=Zen+Kaku+Gothic+New:wght@400;500;700;900&display=block" rel="stylesheet">
+<!--
+  Sample pages of the print edition in the style of style_sheet.png and the cover.
+  Same trim as the print edition: A4 + 2 mm bleed (607 x 853 pt).
+  py source/redesign/build_samples.py  ->  source/redesign/out/
+-->
+<style>
+  @page { size: 607pt 853pt; margin: 0; }
+  :root {
+    --pink: #E8A8BA; --cream: #F6EDDC; --blue: #C4D2E2; --starry: #486C8A; --lav: #DCCFE7;
+    --slate: #677F94; --navy: #26323D; --char: #2E2E2E; --blush: #E7B7C7; --yellow: #FFF0C7;
+    --paper: #FBF6EC;           /* writing areas: a step lighter than the page */
+    --pink-edge: #C98497;       /* tab outline */
+    --pink-ink: #D0839A;        /* big kana on the blue panel */
+    --rule: #8FA0B0;            /* dashed writing lines */
+    --hl: #FCE7B0;              /* star yellow, one step deeper so it shows on cream */
+  }
+  * { box-sizing: border-box; }
+  html, body { margin: 0; padding: 0; }
+  body { background: #d9d4cc; font-family: "Zen Kaku Gothic New", sans-serif; color: var(--char);
+         -webkit-print-color-adjust: exact; print-color-adjust: exact; }
+  @media screen { .page { margin: 10mm auto; box-shadow: 0 2px 14px rgba(0,0,0,.18); } }
+  @media print { body { background: none; } }
+
+  .page { width: 607pt; height: 853pt; position: relative; overflow: hidden; background: var(--cream);
+          font-size: 8.5pt; line-height: 1.4; break-after: page; }
+  .page:last-child { break-after: auto; }
+  img { display: block; }
+
+  /* ---------- header: the cover's three panels ---------- */
+  .head { position: absolute; left: 0; top: 0; width: 100%; height: 43mm; }
+  .p-pink { position: absolute; left: 0; top: 0; bottom: 0; width: 25%; background: var(--pink); }
+  .p-blue { position: absolute; right: 0; top: 0; bottom: 0; width: 40%; background: var(--blue); }
+  .eyebrow { position: absolute; left: 16mm; top: 8.2mm; font: 500 7.2pt/1 "Oswald"; letter-spacing: .18em;
+             text-transform: uppercase; color: var(--navy); }
+  .bignum { position: absolute; left: 14.5mm; top: 13.4mm; font: 700 62pt/.84 "Oswald"; color: var(--char);
+            letter-spacing: -.02em; }
+  .bignum small { display: block; font: 600 7.4pt/1 "Oswald"; letter-spacing: .34em; margin: 2mm 0 0 .8mm; }
+  .title { position: absolute; left: 45mm; top: 15.4mm; width: 80mm; }
+  .title h1 { margin: 0; font: 700 22pt/1 "Oswald"; text-transform: uppercase; color: var(--char); letter-spacing: .005em; }
+  .title .sub { margin-top: 1.8mm; padding-bottom: 1.6mm; border-bottom: 1pt solid var(--char);
+                font: 500 9.4pt/1 "Oswald"; letter-spacing: .1em; text-transform: uppercase; color: var(--char); }
+  .title.one { top: 19mm; }
+  .title.one h1 { font-size: 27pt; white-space: nowrap; }
+  .jp { position: absolute; writing-mode: vertical-rl; font: 900 27pt/1.05 "Zen Kaku Gothic New"; color: var(--pink-ink);
+        letter-spacing: .04em; right: 33mm; top: 5.5mm; }
+  .vtag { position: absolute; writing-mode: vertical-rl; right: 17mm; top: 7mm; border: .8pt solid var(--navy);
+          padding: 1.4mm .9mm 1.6mm; font: 500 7.8pt/1 "Zen Kaku Gothic New"; color: var(--navy); letter-spacing: .18em;
+          display: flex; align-items: center; gap: 1.2mm; }
+  .vtag img { width: 3.2mm; }
+  .vtag.pinkfill { background: var(--pink); }
+  .cloud { position: absolute; }
+  .spr { position: absolute; }
+
+  /* ---------- footer ---------- */
+  .foot { position: absolute; left: 0; right: 0; bottom: 0; height: 13mm; }
+  .foot .strip { position: absolute; left: 0; right: 0; bottom: 0; height: 3.4mm;
+                 background: linear-gradient(90deg, var(--pink) 0 25%, var(--cream) 25% 60%, var(--blue) 60% 100%); }
+  .foot .row { position: absolute; left: 16mm; right: 16mm; bottom: 5.6mm; display: flex; align-items: center; gap: 3mm; }
+  .foot .pn { font: 600 8pt/1 "Oswald"; color: var(--navy); border: .7pt solid var(--navy); padding: .8mm 1.4mm .7mm; }
+  .foot .motto { flex: 1; font: 500 6.6pt/1 "Oswald"; letter-spacing: .26em; text-transform: uppercase; color: var(--slate); }
+  .foot .orn { display: flex; align-items: center; gap: 1.2mm; }
+  .foot .orn i { width: 7mm; border-top: .6pt dashed var(--navy); }
+  .foot .orn img { width: 3mm; }
+
+  /* ---------- body ---------- */
+  .body { position: absolute; left: 16mm; right: 16mm; top: 48.5mm; bottom: 19mm; display: flex; flex-direction: column; gap: 4.4mm; }
+  .grow { flex: 1; min-height: 0; }
+  .frame.grow { display: flex; flex-direction: column; }
+  .ruled { flex: 1; min-height: 0; overflow: hidden; }
+
+  /* framed callout box: double line, like the style sheet */
+  .frame { position: relative; border: 1pt solid var(--navy); background: var(--paper); padding: 4.6mm 4.4mm 3mm; }
+  .frame::after { content: ""; position: absolute; inset: .85mm; border: .4pt solid var(--navy); pointer-events: none; }
+  .frame.flat { padding-top: 3mm; }
+  .frame.bluefill { background: #E4EAF1; }
+  .frame.lavfill { background: #EEE8F3; }
+  .frame.strip { padding-right: 13mm; }
+  .side { position: absolute; top: .85mm; bottom: .85mm; right: .85mm; width: 7.4mm; border-left: .4pt solid var(--navy);
+          display: flex; flex-direction: column; align-items: center; gap: 1.7mm; padding-top: 2.4mm; }
+  .side::before { content: ""; position: absolute; top: 0; bottom: 0; left: .7mm; border-left: .4pt solid var(--navy); }
+  .side img { width: 3.4mm; }
+  .side .ring { width: 2.6mm; height: 2.6mm; border: .6pt solid var(--navy); border-radius: 50%; position: relative; }
+  .side .ring::after { content: ""; position: absolute; inset: .7mm; background: var(--navy); border-radius: 50%; }
+  .side .bars { width: 2.8mm; height: 2.2mm; border-top: .6pt solid var(--navy); border-bottom: .6pt solid var(--navy); position: relative; }
+  .side .bars::after { content: ""; position: absolute; left: 0; right: 0; top: .75mm; border-top: .6pt solid var(--navy); }
+
+  /* pink header tab, sitting on the frame's top line */
+  .tab { display: inline-block; background: var(--pink); border: .7pt solid var(--pink-edge); border-radius: 2mm;
+         padding: .9mm 3mm .7mm; font: 600 8.2pt/1 "Oswald"; letter-spacing: .07em; text-transform: uppercase; color: var(--navy);
+         white-space: nowrap; }
+  .frame > .tab { position: absolute; top: -2.9mm; left: 4.4mm; z-index: 2; }
+  .tab.blue { background: var(--blue); border-color: #8FA6BE; }
+  .tab.lav { background: var(--lav); border-color: #A996BF; }
+  .tab.navy { background: var(--navy); border-color: var(--navy); color: var(--cream); }
+  .tab + .hint { position: absolute; top: -2.2mm; z-index: 2; background: var(--cream); padding: 0 1.4mm;
+                 font: 500 6.8pt/1.3 "Oswald"; letter-spacing: .14em; text-transform: uppercase; color: var(--starry); }
+  .frame > .corner { position: absolute; top: -2.3mm; right: 4mm; z-index: 2; background: var(--cream); padding: 0 1.4mm;
+                     font: 500 6.6pt/1.3 "Oswald"; letter-spacing: .16em; text-transform: uppercase; color: var(--starry); }
+
+  .label { font: 500 6.9pt/1.3 "Oswald"; letter-spacing: .15em; text-transform: uppercase; color: var(--starry); }
+  .hl { background: linear-gradient(transparent 38%, var(--hl) 38% 94%, transparent 94%); padding: 0 .5mm; }
+  b, strong { font-weight: 700; color: var(--navy); }
+  p { margin: 0; }
+
+  .num { display: inline-flex; align-items: center; justify-content: center; width: 4.6mm; height: 4.6mm; border-radius: 50%;
+         background: var(--navy); color: var(--cream); font: 600 7.2pt/1 "Oswald"; flex: none; }
+  .tick { width: 3.3mm; height: 3.3mm; border: .7pt solid var(--navy); border-radius: .5mm; flex: none; background: var(--paper); }
+
+  .items .it { display: flex; align-items: flex-end; gap: 2.4mm; min-height: 7.4mm; padding-bottom: .9mm; }
+  .items .it .num { margin-bottom: -.2mm; }
+  .items .it .t { white-space: nowrap; }
+  .items .it .t.i { font-style: italic; }
+  .items .it .fill { flex: 1; border-bottom: .6pt dashed var(--rule); margin-bottom: .9mm; }
+  .wl { height: 7.8mm; border-bottom: .6pt dashed var(--rule); }
+
+  .divhead { display: flex; align-items: center; gap: 2mm; margin-bottom: 1.4mm; }
+  .divhead i { flex: 1; border-top: .6pt dashed var(--navy); }
+  .divhead img { width: 3mm; }
+  .bul { display: flex; gap: 2mm; padding: .55mm 0; }
+  .bul img { width: 2.6mm; height: 3mm; object-fit: contain; margin-top: .6mm; flex: none; }
+  .bul em { color: var(--slate); font-style: normal; }
+
+  .cols2 { display: grid; grid-template-columns: 1fr 1fr; gap: 5mm; }
+  .band { display: grid; grid-template-columns: 1fr 44mm; }
+  .band > div { padding: 0 3.4mm; }
+  .band > div + div { border-left: .4pt solid var(--navy); }
+  .band > div:first-child { padding-left: 0; }
+
+  .wrong { color: var(--slate); text-decoration: line-through; text-decoration-color: #C7788F; text-decoration-thickness: .8pt; margin-top: .6mm; }
+  .right { font-weight: 700; color: var(--navy); margin-top: .8mm; }
+  .right em { font-weight: 500; font-style: normal; color: var(--slate); }
+  .mk { font: 700 8pt/1 "Oswald"; margin-right: 1.2mm; }
+  .mk.x { color: #C7788F; }
+  .mk.ok { color: var(--starry); }
+  .fx { display: grid; grid-template-columns: 22mm 1fr; gap: 2mm; padding: .9mm 0; }
+  .fx + .fx { border-top: .5pt dashed var(--rule); }
+
+  /* tip / note box with the cat */
+  .tip { padding-right: 34mm; min-height: 23mm; }
+  .tip .cat { position: absolute; right: 3.2mm; bottom: .85mm; width: 27mm; z-index: 1; }
+  .tip .ticks { display: flex; gap: 1.6mm; margin-top: 2mm; }
+  .tip .ticks .tick { width: 4.2mm; height: 4.2mm; }
+
+  /* words page */
+  .wt { width: 100%; border-collapse: collapse; }
+  .wt td { padding: .95mm 1.6mm .95mm 0; vertical-align: top; border-bottom: .5pt dashed var(--rule); font-size: 8.1pt; }
+  .wt tr:last-child td { border-bottom: 0; }
+  .wt td.c0 { width: 5.4mm; padding-top: 1.25mm; }
+  .wt td.c1 { width: 31mm; font-weight: 700; color: var(--navy); }
+  .wt td.c2 { width: 58mm; color: var(--slate); font-size: 7.5pt; }
+  .pairs { display: grid; grid-template-columns: 1fr 1fr; column-gap: 7mm; }
+  .pair { display: grid; grid-template-columns: 5.4mm 1fr; padding: .9mm 0; border-bottom: .5pt dashed var(--rule); font-size: 8.1pt; }
+  .pair:nth-last-child(-n+2) { border-bottom: 0; }
+  .pair .tick { margin-top: .5mm; }
+  .pair b { display: block; }
+  .pair span { color: var(--slate); font-size: 7.5pt; }
+  .qr { display: grid; grid-template-columns: 24mm 1fr; gap: 4mm; align-items: center; }
+  .qr img { width: 24mm; height: 24mm; }
+  .qr .h { font: 600 10.5pt/1.1 "Oswald"; text-transform: uppercase; letter-spacing: .03em; color: var(--char); margin-bottom: 1mm; }
+  .qr .url { font: 500 7pt/1.3 "Oswald"; letter-spacing: .08em; color: var(--starry); margin-top: 1mm; }
+
+  /* day page */
+  .phr { display: grid; grid-template-columns: 1fr 1fr; column-gap: 7mm; }
+  .phr .p { padding: 1mm 0 0; }
+  .phr .p .top { display: flex; align-items: center; gap: 2mm; font-weight: 700; color: var(--navy); }
+  .phr .p .wl { height: 7.4mm; }
+  .core { display: grid; grid-template-columns: 1.55fr 1fr; gap: 5mm; }
+  .ci { display: grid; grid-template-columns: 5.4mm 1fr; padding: 1.25mm 0; border-bottom: .5pt dashed var(--rule); }
+  .ci:last-child { border-bottom: 0; }
+  .ci .tick { margin-top: .4mm; }
+  .end { display: flex; align-items: center; gap: 3mm; }
+  .end .stars { display: flex; gap: 1.2mm; }
+  .end .stars img { width: 4.6mm; }
+  .end .line { flex: 1; border-bottom: .6pt dashed var(--rule); height: 4mm; }
+
+  /* week review */
+  .days { display: grid; grid-template-columns: repeat(7, 1fr); gap: 2.4mm; }
+  .day { text-align: center; }
+  .day .d { font: 600 7.2pt/1 "Oswald"; letter-spacing: .14em; color: var(--navy); margin-bottom: 1.2mm; }
+  .day img { width: 10mm; margin: 0 auto; }
+  .meas { display: grid; grid-template-columns: 1fr 1fr; column-gap: 7mm; }
+  .m { display: flex; align-items: flex-end; gap: 1.6mm; padding: 1.4mm 0 .6mm; min-height: 7mm; }
+  .m .k { font-weight: 700; color: var(--navy); white-space: nowrap; }
+  .m .blank { border-bottom: .6pt dashed var(--rule); height: 3.6mm; }
+  .m .u { color: var(--slate); font-size: 7.6pt; }
+  .m.full { grid-column: 1 / -1; }
+  .pills { display: flex; gap: 1.4mm; }
+  .pill { border: .6pt solid var(--navy); border-radius: 3mm; padding: .3mm 2mm .2mm; font-size: 7.4pt; color: var(--navy); background: var(--paper); }
+  .dots { display: flex; gap: 1.2mm; }
+  .dot { width: 4.4mm; height: 4.4mm; border-radius: 50%; border: .6pt solid var(--navy); font: 600 6.8pt/4.1mm "Oswald"; text-align: center; color: var(--navy); }
+  .five .row5 { display: flex; align-items: flex-end; gap: 2.4mm; height: 7.4mm; }
+  .five .row5 .wl { flex: 1; height: auto; margin-bottom: .9mm; }
+  .panel { position: relative; border: 1pt solid var(--navy); padding: 1.1mm; background: var(--paper); }
+  .panel::after { content: ""; position: absolute; inset: .85mm; border: .4pt solid var(--navy); }
+  .panel img { width: 100%; }
+</style>
+</head>
+<body>
+
+<!-- ============================ 5 · GRAMMAR CHEAT SHEET ============================ -->
+<section class="page" id="cheat">
+  <div class="head">
+    <div class="p-pink"></div><div class="p-blue"></div>
+    <div class="eyebrow">Week 01 · Activate · Grammar cheat sheet</div>
+    <div class="bignum">01<small>WEEK</small></div>
+    <div class="title"><h1>Present simple vs<br>present continuous</h1><div class="sub">Everyday you</div></div>
+    <div class="jp">文法</div>
+    <div class="vtag"><img src="sprites/flower-star.png">第一週</div>
+    <img class="cloud" src="sprites/cloud-swirl.png" style="right:44mm;top:20mm;width:36mm">
+    <img class="spr" src="sprites/sparkle.png" style="right:43mm;top:8mm;width:3.4mm">
+    <img class="spr" src="sprites/star-yellow.png" style="right:8mm;top:31mm;width:5mm">
+  </div>
+
+  <div class="body">
+    <div class="frame flat band">
+      <div><span class="label">Promise&nbsp;</span> You will speak English out loud on all seven days, including the day you do not feel like it.</div>
+      <div><span class="label">Speaking target</span><br><b>60–90 sec monologue</b></div>
+    </div>
+
+    <p><span class="hl"><b>Present simple</b></span> = things that are generally true: habits, routines, facts, jobs.
+       <span class="hl"><b>Present continuous</b></span> = happening right now, or a temporary situation around now.
+       Most B1 learners know both forms but pick the wrong one under pressure — that is what today fixes.</p>
+
+    <div class="cols2">
+      <div class="frame">
+        <span class="tab">The formula</span>
+        <div class="fx"><span class="label">Habit · fact</span><span>I / you / we / they + <b>verb</b><br>he / she / it + <b>verb-s</b></span></div>
+        <div class="fx"><span class="label">Right now · temporary</span><span><b>am / is / are + verb-ing</b></span></div>
+      </div>
+      <div class="frame">
+        <span class="tab navy">The mistake almost everyone makes</span>
+        <div class="wrong"><span class="mk x">✕</span>I am working in a hospital since 2019.</div>
+        <div class="right"><span class="mk ok">✓</span>I work in a hospital. <em>(permanent)</em></div>
+        <div class="right" style="margin-top:.4mm;padding-left:3.6mm">I’m working from home this month. <em>(temporary)</em></div>
+      </div>
+    </div>
+
+    <div>
+      <div class="divhead"><span class="label">How it sounds in real English</span><i></i><img src="sprites/flower-star.png"><i style="flex:0 0 12mm"></i></div>
+      <div class="bul"><img src="sprites/sparkle.png"><span>I work in logistics, but this week I’m covering for my manager.</span></div>
+      <div class="bul"><img src="sprites/sparkle.png"><span>She usually cycles to work. Today she’s taking the bus — it’s raining.</span></div>
+      <div class="bul"><img src="sprites/sparkle.png"><span>We don’t normally eat out. We’re trying to save money.</span></div>
+      <div class="bul"><img src="sprites/sparkle.png"><span>He’s always losing his keys. <em>(present continuous + always = it annoys me)</em></span></div>
+      <div class="bul"><img src="sprites/sparkle.png"><span>I’m not sleeping well at the moment.</span></div>
+    </div>
+
+    <div class="frame strip">
+      <span class="tab">A · Practise</span><span class="hint" style="left:32mm">complete each one</span>
+      <div class="side"><img src="sprites/flower-star.png"><span class="ring"></span><img src="sprites/sparkle.png"><span class="bars"></span></div>
+      <div class="items">
+        <div class="it"><span class="num">1</span><span class="t">Every morning I ______ (check) my phone before anything else.</span><span class="fill"></span></div>
+        <div class="it"><span class="num">2</span><span class="t">Right now I ______ (sit) at</span><span class="fill"></span></div>
+        <div class="it"><span class="num">3</span><span class="t">She ______ (not usually / work) on Fridays, but this Friday she</span><span class="fill"></span></div>
+        <div class="it"><span class="num">4</span><span class="t">They ______ (build) a new station near my flat — it</span><span class="fill"></span></div>
+        <div class="it"><span class="num">5</span><span class="t">I ______ (try) to stop</span><span class="fill"></span></div>
+      </div>
+    </div>
+
+    <div class="frame strip">
+      <span class="tab">B · Find the error</span><span class="hint" style="left:39mm">one word is wrong in each</span>
+      <div class="side"><img src="sprites/flower-star.png"><span class="ring"></span><img src="sprites/sparkle.png"><span class="bars"></span></div>
+      <div class="items">
+        <div class="it"><span class="num">1</span><span class="t i">I am going to the gym three times a week.</span><span class="fill"></span></div>
+        <div class="it"><span class="num">2</span><span class="t i">What do you do right now? Are you free?</span><span class="fill"></span></div>
+        <div class="it"><span class="num">3</span><span class="t i">She is speaking four languages.</span><span class="fill"></span></div>
+      </div>
+    </div>
+
+    <div class="frame">
+      <span class="tab">C · Make it yours</span><span class="hint" style="left:37mm">three sentences about your real life</span>
+      <div class="wl"></div><div class="wl"></div><div class="wl"></div>
+    </div>
+
+    <div class="frame tip bluefill grow">
+      <span class="tab navy">D · Say it without thinking</span>
+      <p style="margin-top:.6mm">Cover section C. Say your three sentences out loud from memory, then say three new ones.
+         Repeat until none of them need a pause in the middle. <b>This is the only step that makes the grammar automatic.</b></p>
+      <div class="ticks"><span class="tick"></span><span class="tick"></span><span class="tick"></span></div>
+      <img class="cat" src="sprites/cat-peek.png">
+    </div>
+  </div>
+
+  <div class="foot"><div class="row"><span class="pn">05</span><span class="motto">Use English. Don’t just study English.</span>
+    <span class="orn"><i></i><img src="sprites/flower-star.png"><i></i></span></div><div class="strip"></div></div>
+</section>
+
+<!-- ============================ 6 · WORDS THAT WORK ============================ -->
+<section class="page" id="words">
+  <div class="head">
+    <div class="p-pink"></div><div class="p-blue"></div>
+    <div class="eyebrow">Week 01 · Activate · Everyday you</div>
+    <div class="bignum">01<small>WEEK</small></div>
+    <div class="title one"><h1>Words that work</h1><div class="sub">Phrasal verbs · idioms · chunks</div></div>
+    <div class="jp">言葉</div>
+    <div class="vtag"><img src="sprites/flower-star.png">第一週</div>
+    <img class="spr" src="sprites/botanical-c.png" style="right:44mm;top:9mm;width:17mm">
+    <img class="spr" src="sprites/sparkle.png" style="right:66mm;top:12mm;width:3.4mm">
+    <img class="spr" src="sprites/star-yellow.png" style="right:9mm;top:31mm;width:5mm">
+  </div>
+
+  <div class="body" style="gap:4.3mm">
+    <div class="frame flat bluefill" style="padding:2.6mm 4.4mm 2.2mm;font-size:7.9pt;line-height:1.34">
+      <p><b>5 minutes, three times this week.</b> Tick a box the first time the phrase comes out of your mouth in a real sentence — reading it does not count.</p>
+      <div style="display:grid;grid-template-columns:1.15fr .85fr 1.1fr;gap:4mm;margin-top:1.4mm">
+        <div style="display:flex;gap:1.8mm"><span class="num">M</span><span><span class="label">Monday</span> · read every line out loud, then say your own sentence for three of them.</span></div>
+        <div style="display:flex;gap:1.8mm"><span class="num">T</span><span><span class="label">Thursday</span> · use three on purpose in your speaking day.</span></div>
+        <div style="display:flex;gap:1.8mm"><span class="num">S</span><span><span class="label">Sunday</span> · cover the phrases, read the meanings, retrieve them. Log the ones you used.</span></div>
+      </div>
+    </div>
+
+    <div class="frame">
+      <span class="tab">Phrasal verbs</span><span class="corner">the verbs people actually use</span>
+      <table class="wt">
+        <tr><td class="c0"><div class="tick"></div></td><td class="c1">sleep in</td><td class="c2">sleep later than usual, on purpose</td><td>I sleep in on Sundays — never before ten.</td></tr>
+        <tr><td class="c0"><div class="tick"></div></td><td class="c1">run out of</td><td class="c2">use all of something so none is left</td><td>We’ve run out of coffee again.</td></tr>
+        <tr><td class="c0"><div class="tick"></div></td><td class="c1">catch up on</td><td class="c2">do something you had no time for earlier</td><td>Saturday morning is when I catch up on emails.</td></tr>
+        <tr><td class="c0"><div class="tick"></div></td><td class="c1">put off</td><td class="c2">delay something you do not want to do</td><td>I keep putting off booking the dentist.</td></tr>
+        <tr><td class="c0"><div class="tick"></div></td><td class="c1">get through</td><td class="c2">manage to finish something long or hard</td><td>Coffee is how I get through Monday mornings.</td></tr>
+        <tr><td class="c0"><div class="tick"></div></td><td class="c1">wind down</td><td class="c2">relax after a busy time</td><td>I read for twenty minutes to wind down before bed.</td></tr>
+      </table>
+    </div>
+
+    <div class="frame">
+      <span class="tab lav">Idioms</span><span class="corner">the ones you will really hear</span>
+      <table class="wt">
+        <tr><td class="c0"><div class="tick"></div></td><td class="c1">a creature of habit</td><td class="c2">someone who does the same things the same way every day</td><td>I’m a real creature of habit — same breakfast every morning.</td></tr>
+        <tr><td class="c0"><div class="tick"></div></td><td class="c1">snowed under</td><td class="c2">having far too much work</td><td>I’m completely snowed under this week.</td></tr>
+        <tr><td class="c0"><div class="tick"></div></td><td class="c1">call it a day</td><td class="c2">stop working for today</td><td>It’s nine o’clock. Let’s call it a day.</td></tr>
+      </table>
+    </div>
+
+    <div class="frame">
+      <span class="tab blue">Words that go together</span><span class="corner">learn them as one piece</span>
+      <div class="pairs">
+        <div class="pair"><div class="tick"></div><div><b>stick to a routine</b><span>I’m trying to stick to a routine, even at weekends.</span></div></div>
+        <div class="pair"><div class="tick"></div><div><b>make time for</b><span>I always make time for a proper breakfast.</span></div></div>
+        <div class="pair"><div class="tick"></div><div><b>a hectic schedule</b><span>I have a hectic schedule on Tuesdays.</span></div></div>
+        <div class="pair"><div class="tick"></div><div><b>grab a bite</b><span>Let’s grab a bite before the film.</span></div></div>
+        <div class="pair"><div class="tick"></div><div><b>run errands</b><span>I spend Saturday mornings running errands.</span></div></div>
+        <div class="pair"><div class="tick"></div><div><b>skip breakfast</b><span>I skip breakfast more often than I should.</span></div></div>
+      </div>
+    </div>
+
+    <div class="frame strip lavfill">
+      <span class="tab navy">Grammar plus · used to · be used to · get used to</span>
+      <div class="side"><img src="sprites/flower-star.png"><span class="ring"></span><img src="sprites/sparkle.png"><span class="bars"></span></div>
+      <div style="display:grid;grid-template-columns:1.5fr 1fr;gap:5mm;margin-top:.2mm;font-size:8.1pt">
+        <div>
+          <div class="fx" style="grid-template-columns:29mm 1fr;padding:.6mm 0"><span class="label">Past habit, not now</span><span><b>used to + verb</b> — I used to smoke.</span></div>
+          <div class="fx" style="grid-template-columns:29mm 1fr;padding:.6mm 0"><span class="label">Normal for me</span><span><b>be used to + -ing / noun</b> — I’m used to getting up early.</span></div>
+          <div class="fx" style="grid-template-columns:29mm 1fr;padding:.6mm 0"><span class="label">Becoming normal</span><span><b>get used to + -ing / noun</b> — I’m getting used to the noise.</span></div>
+        </div>
+        <div>
+          <span class="label">The mistake almost everyone makes</span>
+          <div class="wrong"><span class="mk x">✕</span>I am used to get up early.</div>
+          <div class="right"><span class="mk ok">✓</span>I’m used to getting up early.</div>
+          <div class="label" style="margin-top:1.6mm">Say three about your life, write the best one</div>
+          <div class="wl" style="height:6.4mm"></div>
+        </div>
+      </div>
+    </div>
+
+    <div class="frame flat qr grow" style="display:grid;padding:2.4mm 4.4mm">
+      <img src="sprites/qr-w1.svg">
+      <div>
+        <div class="h">The full word bank for week 1 is online</div>
+        <p>Six more phrasal verbs, three more idioms, four more collocations, grammar practice with answers, a quick check and audio for every example. Scan it on your phone.</p>
+        <div class="url">chanochka.github.io/8-weeks-of-english/words.html?week=1</div>
+      </div>
+    </div>
+  </div>
+
+  <div class="foot"><div class="row"><span class="pn">06</span><span class="motto">Use English. Don’t just study English.</span>
+    <span class="orn"><i></i><img src="sprites/flower-star.png"><i></i></span></div><div class="strip"></div></div>
+</section>
+
+<!-- ============================ 7 · DAY 1 · SPEAK + BUILD ============================ -->
+<section class="page" id="day1">
+  <div class="head">
+    <div class="p-pink"></div><div class="p-blue"></div>
+    <div class="eyebrow">Week 01 · Activate · Monday</div>
+    <div class="bignum" style="left:17mm">1<small>DAY</small></div>
+    <div class="title one" style="left:38mm"><h1>Speak + build</h1><div class="sub">Your normal day, out loud</div></div>
+    <div class="jp">話す</div>
+    <div class="vtag pinkfill"><img src="sprites/flower-star.png">一日目・月曜日</div>
+    <img class="cloud" src="sprites/cloud-swirl.png" style="right:46mm;top:21mm;width:34mm">
+    <img class="spr" src="sprites/star-yellow.png" style="right:43mm;top:7mm;width:5mm">
+    <img class="spr" src="sprites/sparkle.png" style="right:8mm;top:34mm;width:3.4mm">
+  </div>
+
+  <div class="body" style="gap:4.8mm">
+    <div class="frame flat" style="display:flex;align-items:center;gap:3.4mm;padding:2.8mm 4.4mm">
+      <span class="tab" style="position:static">Today’s goal</span>
+      <b style="font-size:9.4pt">Describe your normal day from start to finish without stopping.</b>
+    </div>
+
+    <div class="frame strip">
+      <span class="tab">Today’s phrases</span><span class="hint" style="left:34mm">write your own version underneath</span>
+      <div class="side"><img src="sprites/flower-star.png"><span class="ring"></span><img src="sprites/sparkle.png"><span class="bars"></span></div>
+      <div class="phr">
+        <div class="p"><div class="top"><span class="num">1</span><span class="hl">I usually get up around…</span></div><div class="wl"></div></div>
+        <div class="p"><div class="top"><span class="num">2</span><span class="hl">The first thing I do is…</span></div><div class="wl"></div></div>
+        <div class="p"><div class="top"><span class="num">3</span><span class="hl">After that I tend to…</span></div><div class="wl"></div></div>
+        <div class="p"><div class="top"><span class="num">4</span><span class="hl">By the end of the day I’m…</span></div><div class="wl"></div></div>
+      </div>
+    </div>
+
+    <div class="core">
+      <div class="frame">
+        <span class="tab">Core · 30–40 min</span><span class="corner">finish these and the day is done</span>
+        <div class="ci"><span class="tick"></span><span>Read the four phrases out loud twice each, then write your own version on the line under each one.</span></div>
+        <div class="ci"><span class="tick"></span><span>Say your four sentences out loud without looking at the page.</span></div>
+        <div class="ci"><span class="tick"></span><span>Talk for 60 seconds about your whole day. <b>Do not stop, do not restart.</b></span></div>
+        <div class="ci"><span class="tick"></span><span>Write the one word you were missing at the bottom of the page, then look it up.</span></div>
+      </div>
+      <div class="frame bluefill">
+        <span class="tab blue">Bonus · 10–20 min</span>
+        <div class="label" style="margin-top:.4mm">Optional, always</div>
+        <div class="ci"><span class="tick"></span><span>Record the 60 seconds and listen back once. Write down one thing you would change.</span></div>
+        <div class="ci"><span class="tick"></span><span><b>ChatGPT Voice:</b> “Ask me five simple questions about my daily routine. Wait for my full answer before the next question.”</span></div>
+      </div>
+    </div>
+
+    <div class="frame tip grow" style="padding-right:4.4mm">
+      <span class="tab">My day, in my own words</span><span class="hint" style="left:52mm">four sentences using today’s phrases · real details, real times</span>
+      <div class="ruled"><div class="wl"></div><div class="wl"></div><div class="wl"></div><div class="wl"></div><div class="wl"></div><div class="wl"></div><div class="wl"></div><div class="wl"></div><div class="wl"></div><div class="wl"></div><div class="wl"></div><div class="wl"></div><div class="wl"></div><div class="wl"></div><div class="wl"></div><div class="wl"></div><div class="wl"></div><div class="wl"></div><div class="wl"></div><div class="wl"></div><div class="wl"></div><div class="wl"></div><div class="wl"></div><div class="wl"></div><div class="wl"></div><div class="wl"></div><div class="wl"></div><div class="wl"></div><div class="wl"></div><div class="wl"></div></div>
+      <img class="cat" src="sprites/cat-peek.png" style="width:25mm">
+    </div>
+
+    <div class="end">
+      <span class="label">Today felt</span>
+      <span class="stars"><img src="sprites/star-cream.png"><img src="sprites/star-cream.png"><img src="sprites/star-cream.png"><img src="sprites/star-cream.png"><img src="sprites/star-cream.png"></span>
+      <span class="label" style="margin-left:6mm">One word I needed</span><span class="line"></span>
+    </div>
+  </div>
+
+  <div class="foot"><div class="row"><span class="pn">07</span><span class="motto">Use English. Don’t just study English.</span>
+    <span class="orn"><i></i><img src="sprites/flower-star.png"><i></i></span></div><div class="strip"></div></div>
+</section>
+
+<!-- ============================ 15 · WEEK REVIEW ============================ -->
+<section class="page" id="review">
+  <div class="head">
+    <div class="p-pink"></div><div class="p-blue"></div>
+    <div class="eyebrow">Week 01 · Activate</div>
+    <div class="bignum">01<small>WEEK</small></div>
+    <div class="title one"><h1>Week review</h1><div class="sub">Seven days, seven numbers</div></div>
+    <div class="jp" style="font-size:22pt;right:32mm;top:4.5mm">振り返り</div>
+    <div class="vtag"><img src="sprites/flower-star.png">第一週</div>
+    <img class="spr" src="sprites/botanical-a.png" style="right:45mm;top:12mm;width:18mm">
+    <img class="spr" src="sprites/sparkle.png" style="right:67mm;top:9mm;width:3.4mm">
+    <img class="spr" src="sprites/star-yellow.png" style="right:8mm;top:31mm;width:5mm">
+  </div>
+
+  <div class="body" style="gap:4.8mm">
+    <div class="frame flat lavfill" style="display:grid;grid-template-columns:30mm 1fr;gap:3mm;align-items:center">
+      <span class="tab navy" style="position:static;justify-self:start">✦ Weekly writing</span>
+      <span><b>A day in your life · 100–150 words.</b> Complete this week’s full writing task in the Full Digital Edition. Save your text after correction — you’ll use your writing again in Week 8.</span>
+    </div>
+
+    <div class="frame">
+      <span class="tab">Days I showed up</span><span class="hint" style="left:40mm">colour one star per day</span>
+      <div class="days" style="margin-top:.8mm">
+        <div class="day"><div class="d">MON</div><img src="sprites/star-cream.png"></div>
+        <div class="day"><div class="d">TUE</div><img src="sprites/star-cream.png"></div>
+        <div class="day"><div class="d">WED</div><img src="sprites/star-cream.png"></div>
+        <div class="day"><div class="d">THU</div><img src="sprites/star-cream.png"></div>
+        <div class="day"><div class="d">FRI</div><img src="sprites/star-cream.png"></div>
+        <div class="day"><div class="d">SAT</div><img src="sprites/star-cream.png"></div>
+        <div class="day"><div class="d">SUN</div><img src="sprites/star-cream.png"></div>
+      </div>
+    </div>
+
+    <div class="frame strip">
+      <span class="tab">Measure it</span><span class="hint" style="left:30mm">the same seven numbers every week</span>
+      <div class="side"><img src="sprites/flower-star.png"><span class="ring"></span><img src="sprites/sparkle.png"><span class="bars"></span></div>
+      <div class="meas">
+        <div class="m"><span class="k">Longest no-stop speaking</span><span class="blank" style="width:8mm"></span><span class="u">min</span><span class="blank" style="width:8mm"></span><span class="u">sec</span></div>
+        <div class="m"><span class="k">Active phrases I actually used</span><span class="blank" style="flex:1"></span></div>
+        <div class="m full"><span class="k">Translating in my head</span>
+          <span class="pills" style="margin-left:2mm"><span class="pill">constantly</span><span class="pill">often</span><span class="pill">sometimes</span><span class="pill">rarely</span></span></div>
+        <div class="m"><span class="k">Listening without subtitles</span><span class="blank" style="width:12mm"></span><span class="u">%</span></div>
+        <div class="m"><span class="k">Confidence speaking</span><span class="dots"><span class="dot">1</span><span class="dot">2</span><span class="dot">3</span><span class="dot">4</span><span class="dot">5</span></span></div>
+        <div class="m full"><span class="k">Grammar mistake I keep making</span><span class="blank" style="flex:1"></span></div>
+        <div class="m full"><span class="k">Hardest sound or rhythm feature</span><span class="blank" style="flex:1"></span></div>
+      </div>
+    </div>
+
+    <div class="cols2">
+      <div class="frame"><span class="tab blue">Something I said easily</span><div class="wl"></div><div class="wl"></div></div>
+      <div class="frame"><span class="tab blue">Where I got stuck</span><div class="wl"></div><div class="wl"></div></div>
+    </div>
+
+    <div class="frame five">
+      <span class="tab">Five things I can say now</span><span class="hint" style="left:52mm">that I could not say on Monday</span>
+      <div style="margin-top:.6mm"></div>
+      <div class="row5"><span class="num">1</span><span class="wl"></span></div>
+      <div class="row5"><span class="num">2</span><span class="wl"></span></div>
+      <div class="row5"><span class="num">3</span><span class="wl"></span></div>
+      <div class="row5"><span class="num">4</span><span class="wl"></span></div>
+      <div class="row5"><span class="num">5</span><span class="wl"></span></div>
+    </div>
+
+    <div style="display:grid;grid-template-columns:1fr 64mm;gap:5mm" class="grow">
+      <div class="frame grow"><span class="tab">Next week I will change one thing</span><div class="ruled"><div class="wl"></div><div class="wl"></div><div class="wl"></div><div class="wl"></div><div class="wl"></div><div class="wl"></div><div class="wl"></div><div class="wl"></div><div class="wl"></div><div class="wl"></div><div class="wl"></div><div class="wl"></div><div class="wl"></div><div class="wl"></div><div class="wl"></div><div class="wl"></div><div class="wl"></div><div class="wl"></div><div class="wl"></div><div class="wl"></div><div class="wl"></div><div class="wl"></div><div class="wl"></div><div class="wl"></div><div class="wl"></div><div class="wl"></div><div class="wl"></div><div class="wl"></div><div class="wl"></div><div class="wl"></div></div></div>
+      <div class="frame bluefill" style="padding-right:4mm;display:flex;flex-direction:column;gap:2.6mm">
+        <span class="tab navy">Carry forward</span>
+        <p style="font-size:8pt">Copy your five phrases onto next Monday’s page. If you did not use last week’s five, they come with you again.</p>
+        <div class="panel" style="width:33mm;margin:0 auto"><img src="sprites/cat-panel.png"></div>
+      </div>
+    </div>
+  </div>
+
+  <div class="foot"><div class="row"><span class="pn">15</span><span class="motto">Use English. Don’t just study English.</span>
+    <span class="orn"><i></i><img src="sprites/flower-star.png"><i></i></span></div><div class="strip"></div></div>
+</section>
+
+</body>
+</html>

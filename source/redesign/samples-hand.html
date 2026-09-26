@@ -1,0 +1,271 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<title>Handwritten Day Page</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Caveat:wght@400;500;600;700&family=Caveat+Brush&family=Patrick+Hand&family=Yomogi&display=block" rel="stylesheet">
+<script src="lib/rough.js"></script>
+<!--
+  The handwritten variant of the day page (p7, Day 1): a study journal on dot-grid paper,
+  lines drawn by hand with rough.js (lib/rough.js, MIT), sticky note, washi tape, a notebook sheet.
+  Same trim and palette as samples.html (A4 + 2 mm bleed, 607 x 853 pt).
+  py source/redesign/build_samples.py samples-hand.html  ->  source/redesign/out/samples-hand/
+-->
+<style>
+  @page { size: 607pt 853pt; margin: 0; }
+  :root {
+    --pink: #E8A8BA; --cream: #F6EDDC; --blue: #C4D2E2; --starry: #486C8A; --lav: #DCCFE7;
+    --slate: #677F94; --navy: #26323D; --yellow: #FFF0C7;
+    --ink: #26323D;              /* the pen */
+    --pink-ink: #D0839A;
+    --pink-soft: #F2C6D3;        /* marker behind headings */
+    --hl: #FCE3A2;               /* yellow marker behind phrases */
+    --note: #FDE9B8;             /* sticky note */
+    --card: #DCE6F0;             /* blue index card */
+    --sheet: #FFFCF6;            /* notebook sheet */
+    --line: rgba(72,108,138,.34);
+  }
+  * { box-sizing: border-box; }
+  html, body { margin: 0; padding: 0; }
+  body { background: #d9d4cc; font-family: "Patrick Hand", cursive; color: var(--ink);
+         -webkit-print-color-adjust: exact; print-color-adjust: exact; }
+  @media screen { .page { margin: 10mm auto; box-shadow: 0 2px 14px rgba(0,0,0,.18); } }
+  @media print { body { background: none; } }
+
+  .page { width: 607pt; height: 853pt; position: relative; overflow: hidden; isolation: isolate;
+          background-color: var(--cream);
+          background-image: radial-gradient(circle, rgba(72,108,138,.26) .26mm, transparent .34mm);
+          background-size: 5mm 5mm; background-position: 1mm 1mm;
+          font-size: 11.6pt; line-height: 1.28; }
+  img { display: block; }
+  p { margin: 0; }
+  .abs { position: absolute; }
+
+  /* hand-drawn marks: every [data-r] gets an svg drawn by the script at the bottom */
+  [data-r]:not(.abs) { position: relative; }
+  [data-r="hl"], [data-r="blob"] { isolation: isolate; }
+  .rsvg { position: absolute; overflow: visible; pointer-events: none; }
+  .rsvg.under { z-index: -1; }
+  .rsvg.over { z-index: 3; }
+
+  /* washi tape */
+  .tape { position: absolute; height: 6.6mm; z-index: 4; opacity: .88;
+          clip-path: polygon(2% 0, 98% 0, 100% 18%, 98% 36%, 100% 54%, 98% 72%, 100% 90%, 98% 100%,
+                             2% 100%, 0 82%, 2% 64%, 0 46%, 2% 28%, 0 10%); }
+  .tape.pink { background: repeating-linear-gradient(-45deg, #E8A8BA 0 1.9mm, #F4D3DD 1.9mm 3.8mm); }
+  .tape.blue { background-color: #BFD0E3;
+               background-image: radial-gradient(circle, #F6EDDC .5mm, transparent .6mm); background-size: 2.6mm 2.6mm; }
+  .tape.lav  { background-color: #D6C8E4;
+               background-image: linear-gradient(90deg, rgba(255,255,255,.45) .3mm, transparent .3mm); background-size: 3mm 100%; }
+  .tape.yel  { background: repeating-linear-gradient(90deg, #F9DE9A 0 2.4mm, #FCEBC0 2.4mm 4.8mm); }
+
+  /* ---------- header ---------- */
+  .kicker { left: 17mm; top: 11mm; font: 600 15pt/1 "Caveat"; color: var(--starry); letter-spacing: .02em; }
+  .day { left: 14mm; top: 20.5mm; width: 34mm; height: 21mm; display: flex; align-items: center; justify-content: center;
+         font: 400 31pt/1 "Caveat Brush"; color: var(--ink); }
+  .title { left: 53mm; top: 15.5mm; font: 400 47pt/1 "Caveat Brush"; color: var(--ink); white-space: nowrap; }
+  .sub { left: 55mm; top: 35.5mm; font: 600 18pt/1 "Caveat"; color: var(--starry); white-space: nowrap; }
+  .stamp { right: 19mm; top: 8mm; width: 33mm; height: 33mm; transform: rotate(-9deg);
+           display: flex; flex-direction: column; align-items: center; justify-content: center; }
+  .stamp .jp { font: 400 27pt/1 "Yomogi"; color: var(--pink-ink); letter-spacing: .02em; }
+  .stamp .jp2 { font: 400 8pt/1 "Yomogi"; color: var(--pink-ink); margin-top: 1.4mm; letter-spacing: .06em; }
+
+  /* ---------- body ---------- */
+  .body { position: absolute; left: 16mm; right: 16mm; top: 50mm; bottom: 19mm; display: flex; flex-direction: column; gap: 5.2mm; }
+  .grow { flex: 1; min-height: 0; }
+
+  .h { font: 400 20pt/1 "Caveat Brush"; color: var(--ink); display: inline-block; padding: 0 1.2mm; }
+  .hint { font: 500 14pt/1.05 "Caveat"; color: var(--starry); }
+  .headrow { display: flex; align-items: baseline; gap: 3.4mm; margin-bottom: 2.4mm; }
+
+  .note { align-self: flex-start; margin-left: 2mm; width: 138mm; background: var(--note); transform: rotate(-1.3deg);
+          padding: 5.2mm 6mm 4.2mm; box-shadow: .6mm 1.2mm 1.8mm rgba(38,50,61,.13); position: relative; }
+  .note .hint { color: #B26B82; font-size: 15pt; }
+  .note .goal { font-size: 14.4pt; line-height: 1.2; margin-top: .6mm; }
+
+  .phr { display: grid; grid-template-columns: 1fr 1fr; column-gap: 9mm; row-gap: 1.2mm; padding: 0 1mm; }
+  .phr .top { display: flex; align-items: center; gap: 3mm; font-size: 13pt; }
+  .n { display: inline-flex; width: 4.6mm; justify-content: center; font: 700 14pt/1 "Caveat"; color: var(--ink); flex: none; }
+  .wl { height: 8.4mm; }
+
+  .two { display: grid; grid-template-columns: 1.52fr 1fr; gap: 7mm; align-items: start; }
+  .core { padding: 4.4mm 5mm 4mm; }
+  .card { background: var(--card); transform: rotate(1.4deg); padding: 5.4mm 5mm 4.4mm; margin-top: 1.2mm;
+          box-shadow: .6mm 1.2mm 1.8mm rgba(38,50,61,.13); position: relative; }
+  .ci { display: grid; grid-template-columns: 6mm 1fr; padding: 1.15mm 0; line-height: 1.22; }
+  .ck { display: inline-block; width: 3.6mm; height: 3.6mm; margin-top: .9mm; }
+  b { font-weight: 400; color: #BF6A84; }
+
+  .sheetwrap { position: relative; }
+  .sheetwrap .cat { position: absolute; right: 14mm; top: -13.4mm; width: 24mm; z-index: 0; }
+  .sheet { position: absolute; inset: 0; z-index: 1; background: var(--sheet);
+           transform: rotate(-.45deg); box-shadow: .6mm 1.2mm 1.8mm rgba(38,50,61,.13); padding: 4.2mm 6mm 0 17mm; }
+  .sheet .ruled { position: absolute; left: 0; right: 0; top: 19mm; bottom: 1mm;
+                  background: linear-gradient(180deg, transparent 8.2mm, var(--line) 8.2mm) 0 0 / 100% 8.5mm repeat-y; }
+  .sheet .margin { position: absolute; top: 0; bottom: 0; left: 13.4mm; width: .45mm; background: #E3A3B6; }
+  .sheet .h, .sheet .hint { position: relative; }
+  .sheet .hint { margin-top: 1.4mm; }
+
+  .end { display: flex; align-items: center; gap: 3mm; padding: 0 1mm; }
+  .end .lab { font: 700 16pt/1 "Caveat"; color: var(--ink); white-space: nowrap; }
+  .st { display: inline-block; width: 6.2mm; height: 6.2mm; }
+  .end .line { flex: 1; height: 5mm; }
+
+  .foot { position: absolute; left: 17mm; right: 17mm; bottom: 8mm; display: flex; align-items: center; gap: 4.4mm; }
+  .pn { font: 700 14pt/1 "Caveat"; color: var(--ink); width: 7mm; text-align: center; }
+  .motto { flex: 1; font: 600 15pt/1 "Caveat"; color: var(--starry); }
+</style>
+</head>
+<body>
+
+<!-- ============================ 7 · DAY 1 · SPEAK + BUILD (handwritten) ============================ -->
+<section class="page" id="day1-hand">
+  <div class="abs kicker">week 01 · activate · monday</div>
+  <div class="abs day" data-r="blob" data-c="#F2C6D3">day 1</div>
+  <div class="abs title">Speak + build</div>
+  <div class="abs sub" data-r="wave" data-c="#D0839A">your normal day, out loud</div>
+  <div class="abs stamp" data-r="ring" data-c="#D0839A"><span class="jp">話す</span><span class="jp2">一日目・月曜日</span></div>
+  <img class="abs" src="sprites/cloud-swirl.png" style="right:43mm;top:34mm;width:27mm">
+  <img class="abs" src="sprites/star-yellow.png" style="right:51mm;top:9mm;width:6mm;transform:rotate(-12deg)">
+  <img class="abs" src="sprites/sparkle.png" style="right:11mm;top:40mm;width:3.6mm">
+  <span class="abs" data-r="star" style="right:57mm;top:22mm;width:3.6mm;height:3.6mm"></span>
+
+  <div class="body">
+    <div class="note">
+      <span class="tape pink" style="left:50mm;top:-3mm;width:30mm;transform:rotate(2deg)"></span>
+      <div class="hint">today's goal</div>
+      <p class="goal">Describe your normal day from start to finish without stopping.</p>
+      <img class="abs" src="sprites/sparkle.png" style="right:-14mm;top:3mm;width:4mm">
+      <img class="abs" src="sprites/star-yellow.png" style="right:-26mm;top:9mm;width:7mm;transform:rotate(14deg)">
+    </div>
+
+    <div>
+      <div class="headrow"><span class="h" data-r="under" data-c="#26323D">Today's phrases</span>
+        <span class="hint">write your own version underneath</span>
+        <span data-r="arrow" style="display:inline-block;width:12mm;height:5mm;align-self:flex-end"></span></div>
+      <div class="phr">
+        <div><div class="top"><span class="n" data-r="circle">1</span><span data-r="hl">I usually get up around…</span></div><div class="wl" data-r="line" data-c="#8FA0B0"></div></div>
+        <div><div class="top"><span class="n" data-r="circle">2</span><span data-r="hl">The first thing I do is…</span></div><div class="wl" data-r="line" data-c="#8FA0B0"></div></div>
+        <div><div class="top"><span class="n" data-r="circle">3</span><span data-r="hl">After that I tend to…</span></div><div class="wl" data-r="line" data-c="#8FA0B0"></div></div>
+        <div><div class="top"><span class="n" data-r="circle">4</span><span data-r="hl">By the end of the day I'm…</span></div><div class="wl" data-r="line" data-c="#8FA0B0"></div></div>
+      </div>
+    </div>
+
+    <div class="two">
+      <div class="core" data-r="box">
+        <div class="headrow"><span class="h" data-r="hl" data-c="#F2C6D3">Core · 30–40 min</span></div>
+        <div class="hint" style="margin:-1.2mm 0 1.4mm">finish these and the day is done</div>
+        <div class="ci"><span class="ck" data-r="check"></span><span>Read the four phrases out loud twice each, then write your own version on the line under each one.</span></div>
+        <div class="ci"><span class="ck" data-r="check"></span><span>Say your four sentences out loud without looking at the page.</span></div>
+        <div class="ci"><span class="ck" data-r="check"></span><span>Talk for 60 seconds about your whole day. <b>Do not stop, do not restart.</b></span></div>
+        <div class="ci"><span class="ck" data-r="check"></span><span>Write the one word you were missing at the bottom of the page, then look it up.</span></div>
+      </div>
+      <div class="card">
+        <span class="tape lav" style="right:-5mm;top:-2.6mm;width:24mm;transform:rotate(28deg)"></span>
+        <div class="headrow"><span class="h">Bonus · 10–20 min</span></div>
+        <div class="hint" style="margin:-1.2mm 0 1.4mm">optional, always</div>
+        <div class="ci"><span class="ck" data-r="check"></span><span>Record the 60 seconds and listen back once. Write down one thing you would change.</span></div>
+        <div class="ci"><span class="ck" data-r="check"></span><span><b>ChatGPT Voice:</b> "Ask me five simple questions about my daily routine. Wait for my full answer before the next question."</span></div>
+      </div>
+    </div>
+
+    <div class="sheetwrap grow">
+      <img class="cat" src="sprites/cat-peek.png">
+      <div class="sheet">
+        <div class="ruled"></div><div class="margin"></div>
+        <span class="tape blue" style="left:-5mm;top:-2mm;width:26mm;transform:rotate(-32deg)"></span>
+        <span class="tape yel" style="right:-4mm;bottom:3mm;width:24mm;transform:rotate(-30deg)"></span>
+        <span class="h" data-r="under" data-c="#D0839A" style="padding:0">My day, in my own words</span>
+        <div class="hint">four sentences using today's phrases · real details, real times</div>
+      </div>
+    </div>
+
+    <div class="end">
+      <span class="lab">today felt</span>
+      <span class="st" data-r="star"></span><span class="st" data-r="star"></span><span class="st" data-r="star"></span><span class="st" data-r="star"></span><span class="st" data-r="star"></span>
+      <span class="lab" style="margin-left:7mm">one word I needed</span><span class="line" data-r="line"></span>
+    </div>
+  </div>
+
+  <div class="foot">
+    <span class="pn" data-r="circle">07</span>
+    <span class="motto">Use English. Don't just study English.</span>
+    <img src="sprites/sparkle.png" style="width:3.4mm"><span data-r="star" style="display:inline-block;width:4.4mm;height:4.4mm"></span><img src="sprites/flower-star.png" style="width:4.2mm">
+  </div>
+</section>
+
+<script>
+/* Draws every [data-r] mark with rough.js. Seeds are fixed, so each build draws the same wobble. */
+const NS = "http://www.w3.org/2000/svg";
+const INK = "#26323D";
+
+function starPts(cx, cy, R, r) {
+  const pts = [];
+  for (let i = 0; i < 10; i++) {
+    const a = -Math.PI / 2 + i * Math.PI / 5, rad = i % 2 ? r : R;
+    pts.push([cx + rad * Math.cos(a), cy + rad * Math.sin(a)]);
+  }
+  return pts;
+}
+
+function draw() {
+  let seed = 11;
+  document.querySelectorAll("[data-r]").forEach(el => {
+    const kind = el.dataset.r, w = el.offsetWidth, h = el.offsetHeight, pad = 24;
+    const col = el.dataset.c || INK;
+    const svg = document.createElementNS(NS, "svg");
+    svg.setAttribute("class", "rsvg " + (kind === "hl" || kind === "blob" ? "under" : "over"));
+    svg.setAttribute("width", w + 2 * pad); svg.setAttribute("height", h + 2 * pad);
+    svg.style.left = -pad + "px"; svg.style.top = -pad + "px";
+    const rc = rough.svg(svg);
+    const o = { seed: seed++, stroke: col, strokeWidth: 1.15, roughness: 1.1, bowing: 1.2 };
+    const x = pad, y = pad;
+    let nodes = [];
+    switch (kind) {
+      case "box":
+        nodes.push(rc.rectangle(x + 1, y + 1, w - 2, h - 2, { ...o, strokeWidth: .9, roughness: 1.9, bowing: 2.2 })); break;
+      case "hl":      // marker stroke behind the lower two thirds of the text
+        nodes.push(rc.rectangle(x - 4, y + h * .36, w + 8, h * .6,
+          { ...o, stroke: "none", fill: el.dataset.c || "#FCE3A2", fillStyle: "solid", roughness: 2.4 })); break;
+      case "blob":
+        nodes.push(rc.ellipse(x + w / 2, y + h / 2, w, h,
+          { ...o, stroke: "none", fill: col, fillStyle: "solid", roughness: 2.2 }));
+        nodes.push(rc.ellipse(x + w / 2 + 2, y + h / 2 + 1, w * 1.04, h * 1.02,
+          { ...o, seed: seed++, stroke: "#D0839A", strokeWidth: 1, roughness: 1.6 })); break;
+      case "circle":
+        nodes.push(rc.ellipse(x + w / 2, y + h / 2 - 1, Math.max(w, h) * 1.55, h * 1.3,
+          { ...o, strokeWidth: 1, roughness: 1.3 })); break;
+      case "ring":    // the stamp: two circles, the inner one thinner
+        nodes.push(rc.circle(x + w / 2, y + h / 2, w, { ...o, strokeWidth: 1.5, roughness: 1.2 }));
+        nodes.push(rc.circle(x + w / 2, y + h / 2, w * .86, { ...o, seed: seed++, strokeWidth: .8, roughness: 1 })); break;
+      case "check":
+        nodes.push(rc.rectangle(x, y, w, h, { ...o, roughness: .9, strokeWidth: 1 })); break;
+      case "under":
+        nodes.push(rc.curve([[x, y + h + 1], [x + w * .3, y + h + 3], [x + w * .65, y + h + .5], [x + w + 4, y + h + 2.5]],
+          { ...o, strokeWidth: 1.6, roughness: .9 })); break;
+      case "wave": {
+        const pts = [], steps = Math.round(w / 14);
+        for (let i = 0; i <= steps; i++) pts.push([x + i * w / steps, y + h + 4 + (i % 2 ? 2.6 : -1.2)]);
+        nodes.push(rc.curve(pts, { ...o, strokeWidth: 1.5, roughness: .6 })); break;
+      }
+      case "line":
+        nodes.push(rc.line(x, y + h - 1, x + w, y + h - 1, { ...o, strokeWidth: .9, roughness: .5, bowing: .4 })); break;
+      case "star":
+        nodes.push(rc.polygon(starPts(x + w / 2, y + h / 2 + .6, w / 2 + 1, w / 4.6), { ...o, strokeWidth: 1, roughness: .8 })); break;
+      case "arrow": {   // a curl from the hint down to the phrases
+        const sx = x, sy = y + 2, ex = x + w, ey = y + h + 6;
+        nodes.push(rc.curve([[sx, sy], [sx + w * .55, sy - 3], [ex - 2, ey - h * .6], [ex, ey]], { ...o, strokeWidth: 1.1, roughness: .7 }));
+        nodes.push(rc.line(ex, ey, ex - 4.5, ey - 4, { ...o, roughness: .5 }));
+        nodes.push(rc.line(ex, ey, ex + 3, ey - 5.5, { ...o, roughness: .5 })); break;
+      }
+    }
+    nodes.forEach(n => svg.appendChild(n));
+    el.appendChild(svg);
+  });
+}
+document.fonts.ready.then(draw);
+</script>
+</body>
+</html>
