@@ -5,9 +5,12 @@
 // words, gplus, copy, days, measure, notebook, felt. `cat: true` puts her cat over that block (one per page).
 // `a` lists every accepted answer (no `a`: her own words, not checked); the first one is shown by "show answer".
 // `added: true` marks answers the book does not have (written for the online edition).
+// Words and speaking, not grammar (her goal, 2026-10-02): the grammar pages 7 and 9 stay here but are out of `order`,
+// Friday is a words day, every day has the daily cards (cards.html), ChatGPT Voice is Core on Mon, Thu, Fri, Sun,
+// and the writing page is a bonus. Week 1 first; the other weeks follow once she has looked at it.
 const BOOK = {
   hub: 6,  // the week page: links to every page of the week
-  order: [6, 7, 8, 9, 10, 11, 12, 13, 14, 15, 16, 17, 18, 19],
+  order: [6, 8, 10, 11, 12, 13, 14, 15, 16, 17, 18, 19],
 
   6: {
     nav: 'Week 1',
@@ -15,8 +18,12 @@ const BOOK = {
            sub: 'routines, habits, the life you already live', jp: ['始動', '第一週']},
     blocks: [
       {type: 'goal', label: 'This week’s one promise', text: 'You will speak English out loud on all seven days, including the day you do not feel like it.'},
-      {type: 'facts', items: [['Grammar', 'Present simple vs present continuous'], ['Speaking target', '60–90 sec monologue'],
-                              ['Writing', '100–150 w, your normal day'], ['Week of', '7 days']]},
+      {type: 'facts', items: [['Words', '28 phrases + My world'], ['Speaking target', '60–90 sec monologue'],
+                              ['AI conversation', '4 × 10 min, out loud'], ['Week of', '7 days']]},
+      {type: 'card', tag: 'Every day · 10 min', tc: 'var(--yellow)', sh: '#F2D27E', html:
+        '<p>The Russian meaning first — you say the English out loud, then turn the card over. ' +
+        'This week’s 28 phrases, <strong>My world</strong> (studio, AI, the robot, working with people) and the phrases you add yourself.</p>' +
+        '<div class="btns"><a class="btn" href="cards.html">Today’s cards</a></div>'},
       {type: 'hub', cat: true, tag: 'This week’s pages', hint: 'a ✓ appears when the Core of a day is done'}
     ]
   },
@@ -71,20 +78,24 @@ const BOOK = {
     ]
   },
 
-  // pages 8 and 9 take their words, grammar and answers from words-data.js (WORDS), shared with words.html
+  // pages 8 and 9 take their words, grammar and answers from words-data.js (WORDS), shared with words.html;
+  // page 8 also has the quick check and the say-it questions that were on page 9
   8: {
     nav: 'Week 1 · Words',
     head: {badge: ['WEEK', '01'], kicker: 'Week 01 · Word bank', title: 'Words that work',
            sub: 'Phrasal verbs, idioms and words that go together', jp: ['言葉', '第一週']},
     blocks: [
-      {type: 'card', cat: true, tag: '5 minutes · Monday · Thursday · Sunday', tc: 'var(--blue)', sh: 'var(--blue)', html:
-        '<p><strong>Monday:</strong> read every line out loud and say your own sentence for three. ' +
-        '<strong>Thursday:</strong> use three on purpose in your speaking day. ' +
-        '<strong>Sunday:</strong> cover the phrases, read the meanings, retrieve them. ' +
-        'Tick a box only when the phrase came out of your mouth in a real sentence.</p>'},
+      {type: 'card', cat: true, tag: 'How to learn them', tc: 'var(--blue)', sh: 'var(--blue)', html:
+        '<p><strong>Every day, 10 minutes:</strong> all of these are in <a href="cards.html">your daily cards</a> — the meaning in Russian, ' +
+        'you say the English out loud, then check. <strong>Thursday and Friday:</strong> use them on purpose when you speak. ' +
+        'Tick a box here only when the phrase came out of your mouth in a real sentence.</p>'},
       {type: 'words', week: 1, list: 'phrasal', tag: 'Phrasal verbs', hint: 'the verbs people actually use'},
       {type: 'words', week: 1, list: 'idioms', tag: 'Idioms', hint: 'the ones you will really hear', tc: 'var(--lav)', sh: 'var(--lav)'},
-      {type: 'words', week: 1, list: 'colloc', tag: 'Words that go together', hint: 'learn them as one piece', tc: 'var(--yellow)', sh: '#F2D27E'}
+      {type: 'words', week: 1, list: 'colloc', tag: 'Words that go together', hint: 'learn them as one piece', tc: 'var(--yellow)', sh: '#F2D27E'},
+      {type: 'gaps', id: 'B', week: 1, from: 'check', tag: 'Quick check', hint: 'from memory first',
+       tc: 'var(--blue)', sh: 'var(--blue)'},
+      {type: 'checklist', id: 'C', week: 1, from: 'say', tag: 'Say it out loud', hint: 'one minute each · record one on Thursday',
+       tc: 'var(--lav)', sh: 'var(--lav)'}
     ]
   },
 
@@ -112,16 +123,18 @@ const BOOK = {
       {type: 'phrases', tag: 'Today’s phrases', hint: 'write your own version underneath — in your notebook', items: [
         'I usually get up around…', 'The first thing I do is…', 'After that I tend to…', 'By the end of the day I’m…'
       ]},
-      {type: 'checklist', id: 'core', core: true, tag: 'Core · 30–40 min', hint: 'finish these and the day is done', items: [
+      {type: 'checklist', id: 'core', core: true, tag: 'Core · 40–50 min', hint: 'finish these and the day is done', items: [
         'Read the four phrases out loud twice each, then write your own version on the line under each one.',
         'Say your four sentences out loud without looking at the page.',
         'Talk for 60 seconds about your whole day. <b>Do not stop, do not restart.</b>',
-        'Write the one word you were missing at the bottom of the page, then look it up.'
+        'Write the one word you were missing at the bottom of the page, then look it up.',
+        '<b>ChatGPT Voice · 10 min:</b> “Ask me questions about my daily routine for ten minutes, one at a time. Wait for my full answer, then ask a follow-up. Do not correct every mistake. At the end tell me three expressions I could have used.”',
+        '<b>Today’s cards · 10 min:</b> open <a href="cards.html">your cards</a> and say each phrase out loud before you turn it over.'
       ]},
       {type: 'done', text: 'Nothing is missing, nothing is owed.'},
       {type: 'checklist', id: 'bonus', tag: 'Bonus · 10–20 min', hint: 'optional, always', tc: 'var(--blue)', sh: 'var(--blue)', items: [
         'Record the 60 seconds and listen back once. Write down one thing you would change.',
-        '<b>ChatGPT Voice:</b> “Ask me five simple questions about my daily routine. Wait for my full answer before the next question.”'
+        'The word you were missing: <a href="cards.html">add it to your cards</a>, with your own sentence.'
       ]},
       {type: 'notebook', cat: true, tag: 'In your notebook', tc: 'var(--yellow)', sh: '#F2D27E',
        how: 'Rule this on one page, then write. Everything you write today goes here.',
@@ -146,11 +159,12 @@ const BOOK = {
        where: 'YouTube · Easy English street interviews or BBC Learning English · length: 4–5 min, clear speech',
        steps: ['listen once, no subtitles', 'never pause', 'write what you understood', 'listen again', 'catch 3–5 chunks',
                'now check the transcript', 'what did you miss, and why', 'shadow 20–40 seconds', 'retell it without looking']},
-      {type: 'checklist', id: 'core', core: true, tag: 'Core · 30–40 min', hint: 'finish these and the day is done', items: [
+      {type: 'checklist', id: 'core', core: true, tag: 'Core · 40–50 min', hint: 'finish these and the day is done', items: [
         'Work through steps 1–9 above in order. Steps 1–3 before you touch the subtitles.',
         'Write 3–5 chunks you caught into this week’s phrase log — whole phrases, not single words.',
         'Shadow 20–40 seconds: play, pause, copy the speaker exactly, including the rhythm.',
-        'Retell what the clip was about out loud, 30 seconds, nothing on screen.']},
+        'Retell what the clip was about out loud, 30 seconds, nothing on screen.',
+        '<b>Today’s cards · 10 min:</b> open <a href="cards.html">your cards</a> and say each phrase out loud before you turn it over.']},
       {type: 'done', text: 'Nothing is missing, nothing is owed.'},
       {type: 'checklist', id: 'bonus', tag: 'Bonus · 10–20 min', hint: 'optional, always', tc: 'var(--blue)', sh: 'var(--blue)', items: [
         'Listen to the same clip once more while doing something else. Notice what you catch now.',
@@ -173,11 +187,12 @@ const BOOK = {
       {type: 'goal', text: 'Retell someone else’s routine as a short spoken story.'},
       {type: 'phrases', tag: 'Today’s phrases', hint: 'write your own version underneath — in your notebook', items: [
         'Apparently she…', 'What surprised me was…', 'The article says that…', 'In other words…']},
-      {type: 'checklist', id: 'core', core: true, tag: 'Core · 30–40 min', hint: 'finish these and the day is done', items: [
+      {type: 'checklist', id: 'core', core: true, tag: 'Core · 40–50 min', hint: 'finish these and the day is done', items: [
         'Read one short text about daily life — BBC News, a blog post, a Reddit thread. 300–500 words, start to finish, no dictionary on the first pass.',
         'Underline five chunks worth keeping. Put them in the phrase log.',
         'Close the text. Retell it out loud from memory in three sentences.',
-        'Retell it again, faster, with no notes at all.']},
+        'Retell it again, faster, with no notes at all.',
+        '<b>Today’s cards · 10 min:</b> open <a href="cards.html">your cards</a> and say each phrase out loud before you turn it over.']},
       {type: 'done', text: 'Nothing is missing, nothing is owed.'},
       {type: 'checklist', id: 'bonus', tag: 'Bonus · 10–20 min', hint: 'optional, always', tc: 'var(--blue)', sh: 'var(--blue)', items: [
         'Write the three-sentence retell down and compare it with the original. What did you drop?',
@@ -200,15 +215,17 @@ const BOOK = {
       {type: 'goal', text: 'Speak for 90 seconds on a question you have not seen before.'},
       {type: 'phrases', tag: 'Today’s phrases', hint: 'write your own version underneath — in your notebook', items: [
         'This week has been…', 'The thing is…', 'I keep meaning to…', 'Honestly, I have no idea.']},
-      {type: 'checklist', id: 'core', core: true, tag: 'Core · 30–40 min', hint: 'finish these and the day is done', items: [
+      {type: 'checklist', id: 'core', core: true, tag: 'Core · 40–50 min', hint: 'finish these and the day is done', items: [
         '<b>Drill · 30-second answer.</b> Read the question, start within five seconds: “What is a normal Thursday for you?” Answer for 30 seconds.',
         'Same question again, 90 seconds this time. Add detail rather than repeating yourself.',
         'Use at least three of this week’s phrases on purpose while you speak.',
-        'When you get stuck, describe the idea another way. Never switch language mid-sentence.']},
+        'When you get stuck, describe the idea another way. Never switch language mid-sentence.',
+        '<b>ChatGPT Voice · 10 min:</b> “Have a 10-minute B1–B2 conversation with me about everyday routines. Do not correct every mistake. At the end tell me my three most frequent mistakes, three expressions I could have used, and one pronunciation issue.”',
+        '<b>Today’s cards · 10 min:</b> open <a href="cards.html">your cards</a> and say each phrase out loud before you turn it over.']},
       {type: 'done', text: 'Nothing is missing, nothing is owed.'},
       {type: 'checklist', id: 'bonus', tag: 'Bonus · 10–20 min', hint: 'optional, always', tc: 'var(--blue)', sh: 'var(--blue)', items: [
-        '<b>ChatGPT Voice:</b> “Have a 10-minute B1–B2 conversation with me about everyday routines. Do not correct every mistake. At the end tell me my three most frequent mistakes, three expressions I could have used, and one pronunciation issue.”',
-        'Say the hardest sentence of the day three more times, slowly, until it comes out whole.']},
+        'Say the hardest sentence of the day three more times, slowly, until it comes out whole.',
+        'The three expressions ChatGPT gave you: <a href="cards.html">add them to your cards</a>.']},
       {type: 'notebook', cat: true, tag: 'In your notebook', tc: 'var(--yellow)', sh: '#F2D27E',
        how: 'Rule this on one page, then write. Everything you write today goes here.',
        sheet: 'Week 1 · Day 4 · Speaking day', parts: [
@@ -221,27 +238,28 @@ const BOOK = {
   },
 
   14: {
-    nav: 'Day 5 · Grammar',
-    head: {badge: ['DAY', '5'], kicker: 'Week 01 · Activate · Friday', title: 'Grammar → real English', sub: 'Everyday you', jp: ['文法', '五日目・金曜日']},
+    nav: 'Day 5 · Words day',
+    head: {badge: ['DAY', '5'], kicker: 'Week 01 · Activate · Friday', title: 'Words day', sub: 'this week’s words, out of your mouth',
+           jp: ['言葉', '五日目・金曜日']},
     blocks: [
-      {type: 'goal', text: 'Make this week’s grammar automatic, not just understood.'},
-      {type: 'phrases', tag: 'Today’s phrases', hint: 'write your own version underneath — in your notebook', items: [
-        'I work… / I’m working…', 'I always… / I’m currently…', 'She lives… / She’s staying…', 'We usually… / We’re trying…']},
-      {type: 'checklist', id: 'core', core: true, tag: 'Core · 30–40 min', hint: 'finish these and the day is done', items: [
-        'Go back to <a href="?page=7">this week’s cheat sheet</a>. Do sections A and B if you have not yet.',
-        'Section C: write three sentences about your real life, each one using both forms.',
-        'Section D: cover the page and say them out loud. Then say three brand-new ones.',
-        'Say each pair fast, one after the other, until neither of them needs a pause.']},
+      {type: 'goal', text: 'Use this week’s words in real speech, without looking.'},
+      {type: 'phrases', tag: 'Today’s phrases', hint: 'for telling a story · write your own version underneath — in your notebook', items: [
+        'So basically…', 'The funny thing is…', 'What I mean is…', 'Long story short…']},
+      {type: 'checklist', id: 'core', core: true, tag: 'Core · 40–50 min', hint: 'finish these and the day is done', items: [
+        '<b>Today’s cards · 10 min:</b> open <a href="cards.html">your cards</a> and say each phrase out loud before you turn it over.',
+        '<b>4 · 3 · 2:</b> pick a topic from My world on the cards page. Tell the same story out loud for 4 minutes, then 3, then 2. Use five phrases of the week; each round faster, nothing dropped.',
+        '<b>ChatGPT Voice · 10 min:</b> “Talk with me for ten minutes about my week. Ask follow-up questions. I will try to use these phrases: [your five]. At the end tell me which ones I used naturally, which I avoided, and three expressions I could have used.”',
+        '<b>Review · +3 days:</b> cover Monday’s phrases and retrieve them from memory. Tick the +3 boxes.']},
       {type: 'done', text: 'Nothing is missing, nothing is owed.'},
       {type: 'checklist', id: 'bonus', tag: 'Bonus · 10–20 min', hint: 'optional, always', tc: 'var(--blue)', sh: 'var(--blue)', items: [
-        '<b>Review · +3 days:</b> cover Monday’s phrases and retrieve them from memory. Tick the +3 boxes.',
-        'Write five more pairs, then delete the page. The point was saying them.']},
+        'Record the 2-minute round and listen back once. Which phrase came out by itself?',
+        'Three phrases you met this week: <a href="cards.html">add them to your cards</a>, each with your own sentence.']},
       {type: 'notebook', cat: true, tag: 'In your notebook', tc: 'var(--yellow)', sh: '#F2D27E',
        how: 'Rule this on one page, then write. Everything you write today goes here.',
-       sheet: 'Week 1 · Day 5 · Grammar', parts: [
-         {h: 'Today’s phrases', small: 'your own version under each', rows: ['I work… / I’m working…', 'I always… / I’m currently…', 'She lives… / She’s staying…', 'We usually… / We’re trying…']},
-         {h: 'My sentences, both forms', small: 'real facts about your real life — no textbook people', lines: 6},
-         {inline: 'My usual mistake'}
+       sheet: 'Week 1 · Day 5 · Words day', parts: [
+         {h: 'Today’s phrases', small: 'your own version under each', rows: ['So basically…', 'The funny thing is…', 'What I mean is…', 'Long story short…']},
+         {h: '4 · 3 · 2', small: 'the topic, and the five phrases you used — tick the ones that came out by themselves', lines: 6},
+         {inline: 'Phrase I avoided'}
        ]},
       {type: 'felt'}
     ]
@@ -262,11 +280,12 @@ const BOOK = {
           '<p class="hint" style="margin:0 0 6px">aim for this</p><p><strong>I WORK in a hospital.</strong> <em class="soft">(not: i work IN a hospital)</em></p>' +
           '<p><strong>It DEPENDS on the day.</strong></p><p style="margin-top:6px">Content words loud, small words quick and quiet.</p>'}
       ]},
-      {type: 'checklist', id: 'core', core: true, tag: 'Core · 30–40 min', hint: 'finish these and the day is done', items: [
+      {type: 'checklist', id: 'core', core: true, tag: 'Core · 40–50 min', hint: 'finish these and the day is done', items: [
         'Find a native version of each sentence: search the phrase on <a href="https://youglish.com/" target="_blank" rel="noopener">YouGlish</a>, or ask ChatGPT Voice “Say this sentence naturally three times: slow, normal, conversational.”',
         '<b>Listen → copy → record → compare.</b> Do all four for each sentence.',
         'Say each one inside a longer sentence about today.',
-        'Pick the one sound or beat that gave you away and drill it ten times.']},
+        'Pick the one sound or beat that gave you away and drill it ten times.',
+        '<b>Today’s cards · 10 min:</b> open <a href="cards.html">your cards</a> and say each phrase out loud before you turn it over.']},
       {type: 'done', text: 'Nothing is missing, nothing is owed.'},
       {type: 'checklist', id: 'bonus', tag: 'Bonus · 10–20 min', hint: 'optional, always', tc: 'var(--blue)', sh: 'var(--blue)', items: [
         'Record 30 seconds of Monday’s monologue again and listen for the rhythm, not the words.',
@@ -288,11 +307,13 @@ const BOOK = {
       {type: 'goal', text: 'Prove to yourself that week one actually happened.'},
       {type: 'phrases', tag: 'Today’s phrases', hint: 'write your own version underneath — in your notebook', items: [
         'This week I managed to…', 'What I found difficult was…', 'Next week I want to…', 'I’m starting to…']},
-      {type: 'checklist', id: 'core', core: true, tag: 'Core · 30–40 min', hint: 'finish these and the day is done', items: [
+      {type: 'checklist', id: 'core', core: true, tag: 'Core · 40–50 min', hint: 'finish these and the day is done', items: [
         '<b>Review · +7 days:</b> cover the phrase log, retrieve every chunk out loud, tick only what came without looking.',
         'Choose the five phrases you must use out loud next week. Write them in the log footer.',
         'Speak for two minutes about your week. In English, alone, no notes.',
-        'Fill in the <a href="?page=19">week review page</a>: the seven numbers, honestly.']},
+        'Fill in the <a href="?page=19">week review page</a>: the seven numbers, honestly.',
+        '<b>ChatGPT Voice · 10 min:</b> “Talk with me for ten minutes about my week — what I did, what went wrong, what I want next week. Ask follow-up questions. At the end tell me three expressions I could have used.”',
+        '<b>Today’s cards · 10 min:</b> open <a href="cards.html">your cards</a> and say each phrase out loud before you turn it over.']},
       {type: 'done', text: 'Nothing is missing, nothing is owed.'},
       {type: 'checklist', id: 'bonus', tag: 'Bonus · 10–20 min', hint: 'optional, always', tc: 'var(--blue)', sh: 'var(--blue)', items: [
         'Colour in this week on the 56-day poster and set out next week’s pages.',
@@ -309,24 +330,24 @@ const BOOK = {
   },
 
   17: {
-    nav: 'Week 1 · Writing',
-    head: {badge: ['WEEK', '01'], kicker: 'Week 01 · One piece of writing', title: 'A day in your life', sub: '100–150 words', jp: ['書く', '第一週']},
+    nav: 'Week 1 · Writing · bonus',
+    head: {badge: ['WEEK', '01'], kicker: 'Week 01 · Bonus · One piece of writing', title: 'A day in your life', sub: '100–150 words', jp: ['書く', '第一週']},
     blocks: [
       {type: 'phrases', tag: 'Before writing', hint: 'work these in on purpose', chips: true, items: [
         'I usually…', 'I tend to…', 'At the moment I’m…', 'By the time I…', 'What I like about it is…']},
       {type: 'card', tag: 'Write', navy: true, sh: 'var(--navy)', bg: 'var(--sky)', html:
-        '<p>Describe one ordinary weekday from waking up to going to bed. Mix habits (present simple) with what is temporarily true ' +
-        'this month (present continuous). Do not make it interesting — make it accurate.</p>'},
+        '<p>Describe one ordinary weekday from waking up to going to bed. Use five phrases from this week’s words on purpose. ' +
+        'Do not make it interesting — make it sound like you. Then read it out loud.</p>'},
       {type: 'notebook', cat: true, tag: 'In your notebook', tc: 'var(--yellow)', sh: '#F2D27E',
        how: 'Write the text by hand. Prefer to type? <a href="writing.html?week=1">Weekly writing</a> counts the words for you.',
        sheet: 'Week 1 · Writing', parts: [
          {h: 'A day in your life', small: '100–150 words', lines: 14},
-         {h: 'Rewrite', small: 'the three recurring problems, in your own new sentences — say each one out loud too', lines: 3, numbered: true}
+         {h: 'Rewrite', small: 'three phrases you would now say differently, in your own new sentences — say each one out loud too', lines: 3, numbered: true}
        ]},
-      {type: 'checklist', id: 'check', tag: 'Check before you show anyone', tc: 'var(--lav)', sh: 'var(--lav)', cols: true, items: [
-        'verb tense', 'articles', 'prepositions', 'sentence linking', 'repeated vocabulary', 'unnatural translation']},
+      {type: 'checklist', id: 'check2', tag: 'Check before you show anyone', tc: 'var(--lav)', sh: 'var(--lav)', items: [
+        'I used five phrases of the week', 'nothing sounds translated from Russian', 'I read it out loud and changed what I would not say']},
       {type: 'copy', tag: 'AI correction', hint: 'paste this, then your text', text:
-        'Correct my English but keep my meaning and my level. First show my mistakes, then explain the three most important recurring problems, then give me a corrected version. Do not rewrite everything in advanced English.'}
+        'Make my English sound natural but keep my meaning and my level. Show me the phrases a native speaker would say differently, and give me five natural expressions I could have used. Do not rewrite everything in advanced English.'}
     ]
   },
 
@@ -336,7 +357,8 @@ const BOOK = {
     blocks: [
       {type: 'card', tag: 'Only phrases you actually met', html:
         '<p>In listening, reading, a conversation, or a word you wanted and could not find. Whole chunks, not single words. ' +
-        'Tick a review box only when you retrieved it <strong>without looking at the page</strong>.</p>'},
+        'Tick a review box only when you retrieved it <strong>without looking at the page</strong>. ' +
+        'The ones you want to keep for good: <a href="cards.html">add them to your cards</a>.</p>'},
       {type: 'notebook', cat: true, tag: 'In your notebook', tc: 'var(--yellow)', sh: '#F2D27E',
        how: 'Give the log a page of its own: you come back to it all week. Turn the notebook sideways if the columns are tight.',
        sheet: 'Week 1 · Phrase log', parts: [

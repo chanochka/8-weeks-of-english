@@ -1,0 +1,239 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1">
+<meta name="theme-color" content="#26323D">
+<title>Today’s cards — 8 Weeks of English</title>
+<link rel="manifest" href="manifest.webmanifest">
+<link rel="stylesheet" href="book.css">
+<!--
+  Daily cards (2026-10-02, her goal: words and speaking, no grammar). Every word of the weeks that are online
+  (words-data.js + words-ru.js), «Мой мир» (my-words.js) and her own phrases. A card starts from the meaning in
+  Russian; she says the English out loud, then opens it. "Got it" sends it further away (1, 3, 7, 14, 30, 60 days),
+  "Not yet" brings it back later today and tomorrow. Everything lives in this browser only (localStorage "cards").
+-->
+<style>
+.face { text-align: center; padding: 6px 0 2px; }
+.face .src { font: 900 12px/1.3 "Nunito"; letter-spacing: .12em; text-transform: uppercase; color: var(--starry); }
+.face .ru { font: 800 25px/1.25 "Nunito"; margin: 10px 0 6px; }
+.face .exru { font: 700 16px/1.4 "Nunito"; color: var(--starry); font-style: italic; }
+.face .say { font: 800 14px/1.3 "Nunito"; color: var(--starry); margin-top: 14px; }
+.face .first { font: 700 22px/1 "Fredoka"; letter-spacing: .08em; margin-top: 10px; min-height: 22px; }
+.back { border-top: 2px dotted var(--dots); margin-top: 16px; padding-top: 14px; }
+.back .en { font: 700 30px/1.1 "Fredoka"; display: inline-flex; align-items: center; gap: 10px; flex-wrap: wrap; justify-content: center; }
+.back .exen { font: 700 17px/1.45 "Nunito"; margin-top: 8px; display: flex; gap: 10px; align-items: center; justify-content: center; text-align: center; }
+.fbtns { display: flex; gap: 12px; justify-content: center; flex-wrap: wrap; margin-top: 18px; }
+.fbtns .btn { font-size: 17px; padding: 10px 22px 9px; cursor: pointer; }
+.btn.no { background: #fff; color: var(--navy); box-shadow: 3px 3px 0 var(--pink); }
+.prog { height: 10px; border: var(--line); border-radius: 99px; overflow: hidden; background: #fff; margin: 4px 0 14px; }
+.prog i { display: block; height: 100%; background: var(--yellow); }
+.alldone { text-align: center; }
+.alldone .big { font: 700 28px/1.1 "Fredoka"; margin: 4px 0 8px; }
+.groups label { display: flex; gap: 10px; align-items: center; padding: 6px 0; border-bottom: 2px dotted var(--dots); }
+.groups .cnt { margin-left: auto; color: var(--starry); font-size: 14px; white-space: nowrap; }
+.groups input { flex: none; margin: 0; }
+.groups .tick input:checked + span { color: var(--navy); }
+.stats { display: flex; gap: 8px 18px; flex-wrap: wrap; margin-top: 12px; font-size: 15px; }
+.stats b { color: var(--navy); }
+.newper { display: flex; gap: 8px; align-items: center; flex-wrap: wrap; margin-top: 12px; }
+.newper span { flex-basis: 100%; }
+.newper button { border: var(--line); border-radius: 99px; background: #fff; padding: 4px 12px; font: 800 15px "Nunito"; cursor: pointer; }
+.newper button.on { background: var(--navy); color: #fff; }
+.addf { display: grid; gap: 8px; }
+.addf input { width: 100%; border: var(--line); border-radius: 12px; background: #FFF8E5; padding: 7px 12px; font-weight: 800; }
+.own { margin-top: 10px; }
+.own div { display: flex; gap: 10px; align-items: center; padding: 5px 0; border-bottom: 2px dotted var(--dots); font-size: 15px; }
+.own button { margin-left: auto; border: 0; background: none; font-size: 18px; cursor: pointer; color: var(--starry); }
+details.list { margin-top: 6px; }
+details.list summary { cursor: pointer; font-weight: 900; padding: 6px 0; }
+.lrow { display: grid; grid-template-columns: 1fr 1fr auto; gap: 10px; align-items: center; padding: 5px 0; border-bottom: 2px dotted var(--dots); font-size: 15px; }
+.lrow .lv { font-size: 12px; letter-spacing: 2px; color: var(--starry); white-space: nowrap; }
+@media (max-width: 600px) {
+  .face .ru { font-size: 22px; }
+  .back .en { font-size: 26px; }
+  .lrow { grid-template-columns: 1fr auto; }
+  .lrow .lru { grid-column: 1 / -1; order: 3; color: var(--starry); margin-top: -4px; }
+}
+</style>
+</head>
+<body>
+<header class="bar"><div class="bar-in">
+  <a class="brand" href="index.html">8 WEEKS OF ENGLISH</a>
+  <nav><a href="book.html?page=6">Week 1</a><a href="cards.html">Cards</a><a href="words.html">Words</a><a class="wide" href="writing.html">Writing</a></nav>
+</div></header>
+<main class="wrap" id="page"></main>
+<script src="words-data.js"></script>
+<script src="words-ru.js"></script>
+<script src="my-words.js"></script>
+<script>
+const DAYS = [0, 1, 3, 7, 14, 30, 60];          // after "Got it" a card in box b comes back in DAYS[b] days
+const KNOWN = 4;                                // box 4 and up (two weeks and more) counts as known
+const esc = s => String(s).replace(/[&<>"]/g, c => ({'&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;'}[c]));
+
+// ---------- what she did lives in this browser only; the page works without it ----------
+function loadAll() { try { return JSON.parse(localStorage.getItem('cards')) || {}; } catch (e) { return {}; } }
+const S = loadAll();
+S.state = S.state || {}; S.off = S.off || []; S.own = S.own || []; S.newPerDay = S.newPerDay || 10;
+function save() { try { localStorage.setItem('cards', JSON.stringify(S)); } catch (e) {} }
+function dayStr(d) { return d.getFullYear() + '-' + String(d.getMonth() + 1).padStart(2, '0') + '-' + String(d.getDate()).padStart(2, '0'); }
+const today = dayStr(new Date());
+function plus(n) { const d = new Date(); d.setDate(d.getDate() + n); return dayStr(d); }
+if (!S.day || S.day.date !== today) S.day = {date: today, newSeen: 0, reviewed: 0};
+
+// ---------- the deck ----------
+const KIND = {phrasal: 'phrasal verb', idioms: 'idiom', colloc: 'words that go together'};
+const groups = [];
+Object.keys(WORDS_RU).map(Number).sort((a, b) => a - b).forEach(n => {
+  const cards = [];
+  for (const list of ['phrasal', 'idioms', 'colloc']) for (const x of WORDS[n][list]) {
+    const ru = WORDS_RU[n][x[0]];
+    if (!ru) continue;
+    cards.push({id: `w${n}:${x[0]}`, en: x[0], ex: list === 'colloc' ? x[1] : x[2], ru: ru[0], exRu: ru[1], src: `Week ${n} · ${KIND[list]}`});
+  }
+  groups.push({id: 'w' + n, name: `Week ${n} · ${WORDS[n].theme}`, cards});
+});
+for (const g of MY_WORLD) groups.push({id: 'my-' + g.id, name: `My world · ${g.name}`, my: true,
+  cards: g.items.map(x => ({id: `my:${g.id}:${x[0]}`, en: x[0], ru: x[1], ex: x[2], exRu: x[3], src: `My world · ${g.ru}`}))});
+function ownGroup() {
+  return {id: 'own', name: 'My own phrases', cards: S.own.map(o => ({id: 'own:' + o.id, en: o.en, ru: o.ru, ex: o.ex || '', exRu: '', src: 'My own'}))};
+}
+groups.push(ownGroup());
+const on = g => !S.off.includes(g.id);
+
+// takes one from each list in turn: [a1, b1, c1, a2, b2, …]
+const mix = lists => { const r = []; for (let i = 0; lists.some(l => i < l.length); i++) for (const l of lists) if (l[i]) r.push(l[i]); return r; };
+// today's cards: the ones due first, then new ones — her own phrases, the weeks' words and My world in turn
+// (so about half of the new ones are the week's words, whatever the number of My world topics)
+function buildQueue() {
+  const live = groups.filter(on), all = live.flatMap(g => g.cards), unseen = cs => cs.filter(c => !S.state[c.id]);
+  const due = all.filter(c => S.state[c.id] && S.state[c.id].d <= today)
+    .sort((a, b) => S.state[a.id].d.localeCompare(S.state[b.id].d) || S.state[a.id].b - S.state[b.id].b).slice(0, 60);
+  const room = Math.max(0, S.newPerDay + (S.day.extra || 0) - S.day.newSeen);
+  const fresh = mix([unseen(live.filter(g => g.id === 'own').flatMap(g => g.cards)),
+                     unseen(live.filter(g => /^w\d/.test(g.id)).flatMap(g => g.cards)),
+                     mix(live.filter(g => g.my).map(g => unseen(g.cards)))]).slice(0, room);
+  return due.concat(fresh.map(c => ({...c, isNew: true})));
+}
+let queue = buildQueue(), pos = 0, shown = false, hint = false, again = new Set();
+
+// ---------- ▶ reads English out loud with the browser's own voice ----------
+const canSpeak = 'speechSynthesis' in window;
+let voice = null;
+function pickVoice() { const vs = speechSynthesis.getVoices(); voice = vs.find(v => v.lang === 'en-GB') || vs.find(v => v.lang && v.lang.startsWith('en')) || null; }
+if (canSpeak) { pickVoice(); speechSynthesis.onvoiceschanged = pickVoice; }
+function speak(text) {
+  if (!canSpeak) return;
+  speechSynthesis.cancel();
+  const u = new SpeechSynthesisUtterance(text.replace(/…/g, ''));
+  if (voice) u.voice = voice; u.lang = voice ? voice.lang : 'en-GB'; u.rate = .95; speechSynthesis.speak(u);
+}
+const play = text => canSpeak ? `<button type="button" class="play" data-say="${esc(text)}" aria-label="Listen">▶</button>` : '';
+
+// ---------- the page ----------
+const tagH = (t, tc) => `<span class="tag"${tc ? ` style="--tc:${tc}"` : ''}>${t}</span>`;
+function cardHTML() {
+  if (pos >= queue.length) {
+    const tomorrow = groups.filter(on).flatMap(g => g.cards).filter(c => S.state[c.id] && S.state[c.id].d <= plus(1)).length;
+    return `<div class="catwrap"><img class="cat" src="source/redesign/sprites/cat-peek.png" alt=""><section class="card alldone" style="--sh:var(--yellow)">${tagH('Today', 'var(--yellow)')}` +
+      `<div class="big">${S.day.reviewed ? 'Done for today ✓' : 'Nothing due right now'}</div>` +
+      `<p>${S.day.reviewed ? `${S.day.reviewed} cards today.` : ''} Tomorrow: about ${tomorrow + S.newPerDay} cards.</p>` +
+      `<div class="fbtns"><button class="btn light" data-more>+ 5 new cards now</button></div></section></div>`;
+  }
+  const c = queue[pos];
+  const left = queue.length - pos;
+  return `<div class="prog"><i style="width:${Math.round(pos / queue.length * 100)}%"></i></div>` +
+    `<section class="card" style="--sh:var(--yellow)">${tagH(`${left} left today`, 'var(--yellow)')}` +
+    `<div class="face"><div class="src">${esc(c.src)}${c.isNew ? ' · new' : ''}</div>` +
+    `<div class="ru">${esc(c.ru)}</div>${c.exRu ? `<div class="exru">${esc(c.exRu)}</div>` : ''}` +
+    (shown ? `<div class="back"><div class="en">${esc(c.en)} ${play(c.en)}</div>` +
+             (c.ex ? `<div class="exen"><span>${esc(c.ex)}</span>${play(c.ex)}</div>` : '') + `</div>` +
+             `<div class="fbtns"><button class="btn no" data-ans="0">Not yet</button><button class="btn" data-ans="1">Got it</button></div>`
+           : `<div class="say">Say it in English, out loud — then open it</div>` +
+             `<div class="first">${hint ? esc(c.en.replace(/[A-Za-z]+/g, w => w[0] + '·'.repeat(w.length - 1))) : ''}</div>` +
+             `<div class="fbtns">${hint ? '' : '<button class="btn light" data-hint>First letters</button>'}<button class="btn" data-show>Show</button></div>`) +
+    `</div></section>`;
+}
+function deckHTML() {
+  const all = groups.filter(on).flatMap(g => g.cards);
+  const known = all.filter(c => S.state[c.id] && S.state[c.id].b >= KNOWN).length;
+  const learning = all.filter(c => S.state[c.id] && S.state[c.id].b < KNOWN).length;
+  return `<section class="card" style="--sh:var(--blue)">${tagH('In my deck', 'var(--blue)')}<p class="hint">untick what you do not want to practise</p>` +
+    `<div class="groups">${groups.map(g => `<label class="tick"><input type="checkbox" data-group="${g.id}"${on(g) ? ' checked' : ''}>` +
+      `<span>${esc(g.name)}</span><span class="cnt">${g.cards.length}</span></label>`).join('')}</div>` +
+    `<div class="stats"><span>known <b>${known}</b></span><span>learning <b>${learning}</b></span><span>not started <b>${all.length - known - learning}</b></span></div>` +
+    `<div class="newper"><span>New cards a day</span>${[5, 10, 15, 20].map(n => `<button data-newper="${n}" class="${S.newPerDay === n ? 'on' : ''}">${n}</button>`).join('')}</div></section>`;
+}
+function ownHTML() {
+  return `<section class="card" style="--sh:var(--lav)">${tagH('Add my own', 'var(--lav)')}` +
+    `<p class="hint">a phrase you met this week — from your phrase log, a video, a conversation</p>` +
+    `<form class="addf" data-add><input name="en" placeholder="English phrase" autocomplete="off" required>` +
+    `<input name="ru" placeholder="what it means, in Russian" autocomplete="off" required>` +
+    `<input name="ex" placeholder="my own sentence with it (optional)" autocomplete="off">` +
+    `<div><button class="btn" type="submit">Add to my cards</button></div></form>` +
+    (S.own.length ? `<div class="own">${S.own.map(o => `<div><span><b>${esc(o.en)}</b> — ${esc(o.ru)}</span><button type="button" data-del="${o.id}" aria-label="Delete">×</button></div>`).join('')}</div>` : '') +
+    `</section>`;
+}
+function listHTML() {
+  const lv = c => { const s = S.state[c.id]; return s ? '●'.repeat(Math.min(s.b, 6)) + '○'.repeat(6 - Math.min(s.b, 6)) : 'new'; };
+  return `<section class="card" style="--sh:var(--pink)">${tagH('All my cards')}<p class="hint">● how far each one has got</p>` +
+    groups.filter(g => g.cards.length).map(g => `<details class="list"><summary>${esc(g.name)} · ${g.cards.length}</summary>` +
+      g.cards.map(c => `<div class="lrow"><span><b>${esc(c.en)}</b></span><span class="lru">${esc(c.ru)}</span><span class="lv">${lv(c)}</span></div>`).join('') +
+      `</details>`).join('') + `</section>`;
+}
+function render() {
+  const left = Math.max(0, queue.length - pos);
+  document.getElementById('page').innerHTML =
+    `<div class="head"><div class="badge"><span class="d">TODAY</span><span class="n">${left}</span></div>` +
+    `<div><div class="kicker">Every day · 10 minutes</div><div class="title">Today’s cards</div><div class="sub">the meaning first — the English comes out of your mouth</div></div>` +
+    `<div class="jp"><span class="k">単語</span><span class="k2">毎日</span></div>` +
+    `<img class="star" src="source/redesign/sprites/star-yellow.png" alt=""></div>` +
+    `<div class="stack">${cardHTML()}${deckHTML()}${ownHTML()}${listHTML()}</div>` +
+    `<p class="motto">Use English. Don’t just study English.</p>`;
+}
+
+// ---------- make it live ----------
+function answer(ok) {
+  const c = queue[pos], s = S.state[c.id] || {b: 0};
+  if (c.isNew && !S.state[c.id]) S.day.newSeen++;
+  if (ok) { s.b = again.has(c.id) ? 1 : Math.min((s.b || 0) + 1, 6); s.d = plus(DAYS[s.b]); }
+  else { s.b = 0; s.d = plus(1); if (!again.has(c.id)) { again.add(c.id); queue.push({...c, isNew: false}); } }
+  S.state[c.id] = s; S.day.reviewed++;
+  pos++; shown = false; hint = false; save(); render();
+}
+document.addEventListener('click', e => {
+  const t = e.target.closest('button, input');
+  if (!t) return;
+  if (t.dataset.say) return speak(t.dataset.say);
+  if (t.hasAttribute('data-show')) { shown = true; render(); return speak(queue[pos].en); }
+  if (t.hasAttribute('data-hint')) { hint = true; return render(); }
+  if (t.dataset.ans) return answer(t.dataset.ans === '1');
+  if (t.hasAttribute('data-more')) { S.day.extra = (S.day.extra || 0) + 5; save(); queue = buildQueue(); pos = 0; again = new Set(); return render(); }
+  if (t.dataset.newper) { S.newPerDay = Number(t.dataset.newper); save(); queue = buildQueue(); pos = 0; return render(); }
+  if (t.dataset.del) { S.own = S.own.filter(o => String(o.id) !== t.dataset.del); save(); groups[groups.length - 1] = ownGroup(); queue = buildQueue(); pos = 0; return render(); }
+});
+document.addEventListener('change', e => {
+  const g = e.target.dataset.group;
+  if (!g) return;
+  S.off = e.target.checked ? S.off.filter(x => x !== g) : S.off.concat(g);
+  save(); queue = buildQueue(); pos = 0; render();
+});
+document.addEventListener('submit', e => {
+  if (!e.target.hasAttribute('data-add')) return;
+  e.preventDefault();
+  const f = e.target, en = f.en.value.trim(), ru = f.ru.value.trim();
+  if (!en || !ru) return;
+  S.own.push({id: Date.now(), en, ru, ex: f.ex.value.trim()});
+  save(); groups[groups.length - 1] = ownGroup(); queue = buildQueue(); pos = 0; render();
+});
+document.addEventListener('keydown', e => {
+  if (e.target.closest('input, textarea, button, summary') || pos >= queue.length) return;
+  if (!shown && (e.key === ' ' || e.key === 'Enter')) { e.preventDefault(); shown = true; render(); speak(queue[pos].en); }
+  else if (shown && e.key === '1') answer(false);
+  else if (shown && e.key === '2') answer(true);
+});
+render();
+</script>
+<script src="app.js"></script>
+</body>
+</html>
