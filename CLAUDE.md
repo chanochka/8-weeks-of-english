@@ -40,7 +40,9 @@ exercises with answers check themselves. **Built one week at a time** (her words
 - The grammar pages (cheat sheet, Grammar plus) stay in `book-data.js` but are out of `BOOK.order`; their quick check
   and say-it questions moved to the words page. Friday is a **Words day** (cards, 4·3·2, ChatGPT Voice).
   ChatGPT Voice 10 min is Core on Mon, Thu, Fri, Sun; every day has "Today's cards"; the writing page is a bonus
-  whose check is about phrases, not grammar. Done for week 1; weeks 2–8 wait for her look at week 1.
+  whose check is about phrases, not grammar. Done for week 1. Her «1 а 2 да» (2026-10-02): the My world topics
+  stay, and weeks 2–8 are built online in this same form (no grammar pages in `order`, Words day, Voice in Core,
+  cards every day, writing as a bonus, the week's Russian in `words-ru.js`).
 - `cards.html`: daily cards, the Russian meaning first, she says the English out loud, then opens it.
   "Got it" moves a card to the next box (1, 3, 7, 14, 30, 60 days), "Not yet" brings it back later today and to box 0.
   New cards a day (default 10) alternate: her own phrases, the weeks' words, My world. Everything is in localStorage
