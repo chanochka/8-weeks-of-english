@@ -47,6 +47,15 @@ exercises with answers check themselves. **Built one week at a time** (her words
   "Got it" moves a card to the next box (1, 3, 7, 14, 30, 60 days), "Not yet" brings it back later today and to box 0.
   New cards a day (default 10) alternate: her own phrases, the weeks' words, My world. Everything is in localStorage
   `cards` (this browser only). Tested by `source/redesign/out/online/cardtest.html` (not committed).
+- `deck.js`: the cards' deck and queue, shared by `cards.html` and the home page so both count the same cards.
+- The home page `index.html` (her request, 2026-10-02), in the same rounded pink style: **Today** on top
+  (Continue = the first day page without ✓, cards waiting), **My progress** (the 56 days as 8 × 7, days in a row,
+  ChatGPT talks = ticked `<b>ChatGPT Voice` items, words known / learning from the cards), **8 weeks** as tiles with
+  each week's days, and **The book** at the bottom (cover, PDF, plan, certificate, word bank, writing, reader).
+  Day pages are found by their `nav` ("Day N · …") and placed in a week by `openerPage` in `data.js`.
+  A day counts for the days in a row when its Core was finished that day (`doneOn` in `book-pN`) or cards were
+  answered that day (`days` in `cards`). Tested by `source/redesign/out/online/hometest.html` (not committed);
+  `home-demo.html?demo` shows it with sample progress.
 - `words-ru.js`: Russian meaning + example for each week's phrases (written for the site, not in the book) —
   a week is added when it goes online, and only then do its words reach the cards.
 - `my-words.js`: «Мой мир», her own topics (picked by Claude from what she does: studio, AI, robot, working

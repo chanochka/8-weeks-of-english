@@ -213,7 +213,12 @@ function showDone() {
   const core = [...root.querySelectorAll('[data-core]')];
   const done = core.length > 0 && core.every(x => x.checked);
   d.classList.toggle('on', done);
-  if (!!saved.done !== done) { saved.done = done; save(); }
+  if (!!saved.done !== done) {
+    saved.done = done;
+    // the date the Core was finished: the home page counts the days in a row from it
+    if (done) { const d = new Date(); saved.doneOn = d.getFullYear() + '-' + String(d.getMonth() + 1).padStart(2, '0') + '-' + String(d.getDate()).padStart(2, '0'); }
+    save();
+  }
 }
 function showSaid() {
   const s = document.getElementById('said'); if (!s) return;

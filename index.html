@@ -1,16 +1,191 @@
-<!doctype html><html lang="en"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1"><meta name="theme-color" content="#f2a9b7"><title>8 Weeks of English</title><link rel="manifest" href="manifest.webmanifest"><link rel="stylesheet" href="styles.css"></head><body>
-<header class="topbar"><div class="shell topbar-inner"><a class="brand" href="index.html"><img src="assets/cover.jpg" alt=""><span>8 WEEKS OF ENGLISH</span></a><nav class="nav"><a href="reader.html">Workbook</a><a href="words.html">Words</a><a href="roadmap.html">Roadmap</a><a href="writing.html">Writing</a><button data-install hidden>Install app</button></nav></div></header>
-<main class="shell">
-<section class="hero"><div><div class="eyebrow">英語学習 · STUDY JOURNAL</div><h1>8 WEEKS<br>OF ENGLISH</h1><p class="hero-copy"><strong>B1–B2 · Passive English → Active English.</strong><br>56 days of speaking, listening, reading, writing, grammar and pronunciation — built to make the English you already know easier to use.</p><div class="hero-meta"><span class="pill">56 DAYS</span><span class="pill">B1–B2</span><span class="pill">SPEAK · LISTEN · READ · WRITE</span><span class="pill">OFFLINE READY</span></div><div class="actions"><a class="btn" href="reader.html?page=1">Open full workbook</a><a class="btn secondary" href="writing.html">Weekly writing</a></div><p class="status" data-status></p></div><div class="hero-art"><img src="assets/cover.jpg" alt="8 Weeks of English cover concept"></div></section>
-<section class="section"><div class="section-title"><div><div class="eyebrow">デジタル版 · DIGITAL EDITION</div><h2>Your workbook hub</h2></div><p>The full 123-page book, now with a word bank and grammar plus for every week. The web version adds faster navigation, digital writing spaces and offline access.</p></div><div class="grid">
-<article class="card wide"><div class="mini">FULL BOOK</div><h3>Read the 123-page workbook</h3><p>Open any page, jump to a week, or open the PDF in PocketBook / another PDF app.</p><a class="link" href="reader.html">OPEN READER →</a></article>
-<article class="card wide"><div class="mini">WRITE DIGITALLY</div><h3>8 weekly writing tasks</h3><p>Type directly in the browser. Your drafts are stored locally on this device and show a live word count.</p><a class="link" href="writing.html">OPEN WRITING →</a></article>
-<article class="card full"><div class="mini">WORD BANK + GRAMMAR PLUS</div><h3>Phrasal verbs, idioms and collocations for every week</h3><p>12 phrasal verbs, 6 idioms and 10 collocations per week, one extra B2 grammar point, practice with answers and audio. The ★ ones are also on your printed page.</p><a class="link" href="words.html">OPEN WORD BANK →</a></article>
-<article class="card"><div class="mini">PLAN</div><h3>8-week roadmap</h3><p>See phase, theme, grammar, speaking target and writing target for every week.</p><a class="link" href="roadmap.html">VIEW ROADMAP →</a></article>
-<article class="card"><div class="mini">PDF</div><h3>Open / download PDF</h3><p>Useful if you want to send the full edition to PocketBook Reader or keep a separate file copy.</p><a class="link" href="8-weeks-of-english-full.pdf" target="_blank">OPEN PDF →</a></article>
-<article class="card"><div class="mini">DAY 56</div><h3>Certificate</h3><p>A simple digital completion certificate is available after the final week.</p><a class="link" href="certificate.html">OPEN CERTIFICATE →</a></article>
-</div></section>
-<section class="section"><div class="section-title"><div><div class="eyebrow">八週間 · EIGHT WEEKS</div><h2>Jump to a week</h2></div></div><div class="week-grid" id="weeks"></div></section>
-</main>
-<footer class="footer"><div class="shell footer-inner"><span>USE ENGLISH. DON'T JUST STUDY ENGLISH.</span><span class="jp">毎日少しずつ · A little every day</span></div></footer>
-<script src="data.js"></script><script>const root=document.getElementById('weeks');WORKBOOK.weeks.forEach(w=>{root.insertAdjacentHTML('beforeend',`<article class="week"><small>WEEK ${String(w.week).padStart(2,'0')} · ${w.phase}</small><strong>${w.theme}</strong><small>${w.speaking}</small><br><a class="link" href="${w.bookPage?`book.html?page=${w.bookPage}`:`reader.html?page=${w.openerPage}`}">Open week →</a> · <a class="link" href="words.html?week=${w.week}">Words →</a></article>`)});</script><script src="app.js"></script></body></html>
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1">
+<meta name="theme-color" content="#26323D">
+<title>8 Weeks of English</title>
+<link rel="manifest" href="manifest.webmanifest">
+<link rel="stylesheet" href="book.css">
+<!--
+  The home page (2026-10-02, her request): Today on top — Continue (the first day without ✓) and the cards waiting —
+  then her progress (the 56 days, days in a row, words known / learning from the cards, ChatGPT Voice talks),
+  the 8 weeks as tiles with each week's days, and the book itself (cover, PDF, plan, certificate) at the bottom.
+  Everything is read from this browser: the book pages' "book-pN" and the cards' "cards" (deck.js).
+  A day counts for the days in a row when its Core was finished that day or cards were answered that day.
+-->
+<style>
+.today .wk-of { font: 900 12px/1.3 "Nunito"; letter-spacing: .12em; text-transform: uppercase; color: var(--starry); }
+.today .big { font: 700 27px/1.1 "Fredoka"; margin: 4px 0 6px; }
+.today .goalt { color: var(--starry); font-weight: 800; }
+.btn.go { font-size: 20px; padding: 11px 28px 10px; margin-top: 16px; box-shadow: 4px 4px 0 var(--pink); }
+.crow { display: flex; align-items: center; gap: 12px; margin-top: 18px; padding-top: 14px; border-top: 2px dotted var(--dots); }
+.crow .ct { margin-right: auto; font: 600 19px/1.2 "Fredoka"; }
+.crow .n { background: var(--hl); border-radius: 99px; padding: 0 9px; }
+.crow .ok { color: var(--starry); }
+
+.ofdays { font: 600 18px/1.2 "Fredoka"; }
+.ofdays .n { font-size: 26px; }
+.strip { display: grid; grid-template-columns: repeat(8, 1fr); gap: 5px; margin: 10px 0 4px; }
+.wk { display: grid; grid-template-columns: repeat(7, 1fr); gap: 1.5px; height: 18px; border: var(--line); border-radius: 99px;
+      overflow: hidden; background: var(--sky); }
+.wk i { background: #fff; }
+.wk i.on { background: var(--navy); }
+.wk i.next { background: var(--pink); }
+.wnums { display: grid; grid-template-columns: repeat(8, 1fr); gap: 5px; text-align: center; font: 600 12px/1 "Fredoka"; color: var(--slate); }
+.pfacts { margin-top: 16px; }
+.pfacts .fact strong { font: 700 26px/1.05 "Fredoka"; margin-top: 4px; }
+.pfacts .fact small { display: block; font: 800 13px/1.3 "Nunito"; color: var(--slate); }
+
+.sect { font: 700 26px/1.1 "Fredoka"; margin: 6px 0 -8px; }
+.weeks { display: grid; grid-template-columns: repeat(4, 1fr); gap: 16px; }
+.wt { position: relative; display: block; background: #fff; border: var(--line); border-radius: 16px; padding: 12px 12px 10px;
+      box-shadow: 4px 4px 0 var(--blue); text-decoration: none; color: var(--navy); }
+.wt.now { box-shadow: 4px 4px 0 var(--pink); }
+.wt.off { background: transparent; box-shadow: none; border-style: dashed; }
+.wt .wn { font: 900 11px/1.2 "Nunito"; letter-spacing: .12em; text-transform: uppercase; color: var(--starry); }
+.wt .wtt { font: 600 18px/1.12 "Fredoka"; margin: 4px 0 10px; min-height: 2.24em; }
+.wt .dots { display: flex; gap: 3px; }
+.wt .dots i { width: 12px; height: 12px; border-radius: 50%; border: 1.5px solid var(--navy); background: #fff; }
+.wt .dots i.on { background: var(--navy); }
+.wt.off .dots i { border-color: var(--dots); background: none; }
+.wt .wf { font: 800 13px/1.3 "Nunito"; color: var(--slate); margin-top: 6px; }
+.wt .here { position: absolute; top: -12px; right: 10px; background: var(--pink); border: var(--line); border-radius: 99px;
+            font: 600 13px/1 "Fredoka"; padding: 4px 9px 3px; }
+
+.bookc { display: grid; grid-template-columns: 130px 1fr; gap: 18px; align-items: start; }
+.bookc img { width: 100%; border: var(--line); border-radius: 10px; }
+.links a { display: grid; grid-template-columns: 1fr auto; align-items: center; gap: 0 10px; padding: 8px 0; border-bottom: 2px dotted var(--dots);
+           text-decoration: none; color: var(--navy); font-weight: 900; }
+.links a:last-child { border-bottom: 0; }
+.links small { grid-column: 1; font: 700 13px/1.3 "Nunito"; color: var(--slate); }
+.links .ar { grid-row: 1 / 3; grid-column: 2; font: 700 20px/1 "Fredoka"; color: var(--slate); }
+.bookc .inst { margin-top: 14px; }
+.bookc .inst[hidden] { display: none; }
+
+@media (max-width: 600px) {
+  .today .big { font-size: 24px; }
+  .btn.go { display: block; text-align: center; }
+  .strip, .wnums { gap: 3px; }
+  .wk { height: 16px; }
+  .weeks { grid-template-columns: 1fr 1fr; gap: 14px; }
+  .bookc { grid-template-columns: 92px 1fr; gap: 14px; }
+}
+</style>
+</head>
+<body>
+<header class="bar"><div class="bar-in">
+  <a class="brand" href="index.html">8 WEEKS OF ENGLISH</a>
+  <nav><a href="cards.html">Cards</a><a href="words.html">Words</a><a class="wide" href="writing.html">Writing</a></nav>
+</div></header>
+<main class="wrap" id="page"></main>
+<script src="data.js"></script>
+<script src="words-data.js"></script>
+<script src="words-ru.js"></script>
+<script src="my-words.js"></script>
+<script src="deck.js"></script>
+<script src="book-data.js"></script>
+<script>
+const esc = s => String(s).replace(/[&<>"]/g, c => ({'&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;'}[c]));
+function load(n) { try { return JSON.parse(localStorage.getItem('book-p' + n)) || {}; } catch (e) { return {}; } }
+const WEEKS = WORKBOOK.weeks;
+const weekOf = n => WEEKS.filter(w => w.openerPage <= n).pop() || WEEKS[0];
+
+// ---------- the days of the weeks that are online (book-data.js), numbered 1–56 ----------
+const pages = Object.keys(BOOK).filter(k => /^\d+$/.test(k)).map(Number);
+const days = pages.filter(n => /^Day \d+/.test(BOOK[n].nav)).map(n => {
+  const w = weekOf(n), d = Number(/^Day (\d+)/.exec(BOOK[n].nav)[1]), s = load(n);
+  const goal = BOOK[n].blocks.find(b => b.type === 'goal');
+  return {page: n, week: w, num: d <= 7 ? (w.week - 1) * 7 + d : d, done: !!s.done, doneOn: s.done && s.doneOn, goal: goal && goal.text};
+}).sort((a, b) => a.num - b.num);
+const doneNums = new Set(days.filter(d => d.done).map(d => d.num));
+const next = days.find(d => !d.done);
+
+// ---------- the cards (deck.js) ----------
+const S = loadCards(), groups = deckGroups(S);
+const waiting = deckQueue(S, groups).length, words = deckStats(S, groups);
+
+// ---------- ChatGPT Voice talks: the ticked "ChatGPT Voice" items of the days ----------
+let talks = 0;
+for (const n of pages) {
+  const t = load(n).ticks || {};
+  BOOK[n].blocks.forEach(b => {
+    if (b.type === 'checklist' && Array.isArray(b.items))
+      b.items.forEach((x, i) => { if (/^<b>ChatGPT Voice/.test(x) && t[`${b.id}-${i}`]) talks++; });
+  });
+}
+
+// ---------- days in a row: a day counts when its cards were answered or a day's Core was finished ----------
+const studied = new Set(Object.keys(S.days).filter(k => S.days[k] > 0));
+if (S.day.reviewed) studied.add(today);
+days.forEach(d => d.doneOn && studied.add(d.doneOn));
+let streak = 0;
+for (let i = studied.has(today) ? 0 : 1; studied.has(plus(-i)); i++) streak++;
+
+// ---------- the page ----------
+const tagH = (t, tc, navy) => `<span class="tag${navy ? ' navy' : ''}"${tc ? ` style="--tc:${tc}"` : ''}>${t}</span>`;
+const lastOnline = WEEKS.filter(w => w.bookPage).pop();
+const nextWeek = WEEKS.find(w => !w.bookPage);
+const todayCard =
+  `<div class="catwrap"><img class="cat" src="source/redesign/sprites/cat-peek.png" alt="">` +
+  `<section class="card today" style="--sh:var(--navy)">${tagH('Today', '', true)}` +
+  (next
+    ? `<div class="wk-of">Week ${next.week.week} · ${esc(next.week.theme)}</div><div class="big">${esc(BOOK[next.page].nav)}</div>` +
+      (next.goal ? `<p class="goalt">${esc(next.goal)}</p>` : '') +
+      `<a class="btn go" href="book.html?page=${next.page}">Continue →</a>`
+    : `<div class="big">Every online day is done ✓</div>` +
+      `<p class="goalt">${nextWeek ? `Week ${nextWeek.week} comes online next.` : 'All 56 days — well done.'}</p>` +
+      `<a class="btn go" href="book.html?page=${lastOnline.bookPage}">Week ${lastOnline.week} →</a>`) +
+  `<div class="crow"><span class="ct">Cards: ${waiting ? `<span class="n">${waiting}</span> waiting` : '<span class="ok">done for today ✓</span>'}</span>` +
+  `<a class="btn light" href="cards.html">${waiting ? 'Start' : 'Open'}</a></div></section></div>`;
+
+const strip = WEEKS.map(w => `<div class="wk">${Array.from({length: 7}, (_, i) => {
+  const n = (w.week - 1) * 7 + i + 1;
+  return `<i class="${doneNums.has(n) ? 'on' : next && next.num === n ? 'next' : ''}"></i>`;
+}).join('')}</div>`).join('');
+const progress =
+  `<section class="card" style="--sh:var(--blue)">${tagH('My progress', 'var(--blue)')}` +
+  `<div class="ofdays"><span class="n">${doneNums.size}</span> of 56 days</div>` +
+  `<div class="strip">${strip}</div><div class="wnums">${WEEKS.map(w => `<span>${w.week}</span>`).join('')}</div>` +
+  `<div class="facts pfacts">` +
+  `<div class="fact"><span class="label">Days in a row</span><strong>${streak}</strong><small>${studied.has(today) ? 'today counts ✓' : streak ? 'do today’s cards to keep it' : 'cards or a day’s Core'}</small></div>` +
+  `<div class="fact"><span class="label">ChatGPT talks</span><strong>${talks}</strong><small>${talks * 10} min out loud</small></div>` +
+  `<div class="fact"><span class="label">Words known</span><strong>${words.known}</strong><small>two weeks and more</small></div>` +
+  `<div class="fact"><span class="label">Learning</span><strong>${words.learning}</strong><small>of ${words.all} in the cards</small></div>` +
+  `</div></section>`;
+
+const tiles = WEEKS.map(w => {
+  const online = !!w.bookPage, n = Array.from({length: 7}, (_, i) => (w.week - 1) * 7 + i + 1).filter(x => doneNums.has(x)).length;
+  const here = next && next.week.week === w.week;
+  return `<a class="wt${here ? ' now' : ''}${online ? '' : ' off'}" href="${online ? `book.html?page=${w.bookPage}` : `reader.html?page=${w.openerPage}`}">` +
+    (here ? `<span class="here">now</span>` : '') +
+    `<div class="wn">Week ${String(w.week).padStart(2, '0')}</div><div class="wtt">${esc(w.theme)}</div>` +
+    `<div class="dots">${Array.from({length: 7}, (_, i) => `<i class="${doneNums.has((w.week - 1) * 7 + i + 1) ? 'on' : ''}"></i>`).join('')}</div>` +
+    `<div class="wf">${online ? `${n} / 7 days${n === 7 ? ' ✓' : ''}` : 'online soon · PDF'}</div></a>`;
+}).join('');
+
+const link = (href, t, small, blank) => `<a href="${href}"${blank ? ' target="_blank"' : ''}><span>${t}</span><small>${small}</small><span class="ar">›</span></a>`;
+const bookCard =
+  `<section class="card" style="--sh:var(--lav)">${tagH('The book', 'var(--lav)')}<div class="bookc">` +
+  `<img src="assets/cover.jpg" alt="8 Weeks of English — the cover">` +
+  `<div><div class="links">` +
+  link('8-weeks-of-english-full.pdf', 'Full book · PDF', 'all 123 pages, for any PDF app', true) +
+  link('roadmap.html', 'The 8-week plan', 'phase, theme and targets of every week') +
+  link('certificate.html', 'Certificate', 'after day 56') +
+  link('words.html', 'Word bank', 'every week’s phrases, with audio') +
+  link('writing.html', 'Writing', 'type the weekly writing here') +
+  link('reader.html', 'The PDF on the site', 'any page of the original book') +
+  `</div><button type="button" class="btn light inst" data-install hidden>Install the app</button></div></div></section>`;
+
+document.getElementById('page').innerHTML =
+  `<div class="head"><div class="badge"><span class="d">DAY</span><span class="n">${next ? next.num : '✓'}</span></div>` +
+  `<div><div class="kicker">8 Weeks of English · B1 → B2</div><div class="title">Today</div>` +
+  `<div class="sub">${new Date().toLocaleDateString('en-GB', {weekday: 'long', day: 'numeric', month: 'long'})}</div></div>` +
+  `<div class="jp"><span class="k">今日</span><span class="k2">毎日少しずつ</span></div>` +
+  `<img class="star" src="source/redesign/sprites/star-yellow.png" alt=""></div>` +
+  `<div class="stack">${todayCard}${progress}<h2 class="sect">8 weeks</h2><div class="weeks">${tiles}</div>${bookCard}</div>` +
+  `<p class="motto">Use English. Don’t just study English.</p>`;
+</script>
+<script src="app.js"></script>
+</body>
+</html>
