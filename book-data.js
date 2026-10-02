@@ -24,7 +24,13 @@ const BOOK = {
         '<p>The Russian meaning first — you say the English out loud, then turn the card over. ' +
         'This week’s 28 phrases, <strong>My world</strong> (studio, AI, the robot, working with people) and the phrases you add yourself.</p>' +
         '<div class="btns"><a class="btn" href="cards.html">Today’s cards</a></div>'},
-      {type: 'hub', cat: true, tag: 'This week’s pages', hint: 'a ✓ appears when the Core of a day is done'}
+      {type: 'hub', cat: true, tag: 'This week’s pages', hint: 'a ✓ appears when the Core of a day is done'},
+      // her «1 да 2 да» (2026-10-02): a sample notebook page, made by source/redesign/notebook-sample.html
+      {type: 'card', tag: 'How to keep your notebook', tc: 'var(--lav)', sh: 'var(--lav)', html:
+        '<p>One page a day, and one page a week for the phrase log. You need a dark pen, pastel markers ' +
+        '(yellow, pink, lilac) and a ruler — only for the log.</p>' +
+        '<a class="nbsample" href="assets/notebook-sample.png" target="_blank"><img src="assets/notebook-sample.png" ' +
+        'alt="A sample notebook: the Day 1 page and the phrase log" loading="lazy"></a>'}
     ]
   },
 

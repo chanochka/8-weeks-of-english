@@ -47,6 +47,10 @@ exercises with answers check themselves. **Built one week at a time** (her words
   "Got it" moves a card to the next box (1, 3, 7, 14, 30, 60 days), "Not yet" brings it back later today and to box 0.
   New cards a day (default 10) alternate: her own phrases, the weeks' words, My world. Everything is in localStorage
   `cards` (this browser only). Tested by `source/redesign/out/online/cardtest.html` (not committed).
+- The week page ends with "How to keep your notebook": `assets/notebook-sample.png`, a sample Day 1 page and phrase
+  log with numbered notes in Russian (her «1 да 2 да», 2026-10-02). Made by `source/redesign/notebook-sample.html`:
+  headless Chrome, window 690 px, scale 1.5 (1260 px gives the open spread), then a 96-colour PNG.
+  Weeks 2–8 show the same card.
 - `deck.js`: the cards' deck and queue, shared by `cards.html` and the home page so both count the same cards.
 - The home page `index.html` (her request, 2026-10-02), in the same rounded pink style: **Today** on top
   (Continue = the first day page without ✓, cards waiting), **My progress** (the 56 days as 8 × 7, days in a row,

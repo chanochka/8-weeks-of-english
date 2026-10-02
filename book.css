@@ -239,6 +239,12 @@ body.test .ww.shown { color: var(--navy); background: none; }
 
 .catwrap > .stack { position: relative; z-index: 1; }
 
+/* the notebook sample on the week page: its top shows, a tap opens the whole picture */
+.nbsample { display: block; position: relative; max-width: 460px; max-height: 440px; overflow: hidden; margin-top: 14px;
+            border: var(--line); border-radius: 12px; text-decoration: none; }
+.nbsample::after { content: "Open the whole picture ↗"; position: absolute; left: 0; right: 0; bottom: 0; padding: 48px 0 12px;
+                   text-align: center; background: linear-gradient(rgba(255, 255, 255, 0), #fff 62%); font: 600 16px/1.2 "Fredoka"; color: var(--navy); }
+
 /* ---------- phone ---------- */
 @media (max-width: 600px) {
   body { font-size: 16px; }

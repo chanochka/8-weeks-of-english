@@ -1,9 +1,9 @@
-const CACHE='english-workbook-v8';
+const CACHE='english-workbook-v9';
 const CORE=[
   './','./index.html','./reader.html','./roadmap.html','./writing.html','./certificate.html','./words.html',
   './styles.css','./app.js','./data.js','./words-data.js','./manifest.webmanifest',
   './book.html','./book.css','./book-data.js','./cards.html','./words-ru.js','./my-words.js','./deck.js',
-  './assets/cover.jpg','./assets/icon-192.png','./assets/icon-512.png',
+  './assets/cover.jpg','./assets/notebook-sample.png','./assets/icon-192.png','./assets/icon-512.png',
   './8-weeks-of-english-full.pdf'
 ];
 self.addEventListener('install',event=>{

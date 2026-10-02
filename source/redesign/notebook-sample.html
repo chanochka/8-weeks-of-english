@@ -1,0 +1,154 @@
+<!doctype html>
+<html lang="ru"><head><meta charset="utf-8">
+<title>Notebook spread</title>
+<!-- A sample of how her notebook can look (2026-10-02, her «1 да 2 да»): a day page (Day 1) and the week's phrase log,
+     with numbered notes in Russian. The site shows it on the week page as assets/notebook-sample.png, pages one under the
+     other: headless Chrome at a 690 px window, scale 1.5 (a window of 1260 px gives the open spread). Handwriting fonts
+     come from Google Fonts. -->
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link href="https://fonts.googleapis.com/css2?family=Caveat:wght@500;700&family=Patrick+Hand&display=swap" rel="stylesheet">
+<link rel="stylesheet" href="fonts/fonts.css">
+<style>
+:root { --navy: #26323D; --ink: #24365C; --pink: #E8A8BA; --yellow: #FFE07A; --lav: #CDBBE0; --line: #C9D5E2; --bg: #FBE6EC; --slate: #677F94; }
+* { box-sizing: border-box; }
+body { margin: 0; background: var(--bg); width: 1260px; padding: 30px 30px 26px; font-family: "Nunito"; color: var(--navy); }
+.spread { display: grid; grid-template-columns: 1fr 1fr; border-radius: 10px; overflow: hidden; box-shadow: 6px 6px 0 var(--navy); border: 1.5px solid var(--navy); }
+.page { position: relative; height: 900px; background: #FFFDF8 linear-gradient(transparent 29px, var(--line) 29px, var(--line) 30px) 0 30px / 100% 30px;
+        padding: 30px 30px 0 66px; font: 500 22px/30px "Caveat"; color: var(--ink); }
+.page::before { content: ""; position: absolute; left: 50px; top: 0; bottom: 0; width: 1.5px; background: #F2B8C6; }
+.page.l { box-shadow: inset -26px 0 26px -22px rgba(38, 50, 61, .28); }
+.page.r { box-shadow: inset 26px 0 26px -22px rgba(38, 50, 61, .28); }
+.ln { height: 30px; white-space: nowrap; position: relative; }
+.date { text-align: right; font-weight: 700; }
+.date span { border-bottom: 2px solid var(--ink); padding: 0 4px; }
+/* marker: a soft stroke behind the heading, as a highlighter leaves it */
+.mk { position: relative; display: inline-block; font: 700 27px/30px "Caveat"; color: var(--navy); padding: 0 6px; }
+.mk::before { content: ""; position: absolute; left: -2px; right: -4px; top: 13px; height: 15px; background: var(--hl, var(--yellow)); opacity: .75;
+              border-radius: 3px 8px 4px 9px; transform: rotate(-1deg); z-index: -1; }
+.mk { z-index: 0; }
+.small { font: 500 18px/30px "Caveat"; color: var(--slate); margin-left: 8px; }
+.book { font: 400 20px/30px "Patrick Hand"; color: var(--navy); }
+.own { padding-left: 34px; }
+.c { display: inline-grid; place-content: center; width: 23px; height: 23px; border: 2px solid var(--navy); border-radius: 50%;
+     font: 400 15px/1 "Patrick Hand"; margin-right: 8px; vertical-align: 2px; color: var(--navy); }
+.title { display: flex; align-items: center; gap: 14px; height: 60px; }
+.dayc { width: 58px; height: 58px; border-radius: 50%; border: 2.5px solid var(--navy); background: var(--pink); display: grid; place-content: center;
+        text-align: center; font: 700 15px/1 "Caveat"; color: var(--navy); transform: rotate(-4deg); }
+.dayc b { display: block; font: 700 30px/0.9 "Caveat"; }
+.title .t { font: 700 40px/1 "Caveat"; color: var(--navy); }
+.box { border: 2px solid var(--ink); border-radius: 6px; padding: 0 8px; margin-left: 8px; }
+.cat { position: absolute; width: 86px; right: 34px; }
+.star { position: absolute; width: 30px; }
+/* the phrase log table, ruled with a ruler */
+.tbl { position: relative; }
+.tr { display: grid; grid-template-columns: 21% 26% 36% 17%; height: 30px; font: 500 18px/30px "Caveat"; }
+.tr span { padding: 0 6px; white-space: nowrap; overflow: hidden; border-left: 1.8px solid var(--navy); }
+.tr span:first-child { border-left: 0; }
+.tr.th { font: 400 15px/30px "Patrick Hand"; color: var(--navy); background: rgba(205, 187, 224, .55); border-top: 1.8px solid var(--navy); }
+.tr.th span { padding: 0 6px; }
+.tbl .tr:last-child { border-bottom: 1.8px solid var(--navy); }
+.dots { letter-spacing: 3px; font-size: 17px; }
+.pin { position: absolute; width: 26px; height: 26px; border-radius: 50%; background: var(--navy); color: #fff; font: 600 14px/26px "Fredoka";
+       text-align: center; box-shadow: 2px 2px 0 var(--pink); z-index: 3; }
+.legend { margin-top: 26px; display: grid; grid-template-columns: 1fr 1fr; grid-template-rows: repeat(4, auto); grid-auto-flow: column; gap: 10px 34px; font: 700 17px/1.35 "Nunito"; }
+.legend div { display: flex; gap: 10px; align-items: flex-start; }
+.legend .n { flex: none; width: 26px; height: 26px; border-radius: 50%; background: var(--navy); color: #fff; font: 600 14px/26px "Fredoka"; text-align: center; box-shadow: 2px 2px 0 var(--pink); }
+.need { grid-column: 1 / -1; grid-row: 5; margin-top: 6px; background: #fff; border: 1.5px solid var(--navy); border-radius: 14px; padding: 10px 16px; box-shadow: 4px 4px 0 var(--lav); }
+.need b { font: 900 17px/1 "Nunito"; }
+.hd { font: 900 24px/1.1 "Nunito"; margin: 0 0 14px; }
+/* a narrow window (the site's picture): the pages one under the other, the notes in one column */
+@media (max-width: 800px) {
+  body { width: auto; }
+  .spread { grid-template-columns: 1fr; }
+  .page.l, .page.r { box-shadow: none; height: auto; padding-bottom: 60px; }
+  .page.r { border-top: 1.5px dashed var(--navy); }
+  .legend { grid-template-columns: 1fr; grid-template-rows: none; grid-auto-flow: row; }
+  .need { grid-row: auto; }
+}
+</style></head>
+<body>
+<div class="hd">Как вести тетрадь · пример недели 1</div>
+<div class="spread">
+
+  <!-- left: a day page -->
+  <div class="page l">
+    <div class="ln date"><span>Mon · 5 Oct</span></div>
+    <div class="title"><div class="dayc">DAY<b>1</b></div><div class="t">Speak + build</div></div>
+    <div class="ln"></div>
+    <div class="ln"><span class="mk">Today’s phrases</span><span class="small">my version under each</span></div>
+    <div class="ln book"><span class="c">1</span>I usually get up around…</div>
+    <div class="ln own">I usually get up around nine — then coffee and emails.</div>
+    <div class="ln book"><span class="c">2</span>The first thing I do is…</div>
+    <div class="ln own">The first thing I do is check messages from the studio.</div>
+    <div class="ln book"><span class="c">3</span>After that I tend to…</div>
+    <div class="ln own">After that I tend to sketch for an hour before lunch.</div>
+    <div class="ln book"><span class="c">4</span>By the end of the day I’m…</div>
+    <div class="ln own">By the end of the day I’m tired, but in a good way.</div>
+    <div class="ln"></div>
+    <div class="ln"><span class="mk">My day, in my own words</span></div>
+    <div class="ln">I wake up around nine and make a big mug of coffee.</div>
+    <div class="ln">In the morning I work on the studio — prompts, frames,</div>
+    <div class="ln">and the boring parts too. After lunch I usually go for</div>
+    <div class="ln">a walk, then I build my little robot for an hour. In the</div>
+    <div class="ln">evening I watch something in English, no subtitles.</div>
+    <div class="ln"></div>
+    <div class="ln"></div>
+    <div class="ln">One word I needed: <span class="box">to procrastinate</span></div>
+    <!-- a cat doodle peeking over the heading, drawable with one pen -->
+    <svg class="cat" style="top:437px" viewBox="0 0 86 44" fill="none" stroke="#26323D" stroke-width="2.4" stroke-linecap="round" stroke-linejoin="round">
+      <path d="M8 44 C7 30 10 22 16 17 L14 3 L28 12 C36 9 50 9 58 12 L72 3 L70 17 C76 22 79 30 78 44" fill="#FFFDF8"/>
+      <circle cx="32" cy="29" r="2.4" fill="#26323D"/><circle cx="54" cy="29" r="2.4" fill="#26323D"/>
+      <ellipse cx="25" cy="36" rx="5" ry="2.6" fill="#E8A8BA" stroke="none"/><ellipse cx="61" cy="36" rx="5" ry="2.6" fill="#E8A8BA" stroke="none"/>
+      <path d="M40 33 q3 3 6 0"/>
+    </svg>
+    <span class="pin" style="top:32px;left:434px">1</span>
+    <span class="pin" style="top:76px;left:384px">2</span>
+    <span class="pin" style="top:152px;left:412px">3</span>
+    <span class="pin" style="top:182px;left:14px">4</span>
+    <span class="pin" style="top:684px;left:380px">5</span>
+    <span class="pin" style="top:446px;left:476px">7</span>
+  </div>
+
+  <!-- right: the week's phrase log -->
+  <div class="page r" style="--hl: var(--lav)">
+    <div class="ln date"><span>Week 1 · 5–11 Oct</span></div>
+    <div class="title"><div class="t"><span class="mk" style="font-size:40px;line-height:44px">Phrase log</span></div></div>
+    <div class="ln"><span class="small" style="margin-left:0">everyday you · I come back to it all week</span></div>
+    <div class="tbl">
+      <div class="tr th"><span>phrase</span><span>what it means</span><span>my sentence</span><span>+1 +3 +7 +14</span></div>
+      <div class="tr"><span>sleep in</span><span>stay in bed longer</span><span>I slept in on Sunday.</span><span class="dots">●●○○</span></div>
+      <div class="tr"><span>get round to</span><span>finally find time</span><span>I never get round to it.</span><span class="dots">●○○○</span></div>
+      <div class="tr"><span>a close-up</span><span>a shot very near</span><span>A close-up of her eyes.</span><span class="dots">●○○○</span></div>
+      <div class="tr"><span>wind down</span><span>relax in the evening</span><span>I wind down with tea.</span><span class="dots">○○○○</span></div>
+      <div class="tr"><span>keep up with</span><span>not fall behind</span><span>I can’t keep up with it.</span><span class="dots">○○○○</span></div>
+      <div class="tr"><span></span><span></span><span></span><span></span></div>
+      <div class="tr"><span></span><span></span><span></span><span></span></div>
+      <div class="tr"><span></span><span></span><span></span><span></span></div>
+      <div class="tr"><span></span><span></span><span></span><span></span></div>
+      <div class="tr"><span></span><span></span><span></span><span></span></div>
+      <div class="tr"><span></span><span></span><span></span><span></span></div>
+      <div class="tr"><span></span><span></span><span></span><span></span></div>
+    </div>
+    <div class="ln"></div>
+    <div class="ln"><span class="mk">Five I must use out loud next week</span></div>
+    <div class="ln"><span class="c">1</span>get round to</div>
+    <div class="ln"><span class="c">2</span>wind down</div>
+    <div class="ln"><span class="c">3</span></div>
+    <div class="ln"><span class="c">4</span></div>
+    <div class="ln"><span class="c">5</span></div>
+    <img class="star" style="top:84px;right:44px;transform:rotate(14deg)" src="sprites/star-yellow.png" alt="">
+    <span class="pin" style="top:168px;left:14px">6</span>
+  </div>
+</div>
+
+<div class="legend">
+  <div><span class="n">1</span><span>Дата — справа сверху, ручкой.</span></div>
+  <div><span class="n">2</span><span>День — кружок розовым маркером, название крупно.</span></div>
+  <div><span class="n">3</span><span>Заголовки — маркером: жёлтым на странице дня, сиреневым в логе.</span></div>
+  <div><span class="n">4</span><span>Фраза из книги — печатными, с кружком-номером; твоя версия — строкой ниже, как пишешь.</span></div>
+  <div><span class="n">5</span><span>Одно слово дня — внизу, в рамочке.</span></div>
+  <div><span class="n">6</span><span>Лог — своя страница на неделю, линии по линейке. Кружки +1 +3 +7 +14 закрашиваешь, когда повторила фразу.</span></div>
+  <div><span class="n">7</span><span>Котик — по желанию: одна линия, глаза, щёчки.</span></div>
+  <div class="need"><b>Понадобится:</b> тёмно-синяя или чёрная ручка · пастельные маркеры: жёлтый, розовый, сиреневый · линейка — только для лога.</div>
+</div>
+</body></html>
