@@ -4,7 +4,7 @@ const WORKBOOK = {
   roadmapPage: 3,
   certificatePage: 123,
   weeks: [
-    {week:1, phase:'ACTIVATE', theme:'Everyday you', grammar:'Present simple vs present continuous', speaking:'60–90 sec monologue', writing:'A day in your life', words:'100–150', writingPage:17, openerPage:6},
+    {week:1, phase:'ACTIVATE', theme:'Everyday you', grammar:'Present simple vs present continuous', speaking:'60–90 sec monologue', writing:'A day in your life', words:'100–150', writingPage:17, openerPage:6, bookPage:6},
     {week:2, phase:'ACTIVATE', theme:'People and places', grammar:'Comparisons and degree', speaking:'2 min description', writing:'A person or a place', words:'120–150', writingPage:31, openerPage:20},
     {week:3, phase:'EXPRESS', theme:'Opinions and preferences', grammar:'Opinion structures and hedging', speaking:'2–3 min opinion', writing:'An opinion post', words:'130–180', writingPage:45, openerPage:34},
     {week:4, phase:'EXPRESS', theme:'Stories', grammar:'Narrative tenses + present perfect vs past simple', speaking:'3 min story', writing:'A story from your own life', words:'150–180', writingPage:59, openerPage:48},

@@ -1,0 +1,286 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1">
+<meta name="theme-color" content="#26323D">
+<title>8 Weeks of English</title>
+<link rel="manifest" href="manifest.webmanifest">
+<link rel="stylesheet" href="book.css">
+<!--
+  The online edition of the book: book.html?page=N shows page N of 8-weeks-of-english-full.pdf as a web page
+  (content in book-data.js; words and grammar plus from words-data.js). Read and tick here, write in the notebook.
+  Ticks, stars and typed answers stay in this browser only (localStorage "book-pN").
+-->
+</head>
+<body>
+<header class="bar"><div class="bar-in">
+  <a class="brand" href="index.html">8 WEEKS OF ENGLISH</a>
+  <nav><a href="book.html?page=6">Week 1</a><a href="words.html">Words</a><a class="wide" href="writing.html">Writing</a></nav>
+</div></header>
+<main class="wrap" id="page"></main>
+<script src="words-data.js"></script>
+<script src="book-data.js"></script>
+<script>
+const STAR = '<svg viewBox="0 0 24 24"><path d="M12 2.6l2.8 5.7 6.2.9-4.5 4.4 1.1 6.2L12 16.9l-5.6 2.9 1.1-6.2L3 9.2l6.2-.9z"/></svg>';
+const SPARK = '<img src="source/redesign/sprites/sparkle.png" alt="">';
+const qs = new URLSearchParams(location.search);
+const pageNo = BOOK[qs.get('page')] ? Number(qs.get('page')) : BOOK.hub;
+const P = BOOK[pageNo];
+
+// what she ticked and typed lives in this browser only; the page works without it
+function load(n) { try { return JSON.parse(localStorage.getItem('book-p' + n)) || {}; } catch (e) { return {}; } }
+const saved = load(pageNo);
+saved.ticks = saved.ticks || {}; saved.ans = saved.ans || {};
+function save() { try { localStorage.setItem('book-p' + pageNo, JSON.stringify(saved)); } catch (e) {} }
+
+const esc = s => String(s).replace(/[&<>"]/g, c => ({'&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;'}[c]));
+const style = b => [b.sh && `--sh:${b.sh}`, b.bg && `background:${b.bg}`].filter(Boolean).join(';');
+const tag = b => `<span class="tag${b.navy ? ' navy' : ''}"${b.tc ? ` style="--tc:${b.tc}"` : ''}>${b.tag}</span>`;
+const card = (b, inner) => `<section class="card" style="${style(b)}">${b.tag ? tag(b) : ''}${b.hint ? `<p class="hint">${b.hint}</p>` : ''}${inner}</section>`;
+const tickBox = (k, label) => `<input type="checkbox" data-tick="${k}"${saved.ticks[k] ? ' checked' : ''}${label ? ` aria-label="${esc(label)}"` : ''}>`;
+
+// ▶ reads English out loud with the browser's own voice, as words.html does
+const canSpeak = 'speechSynthesis' in window;
+let voice = null;
+function pickVoice() { const vs = speechSynthesis.getVoices(); voice = vs.find(v => v.lang === 'en-GB') || vs.find(v => v.lang && v.lang.startsWith('en')) || null; }
+if (canSpeak) { pickVoice(); speechSynthesis.onvoiceschanged = pickVoice; }
+function speak(text) {
+  if (!canSpeak) return;
+  speechSynthesis.cancel();
+  const u = new SpeechSynthesisUtterance(text.replace(/\b([A-Z]{2,})\b/g, w => w.toLowerCase()).replace(/…/g, ''));
+  if (voice) u.voice = voice; u.lang = voice ? voice.lang : 'en-GB'; u.rate = .95; speechSynthesis.speak(u);
+}
+const play = text => canSpeak ? `<button type="button" class="play" data-say="${esc(text)}" aria-label="Listen">▶</button>` : '';
+
+// answers compare without case, punctuation or contractions: "I’m sitting" = "i am sitting"
+function norm(s) {
+  return s.toLowerCase().replace(/[’‘`]/g, "'")
+    .replace(/\bcan't\b/g, 'cannot').replace(/\bwon't\b/g, 'will not').replace(/n't\b/g, ' not')
+    .replace(/'m\b/g, ' am').replace(/'re\b/g, ' are').replace(/'ve\b/g, ' have').replace(/'ll\b/g, ' will')
+    .replace(/\b(he|she|it|what|that|there|who)'s\b/g, '$1 is')
+    .replace(/[^a-z0-9' ]+/g, ' ').replace(/\s+/g, ' ').trim();
+}
+
+// blocks that take their items from words-data.js
+function items(b) {
+  if (!b.from) return b.items;
+  const w = WORDS[b.week];
+  if (b.from === 'practice') return w.grammar.practice.map(([q, a]) => ({q, a: [a]}));
+  if (b.from === 'check') return w.check.map(([q, a]) => ({q, a: [a]}));
+  return w[b.from];
+}
+function isDone(n) { return n === pageNo ? !!saved.done : !!load(n).done; }
+
+const R = {
+  band: b => `<div class="band"><div><span class="label">Promise&nbsp;</span> ${b.promise}</div>` +
+             `<div><span class="label">Speaking target</span><br><strong>${b.target}</strong></div></div>`,
+  text: b => `<p>${b.html}</p>`,
+  cards: b => `<div class="row2">${b.cards.map(c => card(c, c.html)).join('')}</div>`,
+  card: b => card(b, b.html || b.bullets.map(x => `<div class="bul">${SPARK}<span>${x}</span></div>`).join('')),
+  goal: b => `<div class="goal"><span class="tag navy">${b.label || 'Today’s goal'}</span><span>${b.text}</span></div>`,
+  facts: b => `<div class="facts">${b.items.map(([k, v]) => `<div class="fact"><span class="label">${k}</span><strong>${v}</strong></div>`).join('')}</div>`,
+  hub: b => {
+    const rows = BOOK.order.filter(n => n !== BOOK.hub).map(n => {
+      const day = /^Day (\d)/.exec(BOOK[n].nav);
+      return `<a class="hubrow${isDone(n) ? ' done' : ''}" href="?page=${n}"><span class="hn">${day ? day[1] : '◆'}</span>` +
+             `<span class="ht">${BOOK[n].nav.replace(/^Week 1 · /, '')}</span><span class="hd">${isDone(n) ? '✓' : '›'}</span></a>`;
+    }).join('');
+    return card(b, `<div class="hublist">${rows}</div>`);
+  },
+  phrases: b => card({...b, sh: 'var(--lav)', tc: 'var(--lav)'}, b.chips
+    ? `<div class="chips">${b.items.map(x => `<span>${x}</span>`).join('')}</div>`
+    : `<div class="phr">${b.items.map((x, i) => `<div><span class="num">${i + 1}</span><span>${x}</span></div>`).join('')}</div>`),
+  checklist: b => card(b, `<div${b.cols ? ' class="cols"' : ''}>` + items(b).map((x, i) => {
+    const k = `${b.id}-${i}`;
+    return `<label class="tick">${tickBox(k)}<span>${b.numbered ? `<strong>${i + 1}</strong> · ` : ''}${x}</span></label>`;
+  }).join('').replace(/<input type="checkbox"/g, b.core ? '<input type="checkbox" data-core' : '<input type="checkbox"') + '</div>'),
+  done: b => `<div class="done" id="done"><span class="big">Day done ✓</span><span>${b.text}</span></div>`,
+  say: b => card({...b, sh: 'var(--navy)', bg: 'var(--sky)', navy: true},
+    `<p>${b.html}</p><div class="ticks">${Array.from({length: b.ticks}, (_, i) => tickBox(`${b.id}-${i}`, `Round ${i + 1}`)).join('')}</div>`),
+  gaps: b => card(b, items(b).map((it, i) => {
+    const k = `${b.id}-${i}`, [pre, post] = it.q.split(/_{3,}/);
+    return `<div class="ex" data-ex="${k}"><span class="num">${i + 1}</span><div><span class="q">${pre}` +
+      `<input class="gap" data-ans="${k}" value="${esc(saved.ans[k] || '')}" autocomplete="off" autocapitalize="off" spellcheck="false" aria-label="Answer ${i + 1}">` +
+      `${post}${it.end ? ` <input class="free" data-ans="${k}e" value="${esc(saved.ans[k + 'e'] || '')}" placeholder="your own ending" autocomplete="off" aria-label="Your ending ${i + 1}">` : ''}` +
+      `</span><span class="res"></span></div></div>`;
+  }).join('') + checkBar(b)),
+  fix: b => card(b, b.items.map((it, i) => {
+    const k = `${b.id}-${i}`;
+    return `<div class="ex" data-ex="${k}"><span class="num">${i + 1}</span><div><span class="q i">${it.q}</span>` +
+      `<input class="fixin" data-ans="${k}" value="${esc(saved.ans[k] || '')}" placeholder="Write it correctly" autocomplete="off" spellcheck="false">` +
+      `<span class="res"></span></div></div>`;
+  }).join('') + checkBar(b)),
+  listen: b => card(b, b.items.map((x, i) => `<div class="say1"><span class="num">${i + 1}</span><span class="st">${x}</span>${play(x)}</div>`).join('')),
+  find: b => card(b,
+    `<div class="search"><span class="label">Search</span><strong>“${b.search}”</strong>` +
+    `<a class="btn" target="_blank" rel="noopener" href="https://www.youtube.com/results?search_query=${encodeURIComponent(b.search)}">Search on YouTube</a></div>` +
+    `<p class="where">${b.where}</p><div class="steps">` +
+    b.steps.map((x, i) => `<label class="tick">${tickBox(`step-${i}`)}<span><strong>${i + 1}</strong> · ${x}</span></label>`).join('') + `</div>`),
+  words: b => {
+    const list = WORDS[b.week][b.list];
+    const rows = list.map((r, i) => {
+      const [w, m, e] = r.length === 3 ? r : [r[0], '', r[1]];
+      const k = `w-${b.list}-${i}`;
+      return `<div class="wrow">${tickBox(k, 'I said it')}<div class="wb"><span class="ww">${w}</span>` +
+             `${m ? `<span class="wm">${m}</span>` : ''}<span class="we">${e}</span></div>${play(e)}</div>`;
+    }).join('');
+    const test = b.list === 'phrasal' ? `<div class="testbar"><label class="tick"><input type="checkbox" id="testMode"><span>Test me: hide the phrases (tap to show one)</span></label>` +
+      `<span class="score" id="said"></span></div>` : '';
+    return test + card(b, rows);
+  },
+  gplus: b => {
+    const g = WORDS[b.week].grammar;
+    return `<div class="stack">` +
+      card({tag: 'The rule'}, g.formula.map(([k, v]) => `<div class="fx"><span class="label">${k}</span><span>${v}</span></div>`).join('')) +
+      card({tag: 'The mistake almost everyone makes', navy: true, sh: 'var(--blue)'},
+        `<div class="wrongline"><span class="mk x">✕</span>${g.wrong}</div><div class="rightline"><span class="mk ok">✓</span>${g.right}</div>`) +
+      card({tag: 'How it sounds in real English', tc: 'var(--lav)', sh: 'var(--lav)'},
+        g.examples.map(x => `<div class="bul">${SPARK}<span>${x}</span>${play(x)}</div>`).join('')) +
+      card({tag: 'Worth knowing', tc: 'var(--yellow)', sh: '#F2D27E'}, `<p>${g.note}</p>`) + `</div>`;
+  },
+  copy: b => card(b, `<div class="copybox" id="aiText">“${b.text}”</div><div class="btns"><button type="button" class="btn" data-copy>Copy</button>` +
+    `<span class="score" id="copied"></span></div>`),
+  days: b => card(b, `<div class="daysrow">${['Mon', 'Tue', 'Wed', 'Thu', 'Fri', 'Sat', 'Sun'].map((d, i) => {
+    const k = `day-${i}`, on = isDone(b.pages[i]) || saved.ticks[k];
+    return `<button type="button" class="dayb${on ? ' on' : ''}" data-day="${k}"${isDone(b.pages[i]) ? ' data-auto' : ''}>` +
+           `<img src="source/redesign/sprites/flower-star.png" alt=""><span>${d}</span></button>`;
+  }).join('')}</div>`),
+  measure: b => {
+    const f = (k, w, ph) => `<input class="mf" style="width:${w}" data-ans="${k}" value="${esc(saved.ans[k] || '')}" inputmode="${ph ? 'text' : 'numeric'}"${ph ? ` placeholder="${ph}"` : ''}>`;
+    const pick = (k, opts) => `<span class="pills">${opts.map(o => `<button type="button" class="pill${saved.ans[k] === String(o) ? ' on' : ''}" data-pick="${k}" data-v="${o}">${o}</button>`).join('')}</span>`;
+    return card(b,
+      `<div class="mrow"><span class="mk2">Longest no-stop speaking</span><span class="mv">${f('m-min', '3.2em')}<span class="u">min</span>${f('m-sec', '3.2em')}<span class="u">sec</span></span></div>` +
+      `<div class="mrow"><span class="mk2">Active phrases I actually used</span>${f('m-phr', '3.6em')}</div>` +
+      `<div class="mrow"><span class="mk2">Translating in my head</span>${pick('m-tr', ['constantly', 'often', 'sometimes', 'rarely'])}</div>` +
+      `<div class="mrow"><span class="mk2">Listening without subtitles</span><span class="mv">${f('m-lis', '3.6em')}<span class="u">%</span></span></div>` +
+      `<div class="mrow"><span class="mk2">Confidence speaking</span>${pick('m-conf', [1, 2, 3, 4, 5])}</div>` +
+      `<div class="mrow full"><span class="mk2">Grammar mistake I keep making</span>${f('m-gr', '100%', ' ')}</div>` +
+      `<div class="mrow full"><span class="mk2">Hardest sound or rhythm feature</span>${f('m-snd', '100%', ' ')}</div>`);
+  },
+  notebook: b => {
+    let lines = 1;  // the date line
+    const parts = b.parts.map(p => {
+      if (p.inline) { lines += 1; return `<div class="inline">${p.inline}<div class="ln"></div></div>`; }
+      if (p.table) {
+        lines += p.rows + 1;
+        return `<div class="tbl"><div class="tr th">${p.table.map(c => `<span>${c}</span>`).join('')}</div>` +
+               Array.from({length: p.rows}, () => `<div class="tr">${p.table.map(() => '<span></span>').join('')}</div>`).join('') + `</div>`;
+      }
+      let h = `<div class="h">${p.h}${p.small ? `<small>${p.small}</small>` : ''}</div>`;
+      lines += 1;
+      if (p.rows) { h += p.rows.map((r, i) => `<div class="pl">${i + 1} · <i>${r}</i></div><div class="ln"></div>`).join(''); lines += p.rows.length * 2; }
+      if (p.lines) { h += Array.from({length: p.lines}, (_, i) => `<div class="ln${p.numbered ? ' n' : ''}" data-n="${i + 1}"></div>`).join(''); lines += p.lines; }
+      return h;
+    }).join('');
+    const size = lines <= 12 ? 'a third of a page' : lines <= 18 ? 'about half a page' : lines <= 26 ? 'about one page' : 'a page and a half';
+    return card(b, `<p class="nb-how">${b.how}</p><div class="sheet"><span class="holes"></span>` +
+      `<div class="date">${b.sheet} · date<span></span></div>${parts}</div>` +
+      `<p class="nb-size">≈ ${lines} lines in a lined notebook — ${size}.</p>`);
+  },
+  felt: () => `<div class="felt"><span class="lab">Today felt</span><span class="stars">` +
+    [1, 2, 3, 4, 5].map(n => `<button type="button" data-star="${n}" aria-label="${n} of 5"${n <= (saved.stars || 0) ? ' class="on"' : ''}>${STAR}</button>`).join('') +
+    `</span></div>`
+};
+function checkBar(b) {
+  return `<div class="btns"><button class="btn" data-check="${b.id}">Check</button><span class="score" data-score="${b.id}"></span></div>` +
+    (b.added ? `<p class="note">The book has no answer key for this page — these answers were added for the online edition.</p>` :
+     b.from ? `<p class="note">Answers from the key at the back of the book. A different answer can still be right.</p>` : '');
+}
+
+// ---------- build the page ----------
+const h = P.head, at = BOOK.order.indexOf(pageNo);
+const prev = BOOK.order[at - 1], next = BOOK.order[at + 1];
+document.title = `${P.nav} — 8 Weeks of English`;
+document.getElementById('page').innerHTML =
+  (pageNo !== BOOK.hub ? `<a class="crumb" href="?page=${BOOK.hub}">← ${BOOK[BOOK.hub].nav} · all pages</a>` : '') +
+  `<div class="head"><div class="badge"><span class="d">${h.badge[0]}</span><span class="n">${h.badge[1]}</span></div>` +
+  `<div><div class="kicker">${h.kicker}</div><div class="title">${h.title}</div><div class="sub">${h.sub}</div></div>` +
+  `<div class="jp"><span class="k${h.jp[0].length > 2 ? ' small' : ''}">${h.jp[0]}</span><span class="k2">${h.jp[1]}</span></div>` +
+  `<img class="star" src="source/redesign/sprites/star-yellow.png" alt=""></div>` +
+  `<div class="stack">${P.blocks.map(b => b.cat
+      ? `<div class="catwrap"><img class="cat" src="source/redesign/sprites/cat-peek.png" alt="">${R[b.type](b)}</div>`
+      : R[b.type](b)).join('')}</div>` +
+  `<div class="pager">${prev ? `<a class="btn light" href="?page=${prev}">← ${BOOK[prev].nav}</a>` : '<span></span>'}` +
+  `${next ? `<a class="btn" href="?page=${next}">${BOOK[next].nav} →</a>` : ''}</div>` +
+  `<p class="orig"><a href="reader.html?page=${pageNo}">This page in the PDF</a></p>` +
+  `<p class="motto">Use English. Don’t just study English.</p>`;
+
+// ---------- make it live ----------
+const root = document.getElementById('page');
+function showDone() {
+  const d = document.getElementById('done'); if (!d) return;
+  const core = [...root.querySelectorAll('[data-core]')];
+  const done = core.length > 0 && core.every(x => x.checked);
+  d.classList.toggle('on', done);
+  if (!!saved.done !== done) { saved.done = done; save(); }
+}
+function showSaid() {
+  const s = document.getElementById('said'); if (!s) return;
+  const boxes = [...root.querySelectorAll('.wrow input')];
+  s.textContent = `Said out loud: ${boxes.filter(x => x.checked).length} / ${boxes.length}`;
+}
+function check(id) {
+  const block = P.blocks.find(b => b.id === id), list = items(block).filter(it => it.a);
+  let right = 0;
+  items(block).forEach((it, i) => {
+    if (!it.a) return;
+    const k = `${id}-${i}`, ex = root.querySelector(`[data-ex="${k}"]`), val = ex.querySelector(`[data-ans="${k}"]`).value;
+    const ok = val.trim() !== '' && it.a.some(a => norm(a) === norm(val));
+    if (ok) right++;
+    ex.classList.toggle('ok', ok); ex.classList.toggle('no', !ok);
+    ex.querySelector('.res').innerHTML = ok ? '✓ Right' :
+      `${val.trim() ? '✕ Not quite. ' : ''}<button type="button" class="show" data-show="${k}">Show the answer</button>`;
+  });
+  root.querySelector(`[data-score="${id}"]`).textContent = `${right} / ${list.length}`;
+}
+root.addEventListener('change', e => {
+  if (e.target.id === 'testMode') { document.body.classList.toggle('test', e.target.checked); root.querySelectorAll('.shown').forEach(x => x.classList.remove('shown')); return; }
+  const t = e.target.dataset.tick;
+  if (t) { saved.ticks[t] = e.target.checked; save(); showDone(); showSaid(); }
+});
+root.addEventListener('input', e => {
+  const k = e.target.dataset.ans;
+  if (!k) return;
+  saved.ans[k] = e.target.value; save();
+  const ex = e.target.closest('.ex');
+  if (!ex || k.endsWith('e')) return;  // measures and her own endings are never checked
+  ex.classList.remove('ok', 'no'); ex.querySelector('.res').textContent = '';
+});
+root.addEventListener('keydown', e => {
+  if (e.key === 'Enter' && e.target.closest('.ex')) check(e.target.dataset.ans.split('-')[0]);
+});
+root.addEventListener('click', e => {
+  const t = e.target;
+  const c = t.closest('[data-check]'), s = t.closest('[data-show]'), st = t.closest('[data-star]'), say = t.closest('[data-say]');
+  const pk = t.closest('[data-pick]'), day = t.closest('[data-day]'), cp = t.closest('[data-copy]'), ww = t.closest('.ww');
+  if (c) check(c.dataset.check);
+  if (s) {
+    const [id, i] = s.dataset.show.split('-'), it = items(P.blocks.find(b => b.id === id))[i];
+    s.parentElement.innerHTML = `<span class="ans">Answer: <strong>${it.a[0]}</strong></span>`;
+  }
+  if (st) {
+    const n = Number(st.dataset.star);
+    saved.stars = saved.stars === n ? 0 : n; save();
+    root.querySelectorAll('[data-star]').forEach(x => x.classList.toggle('on', Number(x.dataset.star) <= saved.stars));
+  }
+  if (say) speak(say.dataset.say);
+  if (pk) {
+    const k = pk.dataset.pick, v = pk.dataset.v;
+    saved.ans[k] = saved.ans[k] === v ? '' : v; save();
+    root.querySelectorAll(`[data-pick="${k}"]`).forEach(x => x.classList.toggle('on', x.dataset.v === saved.ans[k]));
+  }
+  if (day && !day.hasAttribute('data-auto')) {
+    const k = day.dataset.day; saved.ticks[k] = !saved.ticks[k]; save(); day.classList.toggle('on', saved.ticks[k]);
+  }
+  if (cp) {
+    const text = document.getElementById('aiText').textContent.replace(/^“|”$/g, ''), out = document.getElementById('copied');
+    (navigator.clipboard ? navigator.clipboard.writeText(text) : Promise.reject()).then(() => out.textContent = 'Copied ✓', () => out.textContent = 'Select the text and copy it');
+  }
+  if (ww && document.body.classList.contains('test')) ww.classList.toggle('shown');
+});
+showDone(); showSaid();
+</script>
+<script src="app.js"></script>
+</body>
+</html>

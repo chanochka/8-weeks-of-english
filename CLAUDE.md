@@ -17,7 +17,25 @@ served by GitHub Pages from `main`: https://chanochka.github.io/8-weeks-of-engli
 - The original book pages were made elsewhere and have **no source**: they exist only as the PDFs in `source/base/`.
   Redesigning them means taking their text from those PDFs.
 
-## The print redesign (in progress)
+## The online edition (from 2026-10-02)
+
+She asked to not print the book: she reads and ticks on the site and writes by hand in her own notebook;
+exercises with answers check themselves. **Built one week at a time** (her words: "делать по недели"); week 1 is done.
+
+- `book.html?page=N` shows page N of the full PDF; the content is in `book-data.js`, styles in `book.css`
+  (the rounded pink style below, made for a screen; fonts and sprites from `source/redesign/`).
+  Word bank and Grammar plus pages read `words-data.js`. `BOOK.hub` is the week page, `BOOK.order` the page order.
+- Everything she writes by hand gets a "notebook" card: a drawn scheme of what to rule and how many lines.
+- Answers: Grammar plus and the quick check come from the book's key. The cheat-sheet A/B answers are not in the book
+  and were written for the site (`added: true`, said on the page). Cheat-sheet A: the gap is the verb (checked),
+  the end of the sentence is hers (`end: true`, never checked).
+- Ticks, stars and typed answers live in localStorage `book-pN`; a day's `done` lights its ✓ on the week page and
+  its flower on the week review.
+- A week in `data.js` with `bookPage` opens the online week from the home page.
+- The service worker serves from cache first: bump `CACHE` in `service-worker.js` whenever site files change.
+- `assets/` (cover.jpg and the icons) is made from her cover PDF as is: the icons are a square crop of its cat.
+
+## The print redesign (paused 2026-10-02: she reads online instead)
 
 Chosen on 2026-09-26: **the rounded style on a light pink page**.
 

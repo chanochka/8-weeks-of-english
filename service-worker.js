@@ -1,7 +1,8 @@
-const CACHE='english-workbook-v3';
+const CACHE='english-workbook-v4';
 const CORE=[
   './','./index.html','./reader.html','./roadmap.html','./writing.html','./certificate.html','./words.html',
   './styles.css','./app.js','./data.js','./words-data.js','./manifest.webmanifest',
+  './book.html','./book.css','./book-data.js',
   './assets/cover.jpg','./assets/icon-192.png','./assets/icon-512.png',
   './8-weeks-of-english-full.pdf'
 ];
