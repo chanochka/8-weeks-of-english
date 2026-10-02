@@ -9,6 +9,7 @@
 }
 * { box-sizing: border-box; }
 html, body { margin: 0; }
+html { overflow-x: hidden; overscroll-behavior-x: none; }   /* on the phone the page never slides sideways */
 body { background: var(--bg); color: var(--navy); font: 700 17px/1.45 "Nunito", sans-serif; -webkit-text-size-adjust: 100%; }
 img { display: block; max-width: 100%; }
 p { margin: 0; }

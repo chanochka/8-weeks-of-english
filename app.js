@@ -1,4 +1,7 @@
 if ('serviceWorker' in navigator) {
+  // a page shown by an older offline copy reloads once the new copy takes over, so a fix shows on the first open
+  const hadCopy = !!navigator.serviceWorker.controller;
+  navigator.serviceWorker.addEventListener('controllerchange', () => { if (hadCopy) location.reload(); });
   window.addEventListener('load', () => navigator.serviceWorker.register('./service-worker.js').catch(console.error));
 }
 const offlineEl = document.querySelector('[data-status]');
