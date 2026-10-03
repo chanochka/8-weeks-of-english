@@ -1,0 +1,168 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1">
+<meta name="theme-color" content="#26323D">
+<title>Move my progress — 8 Weeks of English</title>
+<link rel="manifest" href="manifest.webmanifest">
+<link rel="stylesheet" href="book.css">
+<!--
+  Move my progress (2026-10-03, her «а»: the workbook lives on its own, not inside the hub). Ticks, answers, cards,
+  drafts and «said» marks live in the browser of the address where she made them (localStorage), so the hub's
+  address and github.io each had their own. «Copy» puts every key of the workbook into one code; «Paste» on the
+  other address replaces that address's progress with it, keeping what was there in "move-backup" for «Undo».
+-->
+<style>
+.head.plain { grid-template-columns: 1fr; }
+.code { width: 100%; min-height: 96px; border: var(--line); border-radius: 12px; padding: 10px 12px; background: var(--sky);
+        font: 600 13px/1.35 ui-monospace, Menlo, Consolas, monospace; color: var(--navy); resize: vertical; }
+.code:focus { outline: 2px solid var(--pink); }
+.row { display: flex; gap: 10px; flex-wrap: wrap; align-items: center; margin-top: 12px; }
+.row .btn { cursor: pointer; font-size: 16px; padding: 9px 20px 8px; }
+.row .btn[disabled] { opacity: .45; cursor: default; }
+.msg { font: 800 15px/1.35 "Nunito"; color: var(--starry); margin-top: 10px; min-height: 20px; }
+.msg.bad { color: var(--wrong); }
+.sum { display: flex; gap: 6px 16px; flex-wrap: wrap; font-size: 15px; }
+.sum span strong { font: 700 22px/1 "Fredoka"; margin-right: 4px; }
+.where { font: 800 13px/1.3 "Nunito"; color: var(--slate); margin-top: 8px; word-break: break-all; }
+.steps { margin: 0; padding-left: 22px; font-size: 16px; }
+.steps li { margin: 6px 0; }
+.cmp { display: grid; grid-template-columns: auto 1fr; gap: 4px 12px; margin-top: 10px; font-size: 15px; }
+.cmp .k { color: var(--starry); }
+</style>
+</head>
+<body>
+<header class="bar"><div class="bar-in">
+  <a class="brand" href="index.html">8 WEEKS OF ENGLISH</a>
+  <nav><a href="cards.html">Cards</a><a href="words.html">Words</a><a class="wide" href="writing.html">Writing</a></nav>
+</div></header>
+<main class="wrap" id="page"></main>
+<script>
+const esc = s => String(s).replace(/[&<>"]/g, c => ({'&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;'}[c]));
+
+// ---------- what belongs to the workbook in this browser (every other key of the address stays as it is) ----------
+const OURS = /^(book-p\d+|cards|certificateName|workbookPage|writing-week-\d+|said-w.+)$/;
+const BACKUP = 'move-backup';
+function keys() { try { return Object.keys(localStorage).filter(k => OURS.test(k)); } catch (e) { return []; } }
+function mine() { const d = {}; keys().forEach(k => d[k] = localStorage.getItem(k)); return d; }
+function json(s) { try { return JSON.parse(s) || {}; } catch (e) { return {}; } }
+
+function summary(d) {
+  let days = 0, ticks = 0, cards = 0, own = 0, writing = 0, said = 0;
+  for (const [k, v] of Object.entries(d)) {
+    if (/^book-p/.test(k)) { const p = json(v); if (p.done) days++; ticks += Object.values(p.ticks || {}).filter(Boolean).length; }
+    else if (k === 'cards') { const c = json(v); cards = Object.keys(c.state || {}).length; own = (c.own || []).length; }
+    else if (/^writing-week-/.test(k)) { if (String(v).trim()) writing++; }
+    else if (/^said-w/.test(k)) { if (v === '1') said++; }
+  }
+  return {days, ticks, cards, own, writing, said};
+}
+const sumLine = s =>
+  `<span><strong>${s.days}</strong>days done</span><span><strong>${s.ticks}</strong>ticks</span>` +
+  `<span><strong>${s.cards}</strong>cards started</span><span><strong>${s.own}</strong>own phrases</span>` +
+  `<span><strong>${s.writing}</strong>writing</span><span><strong>${s.said}</strong>words said</span>`;
+const empty = s => !s.days && !s.ticks && !s.cards && !s.own && !s.writing && !s.said;
+
+// ---------- the code: plain JSON, so it survives any messenger or note ----------
+function makeCode() { return JSON.stringify({app: '8-weeks-of-english', v: 1, at: new Date().toISOString(), from: location.host, data: mine()}); }
+function readCode(t) {
+  const s = String(t || '').trim();
+  if (!s) throw new Error('The box is empty: paste the code first.');
+  let o;
+  try { o = JSON.parse(s.slice(s.indexOf('{'), s.lastIndexOf('}') + 1)); } catch (e) { throw new Error('This is not the whole code. Copy it again and paste all of it.'); }
+  if (!o || o.app !== '8-weeks-of-english' || typeof o.data !== 'object') throw new Error('This code is not from 8 Weeks of English.');
+  for (const k of Object.keys(o.data)) if (!OURS.test(k) || typeof o.data[k] !== 'string') delete o.data[k];
+  return o;
+}
+function replaceWith(d) {
+  localStorage.setItem(BACKUP, JSON.stringify({at: new Date().toISOString(), data: mine()}));
+  keys().forEach(k => localStorage.removeItem(k));
+  for (const [k, v] of Object.entries(d)) localStorage.setItem(k, v);
+}
+
+async function copyText(t, area) {
+  try { await navigator.clipboard.writeText(t); return true; } catch (e) {}
+  area.focus(); area.select(); area.setSelectionRange(0, t.length);
+  try { return document.execCommand('copy'); } catch (e) { return false; }
+}
+const when = iso => { const d = new Date(iso); return isNaN(d) ? '' : d.toLocaleString('en-GB', {day: 'numeric', month: 'short', hour: '2-digit', minute: '2-digit'}); };
+
+// ---------- the page ----------
+const tagH = (t, tc, navy) => `<span class="tag${navy ? ' navy' : ''}"${tc ? ` style="--tc:${tc}"` : ''}>${t}</span>`;
+function render() {
+  const here = summary(mine()), backup = json(localStorage.getItem(BACKUP));
+  document.getElementById('page').innerHTML =
+    `<div class="head plain"><div><div class="kicker">8 Weeks of English</div><div class="title">Move my progress</div>` +
+    `<div class="sub">Ticks, answers and cards: to another phone, browser or the app</div></div></div>` +
+    `<div class="stack">` +
+    `<div class="catwrap"><img class="cat" src="source/redesign/sprites/cat-peek.png" alt="">` +
+    `<section class="card" style="--sh:var(--navy)">${tagH('Here', '', true)}` +
+    `<div class="sum">${sumLine(here)}</div><p class="where">${esc(location.host + location.pathname.replace(/[^/]*$/, ''))}</p></section></div>` +
+
+    `<section class="card" style="--sh:var(--pink)">${tagH('Copy from here')}` +
+    `<p class="hint">On the device and address where your ticks are now.</p>` +
+    `<div class="row"><button class="btn" id="copy" type="button"${empty(here) ? ' disabled' : ''}>Copy my progress</button></div>` +
+    `<div id="out" hidden><textarea class="code" id="outCode" readonly></textarea></div>` +
+    `<p class="msg" id="copyMsg">${empty(here) ? 'Nothing to copy here yet.' : ''}</p></section>` +
+
+    `<section class="card" style="--sh:var(--blue)">${tagH('Paste here', 'var(--blue)')}` +
+    `<p class="hint">Where you want them. What is here now is replaced, and you can undo it.</p>` +
+    `<textarea class="code" id="inCode" placeholder="Paste the code here"></textarea>` +
+    `<div class="row"><button class="btn light" id="paste" type="button">Paste from clipboard</button>` +
+    `<button class="btn" id="check" type="button">Load</button></div>` +
+    `<div id="cmp"></div><p class="msg" id="pasteMsg"></p>` +
+    (backup.data ? `<div class="row"><button class="btn light" id="undo" type="button">Undo the last paste</button>` +
+      `<span class="hint" style="margin:0">brings back what was here on ${esc(when(backup.at))}</span></div>` : '') +
+    `</section>` +
+
+    `<section class="card" style="--sh:var(--lav)">${tagH('From the hub', 'var(--lav)')}<ol class="steps">` +
+    `<li>В хабе открой учебник → внизу <strong>The book</strong> → <strong>Move my progress</strong> → <strong>Copy my progress</strong>.</li>` +
+    `<li>В Safari открой <a href="https://chanochka.github.io/8-weeks-of-english/">chanochka.github.io/8-weeks-of-english</a> → «Поделиться» → <strong>На экран «Домой»</strong>.</li>` +
+    `<li>Открой учебник с нового значка → <strong>Move my progress</strong> → вставь код → <strong>Load</strong> → <strong>Replace</strong>.</li>` +
+    `<li>Дальше занимайся только с этого значка: он работает без компьютера и без хаба. У Safari и у значка на iPhone галочки свои, поэтому вставлять — в значок.</li>` +
+    `</ol></section></div>`;
+
+  const outCode = document.getElementById('outCode'), copyMsg = document.getElementById('copyMsg');
+  document.getElementById('copy').onclick = async () => {
+    const t = makeCode();
+    document.getElementById('out').hidden = false; outCode.value = t;
+    copyMsg.className = 'msg';
+    copyMsg.textContent = await copyText(t, outCode)
+      ? 'Copied ✓ Now open the workbook where you want it, then «Move my progress» → paste.'
+      : 'Select all the text in the box and copy it.';
+  };
+
+  const inCode = document.getElementById('inCode'), msg = document.getElementById('pasteMsg'), cmp = document.getElementById('cmp');
+  const bad = t => { msg.className = 'msg bad'; msg.textContent = t; };
+  document.getElementById('paste').onclick = async () => {
+    try { inCode.value = await navigator.clipboard.readText(); msg.textContent = ''; }
+    catch (e) { inCode.focus(); bad('Tap the box and choose Paste.'); }
+  };
+  document.getElementById('check').onclick = () => {
+    let o;
+    try { o = readCode(inCode.value); } catch (e) { cmp.innerHTML = ''; return bad(e.message); }
+    msg.className = 'msg'; msg.textContent = '';
+    cmp.innerHTML =
+      `<div class="cmp"><span class="k">In the code</span><div class="sum">${sumLine(summary(o.data))}</div>` +
+      `<span class="k">From</span><span>${esc(o.from || '?')}${o.at ? ', ' + esc(when(o.at)) : ''}</span>` +
+      `<span class="k">Here now</span><div class="sum">${sumLine(summary(mine()))}</div></div>` +
+      `<div class="row"><button class="btn" id="replace" type="button">Replace</button></div>`;
+    document.getElementById('replace').onclick = () => {
+      try { replaceWith(o.data); } catch (e) { return bad('Could not save in this browser: ' + e.message); }
+      render();
+      const m = document.getElementById('pasteMsg'); m.className = 'msg'; m.textContent = 'Done ✓ Your progress is here now.';
+    };
+  };
+  const undo = document.getElementById('undo');
+  if (undo) undo.onclick = () => {
+    try { replaceWith(backup.data); localStorage.removeItem(BACKUP); } catch (e) { return bad('Could not undo: ' + e.message); }
+    render();
+    const m = document.getElementById('pasteMsg'); m.className = 'msg'; m.textContent = 'Undone ✓ What was here is back.';
+  };
+}
+render();
+</script>
+<script src="app.js"></script>
+</body>
+</html>

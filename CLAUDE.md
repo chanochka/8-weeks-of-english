@@ -64,6 +64,13 @@ exercises with answers check themselves. **Built one week at a time** (her words
   a week is added when it goes online, and only then do its words reach the cards.
 - `my-words.js`: «Мой мир», her own topics (picked by Claude from what she does: studio, AI, robot, working
   with people — she may change them). Generic wording, no names: the repo is public.
+- `move.html` "Move my progress" (2026-10-03, her «а»: the workbook lives on its own, not inside the hub): progress
+  lives per address, so the hub's bridge address and github.io (and, on the iPhone, Safari and the home-screen icon)
+  each have their own. «Copy» puts every workbook key (`book-pN`, `cards`, `writing-week-N`, `said-w…`,
+  `certificateName`, `workbookPage`) into one JSON code; «Paste» → Load → Replace swaps this address's workbook keys
+  for it, other keys of the address untouched, the old ones kept in `move-backup` for «Undo». Linked from The book on
+  the home page. Tested by `source/redesign/out/online/movetest.html` (not committed). A new storage key must be
+  added to `OURS` in `move.html`, or it will not move.
 
 ## The print redesign (paused 2026-10-02: she reads online instead)
 
