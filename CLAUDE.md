@@ -98,7 +98,8 @@ exercises with answers check themselves. **Built one week at a time** (her words
    made by `short.html`. Styles under "drills" and "the short day" in `book.css`.
 5. **Voice** — her «2 а»: the browser's own voices, picked on the cards page (Voice card, `voice.js`, localStorage
    `voice` = {uri, name, rate}; not moved by `move.html`, voices differ per device), best one by default
-   (Premium › Enhanced/Natural › online › built-in, then British first); novelty Apple voices hidden; a tip in Russian
+   (her «а», 2026-10-05, after she picked Google US English: Google US English, else American voices first, each group
+   Premium › Enhanced/Natural › online › built-in); novelty Apple voices hidden; a tip in Russian
    how to download a better iPhone voice. ElevenLabs recordings (her «б») were declined for now. *Done, part 1.*
 
 - `days.js`: the day list (`bookDays` with `half` / `shortOn`, `currentDay`) shared by the home page, the cards and the

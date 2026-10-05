@@ -1,4 +1,4 @@
-const CACHE='english-workbook-v13';
+const CACHE='english-workbook-v14';
 const CORE=[
   './','./index.html','./reader.html','./roadmap.html','./writing.html','./certificate.html','./words.html',
   './styles.css','./app.js','./data.js','./words-data.js','./manifest.webmanifest',

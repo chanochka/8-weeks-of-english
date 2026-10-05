@@ -1,7 +1,8 @@
 // The voice that reads English out loud (2026-10-05, her «голос не нрав»), shared by every page with ▶.
 // It is one of the browser's own voices: the one she picks on the cards page is kept in this browser
-// (localStorage "voice": {name, rate}); without a pick, the best English voice there is. Voices differ from
-// device to device, so the pick is not moved by move.html.
+// (localStorage "voice": {name, rate}); without a pick, an American one (her «а», 2026-10-05: she picked Google US
+// English): Google US English where the browser has it, else the device's best American voice, else the best English
+// one. Voices differ from device to device, so the pick is not moved by move.html.
 const canSpeak = 'speechSynthesis' in window;
 // novelty and robotic voices of Apple devices: never offered
 const JUNK = /^(Albert|Bad News|Bahh|Bells|Boing|Bubbles|Cellos|Good News|Jester|Organ|Superstar|Trinoids|Whisper|Wobble|Zarvox|Fred|Junior|Kathy|Ralph|Grandma|Grandpa|Eddy|Flo|Reed|Rocko|Sandy|Shelley)\b/;
@@ -20,11 +21,12 @@ function voiceQuality(v) {
 const QUALITY = ['', 'online', 'Enhanced', 'Premium'];
 function englishVoices() {
   if (!canSpeak) return [];
-  const seen = new Set(), order = ['GB', 'US', 'AU', 'IE', 'NZ', 'ZA', 'IN'];
+  const seen = new Set(), order = ['US', 'GB', 'AU', 'IE', 'NZ', 'ZA', 'IN'];
   const rank = v => { const i = order.indexOf(voiceLang(v).slice(3, 5).toUpperCase()); return i < 0 ? 9 : i; };
+  const google = v => /^Google US English$/i.test(v.name), us = v => rank(v) === 0;
   return speechSynthesis.getVoices()
     .filter(v => /^en-/i.test(voiceLang(v)) && !JUNK.test(v.name) && !seen.has(v.voiceURI) && seen.add(v.voiceURI))
-    .sort((a, b) => voiceQuality(b) - voiceQuality(a) || rank(a) - rank(b) || a.name.localeCompare(b.name));
+    .sort((a, b) => google(b) - google(a) || us(b) - us(a) || voiceQuality(b) - voiceQuality(a) || rank(a) - rank(b) || a.name.localeCompare(b.name));
 }
 // "Microsoft Hazel - English (United Kingdom)" → "Microsoft Hazel": the accent is said next to it
 const voiceName = v => v.name.replace(/\s+-\s+English.*$/, '');
@@ -41,6 +43,6 @@ function speak(text, v) {
     .replace(/\b[A-Z]{2,}\b/g, w => /^(AI|BBC|TV|OK|UK|USA?|CV|PDF)$/.test(w) ? w : w.toLowerCase()));
   v = v || currentVoice();
   if (v) u.voice = v;
-  u.lang = v ? voiceLang(v) : 'en-GB'; u.rate = voicePref().rate || .95;
+  u.lang = v ? voiceLang(v) : 'en-US'; u.rate = voicePref().rate || .95;
   speechSynthesis.speak(u);
 }
