@@ -12,7 +12,8 @@
   then her progress (the 56 days, days in a row, words known / learning from the cards, ChatGPT Voice talks),
   the 8 weeks as tiles with each week's days, and the book itself (cover, PDF, plan, certificate) at the bottom.
   Everything is read from this browser: the book pages' "book-pN" and the cards' "cards" (deck.js).
-  A day counts for the days in a row when its Core was finished that day or cards were answered that day.
+  A day counts for the days in a row when its Core was finished that day, cards were answered or a short day was done.
+  ◐ on the strip and the week tiles: a short day was done on that day, its Core not yet.
 -->
 <style>
 .today .wk-of { font: 900 12px/1.3 "Nunito"; letter-spacing: .12em; text-transform: uppercase; color: var(--starry); }
@@ -32,6 +33,9 @@
 .wk i { background: #fff; }
 .wk i.on { background: var(--navy); }
 .wk i.next { background: var(--pink); }
+.wk i.half { background: linear-gradient(90deg, var(--navy) 50%, #fff 50%); }
+.wk i.half.next { background: linear-gradient(90deg, var(--navy) 50%, var(--pink) 50%); }
+.today .shortlink { display: block; margin-top: 12px; font-weight: 800; color: var(--starry); text-decoration: none; }
 .wnums { display: grid; grid-template-columns: repeat(8, 1fr); gap: 5px; text-align: center; font: 600 12px/1 "Fredoka"; color: var(--slate); }
 .pfacts { margin-top: 16px; }
 .pfacts .fact strong { font: 700 26px/1.05 "Fredoka"; margin-top: 4px; }
@@ -48,6 +52,7 @@
 .wt .dots { display: flex; gap: 3px; }
 .wt .dots i { width: 12px; height: 12px; border-radius: 50%; border: 1.5px solid var(--navy); background: #fff; }
 .wt .dots i.on { background: var(--navy); }
+.wt .dots i.half { background: linear-gradient(90deg, var(--navy) 50%, #fff 50%); }
 .wt.off .dots i { border-color: var(--dots); background: none; }
 .wt .wf { font: 800 13px/1.3 "Nunito"; color: var(--slate); margin-top: 6px; }
 .wt .here { position: absolute; top: -12px; right: 10px; background: var(--pink); border: var(--line); border-radius: 99px;
@@ -94,6 +99,7 @@ const load = pageState, WEEKS = WORKBOOK.weeks;
 const pages = Object.keys(BOOK).filter(k => /^\d+$/.test(k)).map(Number);
 const days = bookDays();
 const doneNums = new Set(days.filter(d => d.done).map(d => d.num));
+const halfNums = new Set(days.filter(d => d.half).map(d => d.num));   // ◐ a short day, the Core not yet (short.html)
 const next = days.find(d => !d.done);
 
 // ---------- the cards (deck.js) ----------
@@ -114,6 +120,7 @@ for (const n of pages) {
 const studied = new Set(Object.keys(S.days).filter(k => S.days[k] > 0));
 if (S.day.reviewed) studied.add(today);
 days.forEach(d => d.doneOn && studied.add(d.doneOn));
+days.forEach(d => d.shortOn.forEach(x => studied.add(x)));   // a short day keeps the days in a row (her «1 а»)
 let streak = 0;
 for (let i = studied.has(today) ? 0 : 1; studied.has(plus(-i)); i++) streak++;
 
@@ -127,7 +134,8 @@ const todayCard =
   (next
     ? `<div class="wk-of">Week ${next.week.week} · ${esc(next.week.theme)}</div><div class="big">${esc(BOOK[next.page].nav)}</div>` +
       (next.goal ? `<p class="goalt">${esc(next.goal)}</p>` : '') +
-      `<a class="btn go" href="book.html?page=${next.page}">Continue →</a>`
+      `<a class="btn go" href="book.html?page=${next.page}">Continue →</a>` +
+      `<a class="shortlink" href="short.html?day=${next.page}">${next.shortOn.includes(today) ? '◐ short day done today · again ›' : 'No time today? Short day · 10 min ›'}</a>`
     : `<div class="big">Every online day is done ✓</div>` +
       `<p class="goalt">${nextWeek ? `Week ${nextWeek.week} comes online next.` : 'All 56 days — well done.'}</p>` +
       `<a class="btn go" href="book.html?page=${lastOnline.bookPage}">Week ${lastOnline.week} →</a>`) +
@@ -137,14 +145,14 @@ const todayCard =
 
 const strip = WEEKS.map(w => `<div class="wk">${Array.from({length: 7}, (_, i) => {
   const n = (w.week - 1) * 7 + i + 1;
-  return `<i class="${doneNums.has(n) ? 'on' : next && next.num === n ? 'next' : ''}"></i>`;
+  return `<i class="${doneNums.has(n) ? 'on' : [halfNums.has(n) && 'half', next && next.num === n && 'next'].filter(Boolean).join(' ')}"></i>`;
 }).join('')}</div>`).join('');
 const progress =
   `<section class="card" style="--sh:var(--blue)">${tagH('My progress', 'var(--blue)')}` +
   `<div class="ofdays"><span class="n">${doneNums.size}</span> of 56 days</div>` +
   `<div class="strip">${strip}</div><div class="wnums">${WEEKS.map(w => `<span>${w.week}</span>`).join('')}</div>` +
   `<div class="facts pfacts">` +
-  `<div class="fact"><span class="label">Days in a row</span><strong>${streak}</strong><small>${studied.has(today) ? 'today counts ✓' : streak ? 'do today’s cards to keep it' : 'cards or a day’s Core'}</small></div>` +
+  `<div class="fact"><span class="label">Days in a row</span><strong>${streak}</strong><small>${studied.has(today) ? 'today counts ✓' : streak ? 'do today’s cards to keep it' : 'cards, a short day or a Core'}</small></div>` +
   `<div class="fact"><span class="label">ChatGPT talks</span><strong>${talks}</strong><small>${talks * 10} min out loud</small></div>` +
   `<div class="fact"><span class="label">Words known</span><strong>${words.known}</strong><small>two weeks and more</small></div>` +
   `<div class="fact"><span class="label">Learning</span><strong>${words.learning}</strong><small>of ${words.all} in the cards</small></div>` +
@@ -156,7 +164,7 @@ const tiles = WEEKS.map(w => {
   return `<a class="wt${here ? ' now' : ''}${online ? '' : ' off'}" href="${online ? `book.html?page=${w.bookPage}` : `reader.html?page=${w.openerPage}`}">` +
     (here ? `<span class="here">now</span>` : '') +
     `<div class="wn">Week ${String(w.week).padStart(2, '0')}</div><div class="wtt">${esc(w.theme)}</div>` +
-    `<div class="dots">${Array.from({length: 7}, (_, i) => `<i class="${doneNums.has((w.week - 1) * 7 + i + 1) ? 'on' : ''}"></i>`).join('')}</div>` +
+    `<div class="dots">${Array.from({length: 7}, (_, i) => (x => `<i class="${doneNums.has(x) ? 'on' : halfNums.has(x) ? 'half' : ''}"></i>`)((w.week - 1) * 7 + i + 1)).join('')}</div>` +
     `<div class="wf">${online ? `${n} / 7 days${n === 7 ? ' ✓' : ''}` : 'online soon · PDF'}</div></a>`;
 }).join('');
 

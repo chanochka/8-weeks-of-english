@@ -81,10 +81,10 @@ function gameRound(items, pool, plan = GAME_PLAN) {
 
 // ---------- one round on the page ----------
 const TITLES = {pairs: 'Find the pairs', meaning: 'What does it mean?', english: 'Say it in English', build: 'Build the sentence',
-  listen: 'Listen and build', gap: 'Type the missing word', say: 'Say it out loud'};
+  listen: 'Listen and build', gap: 'Type the missing word', say: 'Say it out loud', speak: 'Your sentence, out loud', talk: 'One minute, out loud'};
 function runDrill(root, tasks, opts = {}) {
   const total = tasks.length, queue = tasks.slice(), missed = [];
-  let pos = 0, right = 0, answered = false, picked = [], pairs = null, typed = '';
+  let pos = 0, right = 0, answered = false, picked = [], pairs = null, typed = '', clock = null, secs = 0;
   const t0 = Date.now();
   const playBtn = (text, cls = 'play') => canSpeak ? `<button type="button" class="${cls}" data-say="${dEsc(text)}" aria-label="Listen">▶</button>` : '';
   const answerText = t => t.type === 'meaning' ? t.item.en : t.type === 'gap' ? t.item.ex : t.target ? t.target.en : t.item.en;
@@ -116,6 +116,11 @@ function runDrill(root, tasks, opts = {}) {
       `placeholder="${dEsc(t.gap.answer[0])}…" style="width:${Math.max(4, t.gap.answer.length + 1)}ch" aria-label="the missing word">${dEsc(t.gap.after)}</div>`;
     if (t.type === 'say') return `<div class="dq">${dEsc(it.ru)}</div>${it.exRu ? `<div class="dsub">${dEsc(it.exRu)}</div>` : ''}` +
       (answered ? '' : `<p class="dhow">Say it in English, out loud — then check</p>`);
+    // the day's phrase: she finishes it about herself, out loud; nothing to check
+    if (t.type === 'speak') return `<div class="dq en">${dEsc(it.en)} ${playBtn(it.en)}</div><p class="dhow">${t.how || (/…\s*$/.test(it.en) ? 'Finish it out loud — about you, your real day. Say it twice.' : 'Say it out loud twice, then once inside a sentence about your day.')}</p>`;
+    // a minute of talk on the day's topic, with a clock: no stopping, no restarting
+    if (t.type === 'talk') return `<div class="dq">${dEsc(it.en)}</div><p class="dhow">Talk out loud for ${t.seconds} seconds. Do not stop, do not restart.</p>` +
+      `<div class="clock${clock ? ' run' : ''}${clock === false ? ' end' : ''}" data-clock>${clock === null ? t.seconds : clock ? secs : '✓'}</div>`;
     return '';
   }
   function foot(t) {
@@ -131,6 +136,9 @@ function runDrill(root, tasks, opts = {}) {
     if (t.type === 'build' || t.type === 'listen') return `<div class="dfoot"><div class="dbtns"><button type="button" class="btn" data-check${picked.length ? '' : ' disabled'}>Check</button></div></div>`;
     if (t.type === 'gap') return `<div class="dfoot"><div class="dbtns"><button type="button" class="btn" data-check>Check</button></div></div>`;
     if (t.type === 'say') return `<div class="dfoot"><div class="dbtns"><button type="button" class="btn" data-check>Check</button></div></div>`;
+    if (t.type === 'speak') return `<div class="dfoot"><div class="dbtns"><button type="button" class="btn" data-said="1">I said it</button></div></div>`;
+    if (t.type === 'talk') return `<div class="dfoot"><div class="dbtns">` + (clock === null ? `<button type="button" class="btn light" data-said="skip">Skip</button><button type="button" class="btn" data-go>Start ${t.seconds} s</button>`
+      : clock ? `<button type="button" class="btn light" data-said="1">I’m done</button>` : `<button type="button" class="btn" data-said="1">Done ✓</button>`) + `</div></div>`;
     return '';
   }
   function render(focus) {
@@ -152,7 +160,8 @@ function runDrill(root, tasks, opts = {}) {
     if (!auto && t.type !== 'pairs') speak(answerText(t));
   }
   function next() {
-    pos++; answered = false; picked = []; pairs = null; typed = '';
+    if (clock) clearInterval(clock);
+    pos++; answered = false; picked = []; pairs = null; typed = ''; clock = null;
     if (pos >= queue.length) return opts.onEnd && opts.onEnd({right, total, missed, seconds: Math.round((Date.now() - t0) / 1000)});
     render();
     const t = queue[pos];
@@ -174,8 +183,18 @@ function runDrill(root, tasks, opts = {}) {
     const t = queue[pos];
     if (b.dataset.say) return speak(b.dataset.say);
     if (b.dataset.slow) { const r = voicePref().rate; setVoicePref({rate: .7}); speak(b.dataset.slow); return setVoicePref({rate: r}); }
-    if (b.hasAttribute('data-quit')) return opts.onQuit && opts.onQuit();
+    if (b.hasAttribute('data-quit')) { if (clock) clearInterval(clock); clock = null; return opts.onQuit && opts.onQuit(); }
     if (b.hasAttribute('data-next')) return next();
+    if (b.hasAttribute('data-go')) {
+      secs = t.seconds;
+      clock = setInterval(() => {
+        secs--;
+        const c = root.querySelector('[data-clock]');
+        if (secs <= 0) { clearInterval(clock); clock = false; return render(); }
+        if (c) c.textContent = secs;
+      }, 1000);
+      return render();
+    }
     if (b.dataset.said) { if (b.dataset.said === '1' && pos < total) right++; if (b.dataset.said === '0') missed.push(t.item); return next(); }
     if (answered) return;
     if (b.dataset.opt) {

@@ -1,0 +1,136 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1">
+<meta name="theme-color" content="#26323D">
+<title>Short day — 8 Weeks of English</title>
+<link rel="manifest" href="manifest.webmanifest">
+<link rel="stylesheet" href="book.css">
+<!--
+  The short day (2026-10-05, her wish 2: «если у меня не было времени ... по типу карточек (интерактив или как дуолинго)»).
+  short.html?day=N: ten tasks for day page N instead of its 40–50 minute Core — the day's phrases out loud, quick tasks
+  with the week's words (drill.js, as the game) and a minute of talk on the day's `talk` topic (book-data.js).
+  Her «1 а»: done, it keeps the days in a row and puts ◐ on the day ("shortOn" in "book-pN", markShortDay in days.js);
+  the day's ✓ still needs the whole Core, and Continue stays on that day. No card moves in its box.
+-->
+<style>
+.what { margin-top: 10px; }
+.what div { display: flex; gap: 12px; align-items: baseline; padding: 7px 0; border-bottom: 2px dotted var(--dots); }
+.what div:last-child { border-bottom: 0; }
+.what b { flex: none; min-width: 26px; font: 700 20px/1 "Fredoka"; }
+.what em { font-style: normal; color: var(--starry); }
+.startrow { display: flex; align-items: center; gap: 14px; flex-wrap: wrap; margin-top: 18px; }
+.btn.go { font-size: 20px; padding: 11px 30px 10px; box-shadow: 4px 4px 0 var(--lav); cursor: pointer; }
+.donechip { background: var(--hl); border-radius: 99px; padding: 3px 12px; font-weight: 900; }
+.rule { margin-top: 14px; font-size: 15px; color: var(--starry); }
+.end { text-align: center; }
+.end .half { font: 700 64px/1 "Fredoka"; margin: 6px 0 2px; }
+.end .fbtns { display: flex; gap: 12px; justify-content: center; flex-wrap: wrap; margin-top: 18px; }
+.end .fbtns .btn { font-size: 17px; padding: 10px 22px 9px; }
+.miss { text-align: left; margin-top: 4px; }
+.miss div { display: flex; gap: 10px; align-items: center; padding: 6px 0; border-bottom: 2px dotted var(--dots); font-size: 15px; }
+.miss div span { flex: 1; }
+.miss .play { flex: none; width: 30px; height: 30px; }
+</style>
+</head>
+<body>
+<header class="bar"><div class="bar-in">
+  <a class="brand" href="index.html">8 WEEKS OF ENGLISH</a>
+  <nav><a href="book.html?page=6">Week 1</a><a href="cards.html">Cards</a><a href="game.html">Game</a><a class="wide" href="words.html">Words</a><a class="wide" href="writing.html">Writing</a></nav>
+</div></header>
+<main class="wrap" id="page"></main>
+<script src="data.js"></script>
+<script src="words-data.js"></script>
+<script src="words-ru.js"></script>
+<script src="my-words.js"></script>
+<script src="deck.js"></script>
+<script src="book-data.js"></script>
+<script src="days.js"></script>
+<script src="voice.js"></script>
+<script src="drill.js"></script>
+<script>
+const esc = dEsc;
+const q = Number(new URLSearchParams(location.search).get('day'));
+const dayPage = BOOK[q] && /^Day \d/.test(BOOK[q].nav) ? q : (currentDay() || bookDays().pop()).page;
+const D = BOOK[dayPage], dayNo = /^Day (\d+)/.exec(D.nav)[1];
+const S = loadCards(), groups = deckGroups(S);
+const everything = groups.flatMap(g => g.cards);   // wrong options come from here
+const weekCards = (groups.find(g => g.id === 'w' + weekOf(dayPage).week) || {cards: []}).cards;
+const TALK = 'Talk about your day so far: what you have done, and what comes next.';
+
+// the day's own phrases: "Today's phrases", or Day 6's "Say these" (capitals = the beat)
+const phraseBlock = D.blocks.find(b => (b.type === 'phrases' && !b.chips) || b.type === 'listen');
+const phrases = (phraseBlock ? phraseBlock.items : []).map((en, i) => ({id: `day${dayPage}:${i}`, en, ru: ''}));
+
+// ten tasks: words of the week in between the day's phrases out loud, a minute of talk at the end;
+// a day without phrases (Day 2) gets "say it out loud" with the week's words instead
+function shortRound() {
+  const items = weekCards.length >= 6 ? weekCards : everything;
+  const slots = ['pairs', 'meaning', 0, 'build', 'english', 1, 'gap', 'listen', 2, 'talk'];
+  const wordPlan = slots.map(s => typeof s === 'number' ? (phrases[s] ? null : 'say') : s === 'listen' ? (phrases[3] && canSpeak ? null : 'listen') : s === 'talk' ? null : s).filter(Boolean);
+  const words = gameRound(items, everything, wordPlan);
+  const how = phraseBlock && phraseBlock.type === 'listen' ? 'The capitals are where the beat lands. Say it twice, then once inside a sentence about your day.' : '';
+  const tasks = slots.map(s => {
+    if (typeof s === 'number') return phrases[s] ? {type: 'speak', item: phrases[s], how} : words.shift();
+    if (s === 'listen' && phrases[3] && canSpeak) return makeTask('listen', phrases[3], items, everything) || words.shift();
+    if (s === 'talk') return {type: 'talk', item: {id: `day${dayPage}:talk`, en: D.talk || TALK, ru: ''}, seconds: 60};
+    return words.shift();
+  });
+  return tasks.filter(Boolean);
+}
+
+// ---------- the page ----------
+const page = document.getElementById('page');
+const tagH = (t, tc) => `<span class="tag"${tc ? ` style="--tc:${tc}"` : ''}>${t}</span>`;
+const head = () => `<div class="head"><div class="badge"><span class="d">DAY</span><span class="n">${dayNo}</span></div>` +
+  `<div><div class="kicker">No time today · 10 min</div><div class="title">Short day</div><div class="sub">${esc(D.nav)}</div></div>` +
+  `<div class="jp"><span class="k">短い</span><span class="k2">十分間</span></div>` +
+  `<img class="star" src="source/redesign/sprites/star-yellow.png" alt=""></div>`;
+const play = text => canSpeak ? `<button type="button" class="play" data-say="${esc(text)}" aria-label="Listen">▶</button>` : '';
+const doneToday = () => (pageState(dayPage).shortOn || []).includes(today);
+const said = Math.min(3, phrases.length);
+function home() {
+  page.innerHTML = `<a class="crumb" href="book.html?page=${dayPage}">← ${esc(D.nav)} · the whole day</a>` + head() +
+    `<div class="stack"><div class="catwrap"><img class="cat" src="source/redesign/sprites/cat-peek.png" alt="">` +
+    `<section class="card" style="--sh:var(--lav)">${tagH('Short day', 'var(--lav)')}<p class="hint">for a day with no time: ten quick tasks instead of the 40–50 minute Core</p>` +
+    `<div class="what">` +
+    (said ? `<div><b>${said}</b><span>of today’s phrases, out loud — about you</span></div>` : `<div><b>3</b><span>of this week’s words, said out loud</span></div>`) +
+    `<div><b>6</b><span>quick tasks with this week’s words: pairs, meaning, tiles, the missing word${canSpeak ? ', listening' : ''}</span></div>` +
+    `<div><b>1</b><span>minute of talk: <em>${esc(D.talk || TALK)}</em></span></div></div>` +
+    `<div class="startrow"><button type="button" class="btn go" data-start>Start ▶</button>${doneToday() ? '<span class="donechip">◐ done today</span>' : ''}</div>` +
+    `<p class="rule">It keeps your days in a row and puts ◐ on Day ${dayNo}. The ✓ still needs the whole Core: Continue stays on this day.</p>` +
+    `</section></div></div><p class="motto">Use English. Don’t just study English.</p>`;
+}
+function start() {
+  page.innerHTML = '<div id="round"></div>';
+  window.scrollTo(0, 0);
+  window.round = runDrill(document.getElementById('round'), shortRound(), {
+    colour: 'var(--lav)',
+    onQuit: home,
+    onEnd: r => {
+      markShortDay(dayPage);
+      const miss = [...new Map(r.missed.filter(c => c.ru).map(c => [c.id, c])).values()];
+      page.innerHTML = head() + `<div class="stack"><div class="catwrap"><img class="cat" src="source/redesign/sprites/cat-peek.png" alt="">` +
+        `<section class="card end" style="--sh:var(--lav)">${tagH('Short day done', 'var(--lav)')}` +
+        `<div class="half">◐</div><div><b>Day ${dayNo}</b> has its ◐ · your days in a row go on</div>` +
+        `<p class="hint" style="margin-top:8px">${r.right} of ${r.total} right the first time · ${Math.floor(r.seconds / 60)}:${String(r.seconds % 60).padStart(2, '0')}</p>` +
+        `<div class="fbtns"><a class="btn" href="book.html?page=${dayPage}">Back to Day ${dayNo}</a><a class="btn light" href="cards.html?day=${dayPage}">Today’s cards</a><a class="btn light" href="index.html">Home</a></div>` +
+        `</section></div>` +
+        (miss.length ? `<section class="card" style="--sh:var(--pink)">${tagH('Look at these again')}<div class="miss">` +
+          miss.map(c => `<div><span><b style="color:var(--navy)">${esc(c.en)}</b> — ${esc(c.ru)}</span>${play(c.en)}</div>`).join('') + `</div></section>` : '') +
+        `</div>`;
+      window.scrollTo(0, 0);
+    }
+  });
+}
+page.addEventListener('click', e => {
+  const b = e.target.closest('button'); if (!b || b.disabled) return;
+  if (b.hasAttribute('data-start')) return start();
+  if (b.dataset.say && !b.closest('.drill')) return speak(b.dataset.say);
+});
+home();
+</script>
+<script src="app.js"></script>
+</body>
+</html>

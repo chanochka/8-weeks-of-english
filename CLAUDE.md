@@ -76,9 +76,14 @@ exercises with answers check themselves. **Built one week at a time** (her words
 
 1. **Once more** — on the cards' done card: «Today’s» (`S.day.seen`, ids answered today) or «All I’ve seen» (weakest
    box first), gone through again; «Again later» sends a card to the end once; the boxes never move. *Done, part 1.*
-2. **Short day** («нет времени»): a button on each day page, 12–15 Duolingo-like tasks from that day's phrases and the
-   week's words (the same tasks as the game) plus 2 «say it out loud». Her «1 а»: a short day keeps the days in a row
-   and puts ◐ on the day, but the day's ✓ still needs the whole Core and Continue stays on that day. *Part 3.*
+2. **Short day** («нет времени»): `short.html?day=N`, linked by a bar under each day page's goal and under Continue on
+   the home page. Ten tasks: three of the day's phrases out loud (`speak`: «Today’s phrases», or Day 6's «Say these»
+   with its capitals), six with the week's words (as the game), a phrase to listen and build, and a minute of talk with
+   a clock (`talk`, the topic is the day's `talk` in `book-data.js`; a fallback for days without one). A day without
+   phrases (Day 2) gets «say it out loud» with the week's words. Her «1 а»: done, it writes the date into `shortOn` of
+   that day's `book-pN` (`markShortDay` in `days.js`), which keeps the days in a row and puts ◐ on the day (week page
+   rows, the home strip and week tiles); the day's ✓ still needs the whole Core and Continue stays on that day.
+   ✕ in the middle marks nothing. *Done, part 3.*
 3. **Cards tick themselves** — finished cards tick «Today’s cards» in a day's Core (`tickTodaysCards` in `days.js`):
    the day the cards were opened from (`cards.html?day=N`, the links on day pages carry it), else, once a day, the day
    Continue opens (`S.day.ticked`). The last item ticked makes the day done with `doneOn`, as on the page. *Done, part 1.*
@@ -89,17 +94,21 @@ exercises with answers check themselves. **Built one week at a time** (her words
    rounds, last, missed} (moved by `move.html`). Card boxes untouched. Linked from the nav (Game), the home page's
    Today card and the cards' done card. *Done, part 2.*
    `drill.js` is the task engine for the game and the short day: `makeTask`, `gameRound`, `runDrill(root, tasks,
-   {onEnd, onQuit, colour})`; styles under "drills" in `book.css`.
+   {onEnd, onQuit, colour})`; the short day's own tasks `speak` (`how` overrides its hint) and `talk` (`seconds`) are
+   made by `short.html`. Styles under "drills" and "the short day" in `book.css`.
 5. **Voice** — her «2 а»: the browser's own voices, picked on the cards page (Voice card, `voice.js`, localStorage
    `voice` = {uri, name, rate}; not moved by `move.html`, voices differ per device), best one by default
    (Premium › Enhanced/Natural › online › built-in, then British first); novelty Apple voices hidden; a tip in Russian
    how to download a better iPhone voice. ElevenLabs recordings (her «б») were declined for now. *Done, part 1.*
 
-- `days.js`: the day list (`bookDays`, `currentDay`) shared by the home page and the cards.
+- `days.js`: the day list (`bookDays` with `half` / `shortOn`, `currentDay`) shared by the home page, the cards and the
+  short day.
 - `app.js` reloads a page restored by the Back button: its frozen ticks would overwrite the cards' tick.
 - Tests (not committed): `source/redesign/out/online/oncetest.html` (wishes 1, 3, 5), `gametest.html` (plays a round,
-  every kind of task) and `pagestest.html` (every ▶ page uses `voice.js`); run in headless Chrome over
-  `python -m http.server`, `--dump-dom`, read `<pre id="out">`; `?shot=…` leaves a page in a state for a screenshot.
+  every kind of task), `shorttest.html` (wish 2: a short day played, ◐ everywhere, the days in a row, no ✓) and
+  `pagestest.html` (every ▶ page uses `voice.js`); run in headless Chrome over
+  `python -m http.server`, `--dump-dom`, read `<pre id="out">`; `?shot=…` leaves a page in a state for a screenshot. Use a fresh
+  `--user-data-dir` for every run: Chrome otherwise serves just-edited files from its cache.
 
 ## The print redesign (paused 2026-10-02: she reads online instead)
 

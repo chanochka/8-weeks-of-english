@@ -62,6 +62,10 @@ function items(b) {
   return w[b.from];
 }
 function isDone(n) { return n === pageNo ? !!saved.done : !!load(n).done; }
+// ◐: a short day was done on it (short.html), the Core not yet
+const isHalf = n => !isDone(n) && (load(n).shortOn || []).length > 0;
+const isDay = /^Day \d/.test(P.nav);
+const todayISO = () => (d => d.getFullYear() + '-' + String(d.getMonth() + 1).padStart(2, '0') + '-' + String(d.getDate()).padStart(2, '0'))(new Date());
 
 const R = {
   band: b => `<div class="band"><div><span class="label">Promise&nbsp;</span> ${b.promise}</div>` +
@@ -69,13 +73,16 @@ const R = {
   text: b => `<p>${b.html}</p>`,
   cards: b => `<div class="row2">${b.cards.map(c => card(c, c.html)).join('')}</div>`,
   card: b => card(b, b.html || b.bullets.map(x => `<div class="bul">${SPARK}<span>${x}</span></div>`).join('')),
-  goal: b => `<div class="goal"><span class="tag navy">${b.label || 'Today’s goal'}</span><span>${b.text}</span></div>`,
+  goal: b => `<div class="goal"><span class="tag navy">${b.label || 'Today’s goal'}</span><span>${b.text}</span></div>` +
+    // her wish 2: no time today → the short day of this page, ten minutes
+    (isDay ? `<a class="shortbar" href="short.html?day=${pageNo}"><span>${(saved.shortOn || []).includes(todayISO())
+      ? '<b>Short day</b> <small>◐ done today · again</small>' : 'No time today? <b>Short day</b> <small>· 10 min</small>'}</span><span class="ar">›</span></a>` : ''),
   facts: b => `<div class="facts">${b.items.map(([k, v]) => `<div class="fact"><span class="label">${k}</span><strong>${v}</strong></div>`).join('')}</div>`,
   hub: b => {
     const rows = BOOK.order.filter(n => n !== BOOK.hub).map(n => {
       const day = /^Day (\d)/.exec(BOOK[n].nav);
       return `<a class="hubrow${isDone(n) ? ' done' : ''}" href="?page=${n}"><span class="hn">${day ? day[1] : '◆'}</span>` +
-             `<span class="ht">${BOOK[n].nav.replace(/^Week 1 · /, '')}</span><span class="hd">${isDone(n) ? '✓' : '›'}</span></a>`;
+             `<span class="ht">${BOOK[n].nav.replace(/^Week 1 · /, '')}</span><span class="hd">${isDone(n) ? '✓' : isHalf(n) ? '◐' : '›'}</span></a>`;
     }).join('');
     return card(b, `<div class="hublist">${rows}</div>`);
   },
@@ -200,7 +207,7 @@ document.getElementById('page').innerHTML =
 // ---------- make it live ----------
 const root = document.getElementById('page');
 // the cards opened from a day page tick that day's "Today's cards" when they are finished (cards.html, days.js)
-if (/^Day \d/.test(P.nav)) root.querySelectorAll('a[href="cards.html"]').forEach(a => a.setAttribute('href', 'cards.html?day=' + pageNo));
+if (isDay) root.querySelectorAll('a[href="cards.html"]').forEach(a => a.setAttribute('href', 'cards.html?day=' + pageNo));
 function showDone() {
   const d = document.getElementById('done'); if (!d) return;
   const core = [...root.querySelectorAll('[data-core]')];
@@ -209,7 +216,7 @@ function showDone() {
   if (!!saved.done !== done) {
     saved.done = done;
     // the date the Core was finished: the home page counts the days in a row from it
-    if (done) { const d = new Date(); saved.doneOn = d.getFullYear() + '-' + String(d.getMonth() + 1).padStart(2, '0') + '-' + String(d.getDate()).padStart(2, '0'); }
+    if (done) saved.doneOn = todayISO();
     save();
   }
 }

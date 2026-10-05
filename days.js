@@ -6,7 +6,9 @@ function bookDays() {
   return Object.keys(BOOK).filter(k => /^\d+$/.test(k)).map(Number).filter(n => /^Day \d+/.test(BOOK[n].nav)).map(n => {
     const w = weekOf(n), d = Number(/^Day (\d+)/.exec(BOOK[n].nav)[1]), s = pageState(n);
     const goal = BOOK[n].blocks.find(b => b.type === 'goal');
-    return {page: n, week: w, num: d <= 7 ? (w.week - 1) * 7 + d : d, done: !!s.done, doneOn: s.done && s.doneOn, goal: goal && goal.text};
+    const shortOn = s.shortOn || [];
+    return {page: n, week: w, num: d <= 7 ? (w.week - 1) * 7 + d : d, done: !!s.done, doneOn: s.done && s.doneOn, goal: goal && goal.text,
+            shortOn, half: !s.done && shortOn.length > 0};
   }).sort((a, b) => a.num - b.num);
 }
 // the day "Continue" opens: the first one whose Core is not done
@@ -22,6 +24,15 @@ function tickTodaysCards(page) {
   s.ticks = s.ticks || {};
   s.ticks[`${core.id}-${i}`] = true;
   if (!s.done && core.items.every((_, j) => s.ticks[`${core.id}-${j}`])) { s.done = true; s.doneOn = today; }
+  try { localStorage.setItem('book-p' + page, JSON.stringify(s)); } catch (e) { return false; }
+  return true;
+}
+
+// A short day done (2026-10-05, her wish 2, «1 а»): the date goes into "shortOn" of the day's "book-pN". It keeps the
+// days in a row and puts ◐ on the day; the day's ✓ still needs the whole Core. Needs `today` (deck.js).
+function markShortDay(page) {
+  const s = pageState(page);
+  s.shortOn = [...new Set((s.shortOn || []).concat(today))];
   try { localStorage.setItem('book-p' + page, JSON.stringify(s)); } catch (e) { return false; }
   return true;
 }

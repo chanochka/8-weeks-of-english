@@ -329,6 +329,18 @@ body.test .ww.shown { color: var(--navy); background: none; }
 .dbtns { display: flex; gap: 10px; margin-left: auto; }
 .dbtns .btn { font-size: 18px; padding: 10px 26px 9px; cursor: pointer; }
 .dbtns .btn:disabled { opacity: .35; cursor: default; }
+.clock { width: 112px; height: 112px; margin: 18px auto 4px; border-radius: 50%; border: var(--line); background: var(--sky);
+         display: flex; align-items: center; justify-content: center; font: 700 44px/1 "Fredoka"; box-shadow: 3px 3px 0 var(--navy); }
+.clock.run { background: var(--yellow); }
+.clock.end { background: var(--okbg, #DDF1E3); }
+
+/* ---------- the short day (short.html): the bar under a day's goal ---------- */
+.shortbar { display: flex; align-items: center; gap: 10px; margin-top: 12px; padding: 10px 16px 9px; background: #fff; border: var(--line);
+            border-radius: 99px; box-shadow: 3px 3px 0 var(--lav); color: var(--navy); text-decoration: none; font-weight: 800; }
+.shortbar span:first-child { flex: 1; }
+.shortbar b, .shortbar small { white-space: nowrap; }
+.shortbar small { color: var(--starry); font-weight: 800; font-size: inherit; }
+.shortbar .ar { font: 700 22px/1 "Fredoka"; }
 @media (max-width: 600px) {
   .dq.en { font-size: 26px; }
   .dbtns { width: 100%; }

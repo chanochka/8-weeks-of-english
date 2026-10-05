@@ -8,6 +8,7 @@
 // Words and speaking, not grammar (her goal, 2026-10-02): the grammar pages 7 and 9 stay here but are out of `order`,
 // Friday is a words day, every day has the daily cards (cards.html), ChatGPT Voice is Core on Mon, Thu, Fri, Sun,
 // and the writing page is a bonus. Week 1 first; the other weeks follow once she has looked at it.
+// A day's `talk` is the topic of the short day's minute out loud (short.html, her wish 2, 2026-10-05).
 const BOOK = {
   hub: 6,  // the week page: links to every page of the week
   order: [6, 8, 10, 11, 12, 13, 14, 15, 16, 17, 18, 19],
@@ -24,7 +25,7 @@ const BOOK = {
         '<p>The Russian meaning first — you say the English out loud, then turn the card over. ' +
         'This week’s 28 phrases, <strong>My world</strong> (studio, AI, the robot, working with people) and the phrases you add yourself.</p>' +
         '<div class="btns"><a class="btn" href="cards.html">Today’s cards</a></div>'},
-      {type: 'hub', cat: true, tag: 'This week’s pages', hint: 'a ✓ appears when the Core of a day is done'},
+      {type: 'hub', cat: true, tag: 'This week’s pages', hint: 'a ✓ appears when the Core of a day is done · ◐ a short day'},
       // her «1 да 2 да» (2026-10-02): a sample notebook page, made by source/redesign/notebook-sample.html
       {type: 'card', tag: 'How to keep your notebook', tc: 'var(--lav)', sh: 'var(--lav)', html:
         '<p>One page a day, and one page a week for the phrase log. You need a dark pen, pastel markers ' +
@@ -122,6 +123,7 @@ const BOOK = {
 
   10: {
     nav: 'Day 1 · Speak + build',
+    talk: 'Describe your normal day, from waking up to going to bed.',
     head: {badge: ['DAY', '1'], kicker: 'Week 01 · Activate · Monday', title: 'Speak + build', sub: 'Your normal day, out loud',
            jp: ['話す', '一日目・月曜日']},
     blocks: [
@@ -155,6 +157,7 @@ const BOOK = {
   },
   11: {
     nav: 'Day 2 · Listen',
+    talk: 'Describe yesterday — what you did, in order.',
     head: {badge: ['DAY', '2'], kicker: 'Week 01 · Activate · Tuesday', title: 'Listen', sub: 'Everyday you', jp: ['聞く', '二日目・火曜日']},
     blocks: [
       {type: 'goal', text: 'Catch how people describe ordinary days in unscripted speech.'},
@@ -188,6 +191,7 @@ const BOOK = {
 
   12: {
     nav: 'Day 3 · Read + retell',
+    talk: 'Retell the routine of someone you know: what they do every day.',
     head: {badge: ['DAY', '3'], kicker: 'Week 01 · Activate · Wednesday', title: 'Read + retell', sub: 'Everyday you', jp: ['読む', '三日目・水曜日']},
     blocks: [
       {type: 'goal', text: 'Retell someone else’s routine as a short spoken story.'},
@@ -216,6 +220,7 @@ const BOOK = {
 
   13: {
     nav: 'Day 4 · Speaking day',
+    talk: 'What has this week been like so far?',
     head: {badge: ['DAY', '4'], kicker: 'Week 01 · Activate · Thursday', title: 'Speaking day', sub: 'Everyday you', jp: ['会話', '四日目・木曜日']},
     blocks: [
       {type: 'goal', text: 'Speak for 90 seconds on a question you have not seen before.'},
@@ -245,6 +250,7 @@ const BOOK = {
 
   14: {
     nav: 'Day 5 · Words day',
+    talk: 'Tell a short story about your week, with three of this week’s phrases.',
     head: {badge: ['DAY', '5'], kicker: 'Week 01 · Activate · Friday', title: 'Words day', sub: 'this week’s words, out of your mouth',
            jp: ['言葉', '五日目・金曜日']},
     blocks: [
@@ -273,6 +279,7 @@ const BOOK = {
 
   15: {
     nav: 'Day 6 · Sound natural',
+    talk: 'Say what you do every morning — and stress the important words.',
     head: {badge: ['DAY', '6'], kicker: 'Week 01 · Activate · Saturday', title: 'Sound natural', sub: 'Everyday you', jp: ['発音', '六日目・土曜日']},
     blocks: [
       {type: 'goal', text: 'Fix where the stress falls in your sentences.'},
@@ -308,6 +315,7 @@ const BOOK = {
 
   16: {
     nav: 'Day 7 · Review + reset',
+    talk: 'What did you manage this week, and what was difficult?',
     head: {badge: ['DAY', '7'], kicker: 'Week 01 · Activate · Sunday', title: 'Review + reset', sub: 'Everyday you', jp: ['復習', '七日目・日曜日']},
     blocks: [
       {type: 'goal', text: 'Prove to yourself that week one actually happened.'},
