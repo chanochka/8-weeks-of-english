@@ -1,8 +1,8 @@
-const CACHE='english-workbook-v11';
+const CACHE='english-workbook-v12';
 const CORE=[
   './','./index.html','./reader.html','./roadmap.html','./writing.html','./certificate.html','./words.html',
   './styles.css','./app.js','./data.js','./words-data.js','./manifest.webmanifest',
-  './book.html','./book.css','./book-data.js','./cards.html','./move.html','./words-ru.js','./my-words.js','./deck.js','./days.js','./voice.js',
+  './book.html','./book.css','./book-data.js','./cards.html','./move.html','./words-ru.js','./my-words.js','./deck.js','./days.js','./voice.js','./drill.js','./game.html',
   './assets/cover.jpg','./assets/notebook-sample.png','./assets/icon-192.png','./assets/icon-512.png',
   './8-weeks-of-english-full.pdf'
 ];

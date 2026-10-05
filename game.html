@@ -1,0 +1,130 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1">
+<meta name="theme-color" content="#26323D">
+<title>Word game — 8 Weeks of English</title>
+<link rel="manifest" href="manifest.webmanifest">
+<link rel="stylesheet" href="book.css">
+<!--
+  The word game (2026-10-05, her wish 4: «повторение карточек (как отдельная игра) и слов»). Rounds of ten Duolingo-like
+  tasks (drill.js) from what she picks: the cards she has seen, a week's words, My world, her own phrases. Wrong options
+  come from the whole deck. It never moves a card in its box. Best score, rounds and the last round's mistakes live in
+  localStorage "game" (moved by move.html).
+-->
+<style>
+.chips { display: flex; flex-wrap: wrap; gap: 8px; margin-top: 12px; }
+.chip { border: var(--line); border-radius: 99px; background: #fff; padding: 6px 14px 5px; font: 800 15px "Nunito"; color: var(--navy); cursor: pointer; }
+.chip.on { background: var(--navy); color: #fff; }
+.chip:disabled { opacity: .35; cursor: default; }
+.chip small { font-weight: 700; opacity: .75; }
+.startrow { display: flex; align-items: center; gap: 14px; flex-wrap: wrap; margin-top: 18px; }
+.btn.go { font-size: 20px; padding: 11px 30px 10px; box-shadow: 4px 4px 0 var(--pink); cursor: pointer; }
+.btn.go:disabled { opacity: .35; cursor: default; }
+.pick-note { color: var(--starry); font-size: 15px; }
+.kinds { display: grid; grid-template-columns: 1fr 1fr; gap: 6px 14px; margin-top: 12px; font-size: 15px; }
+.kinds span::before { content: "✦ "; color: var(--pink); }
+.end { text-align: center; }
+.end .score { font: 700 54px/1 "Fredoka"; margin: 8px 0 4px; }
+.end .score small { font-size: 26px; color: var(--slate); }
+.end .best { display: inline-block; background: var(--hl); border-radius: 99px; padding: 3px 12px; font-weight: 900; margin-top: 6px; }
+.end .fbtns { display: flex; gap: 12px; justify-content: center; flex-wrap: wrap; margin-top: 18px; }
+.end .fbtns .btn { font-size: 17px; padding: 10px 22px 9px; cursor: pointer; }
+.miss { text-align: left; margin-top: 16px; border-top: 2px dotted var(--dots); padding-top: 10px; }
+.miss div { display: flex; gap: 10px; align-items: center; padding: 6px 0; border-bottom: 2px dotted var(--dots); font-size: 15px; }
+.miss div span { flex: 1; }
+.miss .play { flex: none; width: 30px; height: 30px; }
+.gstats { display: flex; gap: 8px 18px; flex-wrap: wrap; margin-top: 14px; font-size: 15px; }
+@media (max-width: 600px) { .kinds { grid-template-columns: 1fr; } }
+</style>
+</head>
+<body>
+<header class="bar"><div class="bar-in">
+  <a class="brand" href="index.html">8 WEEKS OF ENGLISH</a>
+  <nav><a href="book.html?page=6">Week 1</a><a href="cards.html">Cards</a><a href="game.html">Game</a><a class="wide" href="words.html">Words</a><a class="wide" href="writing.html">Writing</a></nav>
+</div></header>
+<main class="wrap" id="page"></main>
+<script src="words-data.js"></script>
+<script src="words-ru.js"></script>
+<script src="my-words.js"></script>
+<script src="deck.js"></script>
+<script src="voice.js"></script>
+<script src="drill.js"></script>
+<script>
+const esc = dEsc;
+const S = loadCards(), groups = deckGroups(S);
+function loadGame() { let G; try { G = JSON.parse(localStorage.getItem('game')) || {}; } catch (e) { G = {}; } G.rounds = G.rounds || 0; G.best = G.best || 0; return G; }
+const G = loadGame();
+function saveGame() { try { localStorage.setItem('game', JSON.stringify(G)); } catch (e) {} }
+
+// ---------- what can go into a round ----------
+const live = groups.filter(g => !S.off.includes(g.id));
+const POOLS = [
+  {id: 'seen', name: 'Cards I’ve seen', items: live.flatMap(g => g.cards).filter(c => S.state[c.id])},
+  ...groups.filter(g => /^w\d/.test(g.id)).map(g => ({id: g.id, name: g.name.split(' · ')[0] + ' words', items: g.cards})),
+  {id: 'my', name: 'My world', items: groups.filter(g => g.my).flatMap(g => g.cards)},
+  {id: 'own', name: 'My own', items: groups.filter(g => g.id === 'own').flatMap(g => g.cards)}
+].filter(p => p.items.length);
+const everything = groups.flatMap(g => g.cards);   // wrong options come from here
+let picked = (G.pools || []).filter(id => POOLS.some(p => p.id === id));
+if (!picked.length) picked = [POOLS.find(p => p.id === 'seen' && p.items.length >= 5) || POOLS.find(p => /^w\d/.test(p.id)) || POOLS[0]].filter(Boolean).map(p => p.id);
+const chosen = () => { const seen = new Set(); return POOLS.filter(p => picked.includes(p.id)).flatMap(p => p.items).filter(c => !seen.has(c.id) && seen.add(c.id)); };
+
+// ---------- the page ----------
+const page = document.getElementById('page');
+const tagH = (t, tc) => `<span class="tag"${tc ? ` style="--tc:${tc}"` : ''}>${t}</span>`;
+const head = () => `<div class="head"><div class="badge"><span class="d">BEST</span><span class="n">${G.best || '–'}</span></div>` +
+  `<div><div class="kicker">Any time · 3–5 minutes</div><div class="title">Word game</div><div class="sub">ten quick tasks from your cards and words</div></div>` +
+  `<div class="jp"><span class="k">遊ぶ</span><span class="k2">復習</span></div>` +
+  `<img class="star" src="source/redesign/sprites/star-yellow.png" alt=""></div>`;
+const play = text => canSpeak ? `<button type="button" class="play" data-say="${esc(text)}" aria-label="Listen">▶</button>` : '';
+function home() {
+  const n = chosen().length;
+  page.innerHTML = head() + `<div class="stack"><div class="catwrap"><img class="cat" src="source/redesign/sprites/cat-peek.png" alt="">` +
+    `<section class="card" style="--sh:var(--yellow)">${tagH('Play', 'var(--yellow)')}<p class="hint">what goes into the round — pick one or more</p>` +
+    `<div class="chips">${POOLS.map(p => `<button type="button" class="chip${picked.includes(p.id) ? ' on' : ''}" data-pool="${p.id}">${esc(p.name)} <small>${p.items.length}</small></button>`).join('')}</div>` +
+    `<div class="startrow"><button type="button" class="btn go" data-start${n >= 4 ? '' : ' disabled'}>Start ▶</button>` +
+    `<span class="pick-note">${n >= 4 ? `${n} words and phrases in the mix` : 'pick at least 4 words — or do today’s cards first'}</span></div>` +
+    `<div class="kinds"><span>find the pairs</span><span>what does it mean?</span><span>say it in English</span><span>build the sentence</span><span>type the missing word</span><span>listen and build</span></div>` +
+    (G.rounds ? `<div class="gstats"><span>rounds played <b>${G.rounds}</b></span><span>best <b>${G.best} / 10</b></span>${G.last ? `<span>last <b>${G.last.right} / ${G.last.total}</b></span>` : ''}</div>` : '') +
+    `<p class="hint" style="margin-top:12px">your cards stay where they are: the game never moves them</p></section></div>` +
+    missedHTML(G.missed || [], 'Last round’s mistakes') + `</div><p class="motto">Use English. Don’t just study English.</p>`;
+}
+function missedHTML(ids, title) {
+  const list = ids.map(id => everything.find(c => c.id === id)).filter(Boolean);
+  return list.length ? `<section class="card" style="--sh:var(--pink)">${tagH(title)}<div class="miss">` +
+    list.map(c => `<div><span><b style="color:var(--navy)">${esc(c.en)}</b> — ${esc(c.ru)}</span>${play(c.en)}</div>`).join('') + `</div></section>` : '';
+}
+function start() {
+  G.pools = picked; saveGame();
+  const items = chosen();
+  page.innerHTML = '<div id="round"></div>';
+  window.scrollTo(0, 0);
+  window.round = runDrill(document.getElementById('round'), gameRound(items, everything.length >= 8 ? everything : items), {
+    onQuit: home,
+    onEnd: r => {
+      const best = r.right > G.best;
+      G.rounds++; G.best = Math.max(G.best, r.right); G.last = {date: today, right: r.right, total: r.total, seconds: r.seconds};
+      G.missed = [...new Set(r.missed.map(c => c.id))]; saveGame();
+      page.innerHTML = head() + `<div class="stack"><div class="catwrap"><img class="cat" src="source/redesign/sprites/cat-peek.png" alt="">` +
+        `<section class="card end" style="--sh:var(--yellow)">${tagH('Round done', 'var(--yellow)')}` +
+        `<div class="score">${r.right}<small> / ${r.total}</small></div><div>right the first time · ${Math.floor(r.seconds / 60)}:${String(r.seconds % 60).padStart(2, '0')}</div>` +
+        (best ? `<div class="best">★ new best</div>` : '') +
+        `<div class="fbtns"><button type="button" class="btn" data-start>Play again</button><a class="btn light" href="cards.html">Cards</a><a class="btn light" href="index.html">Home</a></div>` +
+        `</section></div>${missedHTML(G.missed, 'Look at these again')}</div>`;
+      window.scrollTo(0, 0);
+    }
+  });
+}
+page.addEventListener('click', e => {
+  const b = e.target.closest('button'); if (!b || b.disabled) return;
+  if (b.dataset.pool) { picked = picked.includes(b.dataset.pool) ? picked.filter(x => x !== b.dataset.pool) : picked.concat(b.dataset.pool); return home(); }
+  if (b.hasAttribute('data-start')) return start();
+  if (b.dataset.say && !b.closest('.drill')) return speak(b.dataset.say);
+});
+home();
+</script>
+<script src="app.js"></script>
+</body>
+</html>

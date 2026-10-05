@@ -66,7 +66,7 @@ exercises with answers check themselves. **Built one week at a time** (her words
   with people — she may change them). Generic wording, no names: the repo is public.
 - `move.html` "Move my progress" (2026-10-03, her «а»: the workbook lives on its own, not inside the hub): progress
   lives per address, so the hub's bridge address and github.io (and, on the iPhone, Safari and the home-screen icon)
-  each have their own. «Copy» puts every workbook key (`book-pN`, `cards`, `writing-week-N`, `said-w…`,
+  each have their own. «Copy» puts every workbook key (`book-pN`, `cards`, `game`, `writing-week-N`, `said-w…`,
   `certificateName`, `workbookPage`) into one JSON code; «Paste» → Load → Replace swaps this address's workbook keys
   for it, other keys of the address untouched, the old ones kept in `move-backup` for «Undo». Linked from The book on
   the home page. Tested by `source/redesign/out/online/movetest.html` (not committed). A new storage key must be
@@ -82,9 +82,14 @@ exercises with answers check themselves. **Built one week at a time** (her words
 3. **Cards tick themselves** — finished cards tick «Today’s cards» in a day's Core (`tickTodaysCards` in `days.js`):
    the day the cards were opened from (`cards.html?day=N`, the links on day pages carry it), else, once a day, the day
    Continue opens (`S.day.ticked`). The last item ticked makes the day done with `doneOn`, as on the page. *Done, part 1.*
-4. **The game** — a page of rounds of 10 tasks (pairs against the clock, pick the meaning, build the phrase from tiles,
-   type the missing word, listen and build) from the cards she has seen and the words of the online weeks; mistakes
-   come back at the end of the round, best score kept; card boxes untouched. *Part 2.*
+4. **The game** — `game.html`: rounds of 10 tasks (`GAME_PLAN` in `drill.js`: find the pairs, what does it mean,
+   say it in English, build the sentence from tiles, type the missing word, listen and build) from the chips she picks
+   (cards she has seen, a week's words, My world, her own); wrong options from the whole deck. A wrong task comes back
+   once at the end ("one more try"); the score is right-the-first-time out of 10. localStorage `game` = {pools, best,
+   rounds, last, missed} (moved by `move.html`). Card boxes untouched. Linked from the nav (Game), the home page's
+   Today card and the cards' done card. *Done, part 2.*
+   `drill.js` is the task engine for the game and the short day: `makeTask`, `gameRound`, `runDrill(root, tasks,
+   {onEnd, onQuit, colour})`; styles under "drills" in `book.css`.
 5. **Voice** — her «2 а»: the browser's own voices, picked on the cards page (Voice card, `voice.js`, localStorage
    `voice` = {uri, name, rate}; not moved by `move.html`, voices differ per device), best one by default
    (Premium › Enhanced/Natural › online › built-in, then British first); novelty Apple voices hidden; a tip in Russian
@@ -92,8 +97,9 @@ exercises with answers check themselves. **Built one week at a time** (her words
 
 - `days.js`: the day list (`bookDays`, `currentDay`) shared by the home page and the cards.
 - `app.js` reloads a page restored by the Back button: its frozen ticks would overwrite the cards' tick.
-- Tests (not committed): `source/redesign/out/online/oncetest.html` (wishes 1, 3, 5) and `pagestest.html` (every ▶ page
-  uses `voice.js`); run in headless Chrome over `python -m http.server`, `--dump-dom`, read `<pre id="out">`.
+- Tests (not committed): `source/redesign/out/online/oncetest.html` (wishes 1, 3, 5), `gametest.html` (plays a round,
+  every kind of task) and `pagestest.html` (every ▶ page uses `voice.js`); run in headless Chrome over
+  `python -m http.server`, `--dump-dom`, read `<pre id="out">`; `?shot=…` leaves a page in a state for a screenshot.
 
 ## The print redesign (paused 2026-10-02: she reads online instead)
 
