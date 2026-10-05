@@ -21,6 +21,7 @@
 <main class="wrap" id="page"></main>
 <script src="words-data.js"></script>
 <script src="book-data.js"></script>
+<script src="voice.js"></script>
 <script>
 const STAR = '<svg viewBox="0 0 24 24"><path d="M12 2.6l2.8 5.7 6.2.9-4.5 4.4 1.1 6.2L12 16.9l-5.6 2.9 1.1-6.2L3 9.2l6.2-.9z"/></svg>';
 const SPARK = '<img src="source/redesign/sprites/sparkle.png" alt="">';
@@ -40,17 +41,7 @@ const tag = b => `<span class="tag${b.navy ? ' navy' : ''}"${b.tc ? ` style="--t
 const card = (b, inner) => `<section class="card" style="${style(b)}">${b.tag ? tag(b) : ''}${b.hint ? `<p class="hint">${b.hint}</p>` : ''}${inner}</section>`;
 const tickBox = (k, label) => `<input type="checkbox" data-tick="${k}"${saved.ticks[k] ? ' checked' : ''}${label ? ` aria-label="${esc(label)}"` : ''}>`;
 
-// ▶ reads English out loud with the browser's own voice, as words.html does
-const canSpeak = 'speechSynthesis' in window;
-let voice = null;
-function pickVoice() { const vs = speechSynthesis.getVoices(); voice = vs.find(v => v.lang === 'en-GB') || vs.find(v => v.lang && v.lang.startsWith('en')) || null; }
-if (canSpeak) { pickVoice(); speechSynthesis.onvoiceschanged = pickVoice; }
-function speak(text) {
-  if (!canSpeak) return;
-  speechSynthesis.cancel();
-  const u = new SpeechSynthesisUtterance(text.replace(/\b([A-Z]{2,})\b/g, w => w.toLowerCase()).replace(/…/g, ''));
-  if (voice) u.voice = voice; u.lang = voice ? voice.lang : 'en-GB'; u.rate = .95; speechSynthesis.speak(u);
-}
+// ▶ reads English out loud with the voice she picked on the cards page (voice.js)
 const play = text => canSpeak ? `<button type="button" class="play" data-say="${esc(text)}" aria-label="Listen">▶</button>` : '';
 
 // answers compare without case, punctuation or contractions: "I’m sitting" = "i am sitting"
@@ -208,6 +199,8 @@ document.getElementById('page').innerHTML =
 
 // ---------- make it live ----------
 const root = document.getElementById('page');
+// the cards opened from a day page tick that day's "Today's cards" when they are finished (cards.html, days.js)
+if (/^Day \d/.test(P.nav)) root.querySelectorAll('a[href="cards.html"]').forEach(a => a.setAttribute('href', 'cards.html?day=' + pageNo));
 function showDone() {
   const d = document.getElementById('done'); if (!d) return;
   const core = [...root.querySelectorAll('[data-core]')];

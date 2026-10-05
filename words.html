@@ -42,13 +42,9 @@ body.test .wb-row .e.shown{visibility:visible}
 <div id="wb"></div>
 </main>
 <footer class="footer"><div class="shell footer-inner"><span>USE ENGLISH. DON'T JUST STUDY ENGLISH.</span><span class="jp">毎日少しずつ · A little every day</span></div></footer>
-<script src="data.js"></script><script src="words-data.js"></script><script>
+<script src="data.js"></script><script src="words-data.js"></script><script src="voice.js"></script><script>
 const store={get(k){try{return localStorage.getItem(k)}catch(e){return null}},set(k,v){try{localStorage.setItem(k,v)}catch(e){}}};
-const canSpeak='speechSynthesis' in window;
-let voice=null;
-function pickVoice(){if(!canSpeak)return;const vs=speechSynthesis.getVoices();voice=vs.find(v=>v.lang==='en-GB')||vs.find(v=>v.lang&&v.lang.startsWith('en'))||null}
-if(canSpeak){pickVoice();speechSynthesis.onvoiceschanged=pickVoice}
-function speak(text){if(!canSpeak)return;speechSynthesis.cancel();const u=new SpeechSynthesisUtterance(text.replace(/______/g,'blank'));if(voice)u.voice=voice;u.lang=voice?voice.lang:'en-GB';u.rate=.95;speechSynthesis.speak(u)}
+// ▶ uses the voice she picked on the cards page (voice.js)
 const esc=s=>String(s).replace(/[&<>"]/g,c=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;'}[c]));
 const playBtn=text=>canSpeak?`<button class="play" data-say="${esc(text)}" title="Listen" aria-label="Listen">▶</button>`:'<span></span>';
 

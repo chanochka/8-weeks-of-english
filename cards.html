@@ -12,6 +12,9 @@
   (words-data.js + words-ru.js), «Мой мир» (my-words.js) and her own phrases. A card starts from the meaning in
   Russian; she says the English out loud, then opens it. "Got it" sends it further away (1, 3, 7, 14, 30, 60 days),
   "Not yet" brings it back later today and tomorrow. Everything lives in this browser only (localStorage "cards").
+  2026-10-05, her five wishes: when today's cards are finished, "Today's cards" in the day's Core ticks itself (the day
+  the cards were opened from, ?day=N, or else the day Continue opens; days.js); "Once more" goes through today's cards
+  or all the cards she has seen again without moving them in the boxes; the Voice card picks the voice (voice.js).
 -->
 <style>
 .face { text-align: center; padding: 6px 0 2px; }
@@ -49,6 +52,23 @@ details.list { margin-top: 6px; }
 details.list summary { cursor: pointer; font-weight: 900; padding: 6px 0; }
 .lrow { display: grid; grid-template-columns: 1fr 1fr auto; gap: 10px; align-items: center; padding: 5px 0; border-bottom: 2px dotted var(--dots); font-size: 15px; }
 .lrow .lv { font-size: 12px; letter-spacing: 2px; color: var(--starry); white-space: nowrap; }
+.ticked { display: inline-block; background: var(--hl); border-radius: 99px; padding: 3px 12px; font-weight: 900; margin: 2px 0 4px; }
+.ticked a { color: var(--navy); }
+.once { margin-top: 16px; padding-top: 14px; border-top: 2px dotted var(--dots); }
+.once .fbtns { margin-top: 8px; }
+.stop { display: block; margin: 14px auto 0; border: 0; background: none; font: 800 14px "Nunito"; color: var(--starry); text-decoration: underline; cursor: pointer; }
+.vnow { display: flex; gap: 12px; align-items: center; font-size: 16px; margin-top: 4px; }
+.vnow > span { flex: 1; }
+.vnow b, .vtip b, .voices .vrow b { color: var(--navy); }
+.vnow .play { flex: none; }
+.vnow small, .vrow small { color: var(--starry); font-weight: 800; }
+.voices { margin-top: 8px; }
+.voices summary { cursor: pointer; font-weight: 900; padding: 6px 0; }
+.voices .vrow { display: flex; width: 100%; gap: 10px; align-items: center; padding: 7px 4px; border: 0; border-bottom: 2px dotted var(--dots);
+                background: none; font: 800 15px "Nunito"; color: var(--navy); text-align: left; cursor: pointer; }
+.voices .vrow.on { background: var(--hl); border-radius: 10px; }
+.voices .vrow .vp { margin-left: auto; color: var(--starry); }
+.vtip { font-size: 14px; color: var(--slate); margin-top: 12px; }
 @media (max-width: 600px) {
   .face .ru { font-size: 22px; }
   .back .en { font-size: 26px; }
@@ -67,53 +87,96 @@ details.list summary { cursor: pointer; font-weight: 900; padding: 6px 0; }
 <script src="words-ru.js"></script>
 <script src="my-words.js"></script>
 <script src="deck.js"></script>
+<script src="data.js"></script>
+<script src="book-data.js"></script>
+<script src="days.js"></script>
+<script src="voice.js"></script>
 <script>
 const esc = s => String(s).replace(/[&<>"]/g, c => ({'&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;'}[c]));
 
 // ---------- the deck and what she did (deck.js); the page works without saved data ----------
 const S = loadCards();
+S.day.seen = S.day.seen || [];   // ids of the cards answered today, for "Once more"
 function save() { try { localStorage.setItem('cards', JSON.stringify(S)); } catch (e) {} }
 let groups = deckGroups(S);
 const on = g => !S.off.includes(g.id);
 const buildQueue = () => deckQueue(S, groups);
 let queue = buildQueue(), pos = 0, shown = false, hint = false, again = new Set();
+// "Once more": cards she has seen, gone through again; nothing moves in the boxes
+let once = null;   // {cards, pos, again: Set}
 
-// ---------- ▶ reads English out loud with the browser's own voice ----------
-const canSpeak = 'speechSynthesis' in window;
-let voice = null;
-function pickVoice() { const vs = speechSynthesis.getVoices(); voice = vs.find(v => v.lang === 'en-GB') || vs.find(v => v.lang && v.lang.startsWith('en')) || null; }
-if (canSpeak) { pickVoice(); speechSynthesis.onvoiceschanged = pickVoice; }
-function speak(text) {
-  if (!canSpeak) return;
-  speechSynthesis.cancel();
-  const u = new SpeechSynthesisUtterance(text.replace(/…/g, ''));
-  if (voice) u.voice = voice; u.lang = voice ? voice.lang : 'en-GB'; u.rate = .95; speechSynthesis.speak(u);
+// ---------- the day whose Core gets "Today's cards" ticked: the one the cards were opened from, else Continue's ----------
+const fromDay = (() => { const n = Number(new URLSearchParams(location.search).get('day')); return BOOK[n] && /^Day \d/.test(BOOK[n].nav) ? n : 0; })();
+function tickDay() {
+  if (!S.day.reviewed || pos < queue.length) return;
+  // opened from the home page: only the first day of the day gets it (later, Continue may point at the next day)
+  const page = fromDay || (!S.day.ticked && (currentDay() || {}).page);
+  if (!page || S.day.ticked === page) return;
+  if (tickTodaysCards(page)) { S.day.ticked = page; save(); }
 }
+
+// ---------- ▶ reads English out loud with the voice from the Voice card (voice.js) ----------
+const SAMPLE = 'Hi! I usually get up around seven, and the first thing I do is make a coffee.';
 const play = text => canSpeak ? `<button type="button" class="play" data-say="${esc(text)}" aria-label="Listen">▶</button>` : '';
 
 // ---------- the page ----------
 const tagH = (t, tc) => `<span class="tag"${tc ? ` style="--tc:${tc}"` : ''}>${t}</span>`;
+const seenToday = () => { const all = groups.filter(on).flatMap(g => g.cards); return S.day.seen.map(id => all.find(c => c.id === id)).filter(Boolean); };
+const seenAll = () => groups.filter(on).flatMap(g => g.cards).filter(c => S.state[c.id]);
+function faceHTML(c, open, buttons) {
+  return `<div class="face"><div class="src">${esc(c.src)}${c.isNew ? ' · new' : ''}</div>` +
+    `<div class="ru">${esc(c.ru)}</div>${c.exRu ? `<div class="exru">${esc(c.exRu)}</div>` : ''}` +
+    (open ? `<div class="back"><div class="en">${esc(c.en)} ${play(c.en)}</div>` +
+            (c.ex ? `<div class="exen"><span>${esc(c.ex)}</span>${play(c.ex)}</div>` : '') + `</div>` + buttons
+          : `<div class="say">Say it in English, out loud — then open it</div>` +
+            `<div class="first">${hint ? esc(c.en.replace(/[A-Za-z]+/g, w => w[0] + '·'.repeat(w.length - 1))) : ''}</div>` +
+            `<div class="fbtns">${hint ? '' : '<button class="btn light" data-hint>First letters</button>'}<button class="btn" data-show>Show</button></div>`) +
+    `</div>`;
+}
+function onceHTML() {
+  const c = once.cards[once.pos], left = once.cards.length - once.pos;
+  return `<div class="prog"><i style="width:${Math.round(once.pos / once.cards.length * 100)}%;background:var(--blue)"></i></div>` +
+    `<section class="card" style="--sh:var(--blue)">${tagH(`Once more · ${left} left`, 'var(--blue)')}` +
+    faceHTML(c, shown, `<div class="fbtns"><button class="btn no" data-once="0">Again later</button><button class="btn" data-once="1">Next</button></div>`) +
+    `<button type="button" class="stop" data-stop>Stop — nothing changes in your cards</button></section>`;
+}
 function cardHTML() {
+  if (once) return onceHTML();
   if (pos >= queue.length) {
     const tomorrow = groups.filter(on).flatMap(g => g.cards).filter(c => S.state[c.id] && S.state[c.id].d <= plus(1)).length;
+    const t = seenToday().length, a = seenAll().length, tk = S.day.ticked && BOOK[S.day.ticked];
     return `<div class="catwrap"><img class="cat" src="source/redesign/sprites/cat-peek.png" alt=""><section class="card alldone" style="--sh:var(--yellow)">${tagH('Today', 'var(--yellow)')}` +
       `<div class="big">${S.day.reviewed ? 'Done for today ✓' : 'Nothing due right now'}</div>` +
+      (tk ? `<div class="ticked">✓ ticked in the Core of <a href="book.html?page=${S.day.ticked}">${esc(tk.nav.split(' · ')[0])}</a></div>` : '') +
       `<p>${S.day.reviewed ? `${S.day.reviewed} cards today.` : ''} Tomorrow: about ${tomorrow + S.newPerDay} cards.</p>` +
-      `<div class="fbtns"><button class="btn light" data-more>+ 5 new cards now</button></div></section></div>`;
+      `<div class="fbtns">${fromDay ? `<a class="btn" href="book.html?page=${fromDay}">Back to ${esc(BOOK[fromDay].nav.split(' · ')[0])} →</a>` : ''}` +
+      `<button class="btn light" data-more>+ 5 new cards now</button></div>` +
+      (a ? `<div class="once"><b>Once more</b> — go through the cards you have seen; nothing changes in your boxes<div class="fbtns">` +
+           (t ? `<button class="btn light" data-again="today">Today’s · ${t}</button>` : '') +
+           `<button class="btn light" data-again="all">All I’ve seen · ${a}</button></div></div>` : '') +
+      `</section></div>`;
   }
   const c = queue[pos];
   const left = queue.length - pos;
   return `<div class="prog"><i style="width:${Math.round(pos / queue.length * 100)}%"></i></div>` +
     `<section class="card" style="--sh:var(--yellow)">${tagH(`${left} left today`, 'var(--yellow)')}` +
-    `<div class="face"><div class="src">${esc(c.src)}${c.isNew ? ' · new' : ''}</div>` +
-    `<div class="ru">${esc(c.ru)}</div>${c.exRu ? `<div class="exru">${esc(c.exRu)}</div>` : ''}` +
-    (shown ? `<div class="back"><div class="en">${esc(c.en)} ${play(c.en)}</div>` +
-             (c.ex ? `<div class="exen"><span>${esc(c.ex)}</span>${play(c.ex)}</div>` : '') + `</div>` +
-             `<div class="fbtns"><button class="btn no" data-ans="0">Not yet</button><button class="btn" data-ans="1">Got it</button></div>`
-           : `<div class="say">Say it in English, out loud — then open it</div>` +
-             `<div class="first">${hint ? esc(c.en.replace(/[A-Za-z]+/g, w => w[0] + '·'.repeat(w.length - 1))) : ''}</div>` +
-             `<div class="fbtns">${hint ? '' : '<button class="btn light" data-hint>First letters</button>'}<button class="btn" data-show>Show</button></div>`) +
-    `</div></section>`;
+    faceHTML(c, shown, `<div class="fbtns"><button class="btn no" data-ans="0">Not yet</button><button class="btn" data-ans="1">Got it</button></div>`) +
+    `</section>`;
+}
+function voiceHTML(open) {
+  if (!canSpeak) return '';
+  const vs = englishVoices(), cur = currentVoice(), rate = voicePref().rate || .95;
+  const what = v => `${voiceAccent(v)}${QUALITY[voiceQuality(v)] ? ' · ' + QUALITY[voiceQuality(v)] : ''}`;
+  return `<section class="card" id="voice" style="--sh:var(--lav)">${tagH('Voice', 'var(--lav)')}` +
+    `<p class="hint">the voice that reads the English on every page — tap a name to hear it</p>` +
+    (cur ? `<div class="vnow"><span>Now: <b>${esc(voiceName(cur))}</b> <small>${what(cur)}</small></span>${play(SAMPLE)}</div>` +
+           `<details class="voices"${open ? ' open' : ''}><summary>Choose another voice · ${vs.length}</summary>` +
+           vs.map(v => `<button type="button" class="vrow${v === cur ? ' on' : ''}" data-voice="${esc(v.voiceURI)}">` +
+             `<span>${esc(voiceName(v))} <small>${what(v)}</small></span><span class="vp">▶</span></button>`).join('') + `</details>`
+         : `<p>This browser has no English voice yet.</p>`) +
+    `<div class="newper"><span>Speed</span>${RATES.map(([n, r]) => `<button data-rate="${r}" class="${rate === r ? 'on' : ''}">${n}</button>`).join('')}</div>` +
+    `<p class="vtip">Нужен голос лучше? iPhone: <b>Настройки → Универсальный доступ → Устное содержимое → Голоса → Английский</b>, ` +
+    `скачай голос «улучшенный» или Premium и открой учебник заново — он появится здесь. На компьютере живее всего голоса Natural в Edge.</p></section>`;
 }
 function deckHTML() {
   const {all, known, learning} = deckStats(S, groups);
@@ -147,9 +210,11 @@ function render() {
     `<div><div class="kicker">Every day · 10 minutes</div><div class="title">Today’s cards</div><div class="sub">the meaning first — the English comes out of your mouth</div></div>` +
     `<div class="jp"><span class="k">単語</span><span class="k2">毎日</span></div>` +
     `<img class="star" src="source/redesign/sprites/star-yellow.png" alt=""></div>` +
-    `<div class="stack">${cardHTML()}${deckHTML()}${ownHTML()}${listHTML()}</div>` +
+    `<div class="stack">${cardHTML()}${deckHTML()}${voiceHTML()}${ownHTML()}${listHTML()}</div>` +
     `<p class="motto">Use English. Don’t just study English.</p>`;
 }
+function redrawVoice() { const v = document.getElementById('voice'); if (v) v.outerHTML = voiceHTML(v.querySelector('details') && v.querySelector('details').open); }
+voiceListeners.push(redrawVoice);
 
 // ---------- make it live ----------
 function answer(ok) {
@@ -158,15 +223,42 @@ function answer(ok) {
   if (ok) { s.b = again.has(c.id) ? 1 : Math.min((s.b || 0) + 1, 6); s.d = plus(DAYS[s.b]); }
   else { s.b = 0; s.d = plus(1); if (!again.has(c.id)) { again.add(c.id); queue.push({...c, isNew: false}); } }
   S.state[c.id] = s; S.day.reviewed++; S.days[today] = (S.days[today] || 0) + 1;
-  pos++; shown = false; hint = false; save(); render();
+  if (!S.day.seen.includes(c.id)) S.day.seen.push(c.id);
+  pos++; shown = false; hint = false; save(); tickDay(); render();
 }
+// "Once more": "Again later" sends the card to the end once, "Next" goes on; the boxes are not touched
+const shuffle = a => { for (let i = a.length - 1; i > 0; i--) { const j = Math.floor(Math.random() * (i + 1)); [a[i], a[j]] = [a[j], a[i]]; } return a; };
+function startOnce(what) {
+  // all she has seen: the weakest boxes first, shuffled inside a box
+  const cards = what === 'today' ? shuffle(seenToday()) : shuffle(seenAll()).sort((a, b) => S.state[a.id].b - S.state[b.id].b);
+  once = {cards: cards.map(c => ({...c, isNew: false})), pos: 0, again: new Set()};
+  shown = false; hint = false; render(); window.scrollTo(0, 0);
+}
+function onceNext(ok) {
+  const c = once.cards[once.pos];
+  if (!ok && !once.again.has(c.id)) { once.again.add(c.id); once.cards.push(c); }
+  once.pos++; shown = false; hint = false;
+  if (once.pos >= once.cards.length) once = null;
+  render();
+}
+const current = () => once ? once.cards[once.pos] : queue[pos];
+function show() { shown = true; render(); speak(current().en); }
 document.addEventListener('click', e => {
   const t = e.target.closest('button, input');
   if (!t) return;
   if (t.dataset.say) return speak(t.dataset.say);
-  if (t.hasAttribute('data-show')) { shown = true; render(); return speak(queue[pos].en); }
+  if (t.hasAttribute('data-show')) return show();
   if (t.hasAttribute('data-hint')) { hint = true; return render(); }
   if (t.dataset.ans) return answer(t.dataset.ans === '1');
+  if (t.dataset.once) return onceNext(t.dataset.once === '1');
+  if (t.dataset.again) return startOnce(t.dataset.again);
+  if (t.hasAttribute('data-stop')) { once = null; shown = false; hint = false; return render(); }
+  if (t.dataset.voice) {
+    const v = englishVoices().find(x => x.voiceURI === t.dataset.voice);
+    if (v) { setVoicePref({uri: v.voiceURI, name: v.name}); redrawVoice(); speak(SAMPLE, v); }
+    return;
+  }
+  if (t.dataset.rate) { setVoicePref({rate: Number(t.dataset.rate)}); redrawVoice(); return speak(SAMPLE); }
   if (t.hasAttribute('data-more')) { S.day.extra = (S.day.extra || 0) + 5; save(); queue = buildQueue(); pos = 0; again = new Set(); return render(); }
   if (t.dataset.newper) { S.newPerDay = Number(t.dataset.newper); save(); queue = buildQueue(); pos = 0; return render(); }
   if (t.dataset.del) { S.own = S.own.filter(o => String(o.id) !== t.dataset.del); save(); groups = deckGroups(S); queue = buildQueue(); pos = 0; return render(); }
@@ -186,11 +278,12 @@ document.addEventListener('submit', e => {
   save(); groups = deckGroups(S); queue = buildQueue(); pos = 0; render();
 });
 document.addEventListener('keydown', e => {
-  if (e.target.closest('input, textarea, button, summary') || pos >= queue.length) return;
-  if (!shown && (e.key === ' ' || e.key === 'Enter')) { e.preventDefault(); shown = true; render(); speak(queue[pos].en); }
-  else if (shown && e.key === '1') answer(false);
-  else if (shown && e.key === '2') answer(true);
+  if (e.target.closest('input, textarea, button, summary') || (!once && pos >= queue.length)) return;
+  if (!shown && (e.key === ' ' || e.key === 'Enter')) { e.preventDefault(); show(); }
+  else if (shown && e.key === '1') once ? onceNext(false) : answer(false);
+  else if (shown && e.key === '2') once ? onceNext(true) : answer(true);
 });
+tickDay();   // finished earlier today (from another page): tick the day she came from
 render();
 </script>
 <script src="app.js"></script>

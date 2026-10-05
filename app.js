@@ -1,3 +1,6 @@
+// a page brought back by the Back button is a frozen copy: reload it, or its old ticks would overwrite what another
+// page saved meanwhile (the cards tick the day's Core, 2026-10-05)
+window.addEventListener('pageshow', e => { if (e.persisted) location.reload(); });
 if ('serviceWorker' in navigator) {
   // a page shown by an older offline copy reloads once the new copy takes over, so a fix shows on the first open
   const hadCopy = !!navigator.serviceWorker.controller;
