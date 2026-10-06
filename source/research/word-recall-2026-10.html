@@ -1,0 +1,261 @@
+<!doctype html>
+<html lang="ru">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1">
+<title>Слово не всплывает — что говорит наука и куда двигаться</title>
+<!--
+  Ресёрч для 8 Weeks of English (6 окт 2026): её вопрос «по какой-то методологии?» и просьба про опросник.
+  Не часть сайта, не закоммичена в nav — отдельный файл, который она открывает сама. Источники — внизу страницы.
+  Если потом понадобится на сайте — перенести текст в book.css-стиль отдельной страницей.
+-->
+<style>
+  @import url('https://fonts.googleapis.com/css2?family=Fredoka:wght@600;700&family=Nunito:wght@400;700;800;900&display=swap');
+  :root { --bg:#FBE6EC; --navy:#26323D; --pink:#E8A8BA; --blue:#C4D2E2; --lav:#DCCFE7; --yellow:#FFF0C7; --ok:#3E8E63; --okbg:#E3F3E9; --wrong:#C6534B; --nobg:#FBE5E3; }
+  * { box-sizing: border-box; }
+  body { margin: 0; background: var(--bg); color: var(--navy); font: 400 17px/1.55 "Nunito", sans-serif; }
+  .wrap { max-width: 760px; margin: 0 auto; padding: 32px 20px 80px; }
+  h1 { font: 700 30px/1.2 "Fredoka"; margin: 0 0 6px; }
+  h2 { font: 600 22px/1.3 "Fredoka"; margin: 40px 0 10px; }
+  h3 { font: 700 17px "Nunito"; margin: 20px 0 6px; }
+  .lead { font-size: 18px; color: #4b5a68; margin: 0 0 20px; }
+  .card { background: #fff; border: 2px solid var(--navy); border-radius: 18px; box-shadow: 5px 5px 0 var(--navy); padding: 18px 20px; margin: 16px 0; }
+  .tldr { background: var(--yellow); }
+  .tldr ul { margin: 6px 0 0; padding-left: 20px; }
+  .tldr li { margin: 6px 0; }
+  .tag { display: inline-block; font: 800 12px "Nunito"; letter-spacing: .03em; text-transform: uppercase; padding: 3px 10px; border-radius: 99px; margin-bottom: 8px; }
+  .tag.ok { background: var(--okbg); color: var(--ok); }
+  .tag.gap { background: var(--nobg); color: var(--wrong); }
+  .tag.new { background: var(--lav); color: var(--navy); }
+  .src { font-size: 14px; color: #6b7a87; }
+  .src a { color: #6b7a87; }
+  a { color: var(--navy); }
+  .rec { border-left: 5px solid var(--pink); padding-left: 14px; }
+  .rec b { display: block; font: 700 16px "Nunito"; margin-bottom: 2px; }
+  ol.recs > li { margin: 14px 0; }
+  hr.div { border: 0; border-top: 2px dotted #c9b9c5; margin: 36px 0; }
+  .q { margin: 22px 0; }
+  .q > .qtext { font-weight: 800; margin-bottom: 8px; }
+  .opts { display: flex; flex-direction: column; gap: 6px; }
+  .opts label { display: flex; gap: 10px; align-items: flex-start; background: #fff; border: 1.5px solid #e4d3db; border-radius: 12px; padding: 9px 12px; cursor: pointer; }
+  .opts label:has(input:checked) { border-color: var(--navy); background: var(--yellow); }
+  .scale { display: flex; gap: 8px; }
+  .scale label { flex: 1; text-align: center; background: #fff; border: 1.5px solid #e4d3db; border-radius: 10px; padding: 8px 4px; cursor: pointer; font-size: 14px; }
+  .scale label:has(input:checked) { border-color: var(--navy); background: var(--lav); font-weight: 800; }
+  input[type=radio], input[type=checkbox] { margin-top: 3px; accent-color: var(--navy); }
+  .strand { display: grid; grid-template-columns: 170px 1fr; gap: 6px 14px; align-items: center; margin: 10px 0; }
+  .strand .name { font-weight: 800; font-size: 15px; }
+  .btn { border: 2px solid var(--navy); border-radius: 99px; background: var(--navy); color: #fff; padding: 11px 28px 10px; font: 700 17px "Fredoka"; cursor: pointer; box-shadow: 3px 3px 0 var(--pink); }
+  .result { display: none; background: #fff; border: 2px solid var(--ok); border-radius: 18px; box-shadow: 5px 5px 0 var(--ok); padding: 18px 20px; margin-top: 18px; }
+  .result.show { display: block; }
+  .result h3 { margin-top: 0; color: var(--ok); }
+  .result ul { padding-left: 20px; }
+  .result li { margin: 6px 0; }
+  footer { margin-top: 50px; font-size: 13px; color: #8a7a84; }
+  footer ol { padding-left: 18px; }
+  footer li { margin: 4px 0; }
+</style>
+</head>
+<body>
+<div class="wrap">
+
+  <h1>Слово не всплывает — что говорит наука и куда двигаться</h1>
+  <p class="lead">Твой вопрос: есть ли под учебником какая-то методология. Короткий ответ — кусками да, целиком не проверено. Ниже разбор, что подтвердилось, что нет, и опросник, чтобы решить, куда двигаться дальше.</p>
+
+  <div class="card tldr">
+    <b>Вкратце</b>
+    <ul>
+      <li><b>«Не всплывает само»</b> — это разрыв между пассивным и активным словарём, обычное дело на любом уровне. Дело не в памяти, а в скорости доступа к слову под давлением реального разговора.</li>
+      <li><b>«Знаю, но не уверена»</b> — классическое «слово на языке вертится» (tip-of-the-tongue). У изучающих язык это случается чаще, чем у носителей.</li>
+      <li>Карточки и игра уже делали правильную вещь (сама произносишь слово, не просто узнаёшь) — это подтверждено исследованиями. Новый recall просто меняет, с чего начинается подсказка, — это второстепенный, не главный рычаг.</li>
+      <li>Главный пробел: отметка «сказала, но не уверена» сейчас живёт только внутри одного раунда игры и пропадает. По-настоящему она должна укорачивать срок следующего повторения в карточках — это пока не сделано.</li>
+      <li>Подсказки типа «слово начинается на...» — не добавлять: исследования говорят, что на твоём уровне они помогают меньше, чем кажется (помогают больше тем, кто уже продвинутее).</li>
+    </ul>
+  </div>
+
+  <h2>Почему слово «не всплывает само»</h2>
+  <p>Пассивный словарь (узнаёшь слово на слух/взгляд) у всех больше активного (можешь сама произвести его в речи) — это не исключение, а норма на любом уровне английского. Разница между ними не в том, сколько слов ты знаешь, а в том, <b>как быстро мозг может дотянуться</b> до нужного слова, когда на тебя давит реальный разговор, а не упражнение без спешки. Одно из исследований связывает скорость доступа к словам (а не просто размер словаря) с результатом в устной речи сильнее, чем что-либо ещё.</p>
+  <p class="src">Lexical access &amp; speaking performance (MDPI, 2023); Vocabulary size and depth as predictors of speaking ability (ScienceDirect, 2021).</p>
+
+  <h2>Почему «знаю, но не уверена»</h2>
+  <p>Это состояние называется <i>tip-of-the-tongue</i> — ты знаешь понятие, оно «активировано» в голове, но не долетает до формы слова (звучания/написания). У тех, кто учит язык не с рождения, это случается чаще, чем у носителей. Важная деталь: подсказки вроде «на какую букву начинается» помогают на продвинутых уровнях, а на более ранних — почти нет. Поэтому в новом recall-задании подсказка осталась смысловой (определение или пример с пропуском), а не «первая буква» — и по науке это правильный выбор, не недоделка.</p>
+  <p class="src">Lexical retrieval stages of momentarily inaccessible foreign-language words (TOT in L2).</p>
+
+  <h2>Карточки vs recall: что на самом деле доказано</h2>
+  <p>Произносить слово самой (продуктивное воспоминание) надёжно лучше, чем просто узнавать его среди вариантов (рецептивное) — это подтверждено. Но вот что интересно: разница именно в <b>направлении подсказки</b> — перевод→слово или ситуация→слово — в одном из контролируемых исследований <b>не дала однозначной разницы</b>: эффект зависел от уровня ученика, а не был явной победой «безпереводного» способа. То есть старые карточки (RU-значение → ты говоришь по-английски) и новый recall (английское определение/пример → ты говоришь) — это <b>оба варианта одного и того же правильного принципа</b> (говорить, а не узнавать), а не один хуже другого. Смешивать их в игре, как сейчас, ближе к науке, чем выбрасывать перевод совсем.</p>
+  <p class="src">Effects of Learning Direction in Retrieval Practice on EFL Vocabulary Learning; Receptive and Productive Word Retrieval Practice (both researchgate.net).</p>
+
+  <h2>Коробки и «не уверена» — SuperMemo и Лейтнер</h2>
+  <p>Система SuperMemo (из которой выросли многие приложения с интервальным повторением) с самого начала оценивает ответ не как да/нет, а по шкале от «совсем забыла» до «вспомнила легко» — и именно эта оценка определяет, через сколько дней слово покажется снова. Третья кнопка «сказала, но не уверена», которую мы сегодня добавили, воспроизводит эту идею правильно по духу. Но пока она работает только внутри одного раунда игры, который <i>специально</i> никогда не трогает коробки карточек — то есть сигнал «не уверена» для нужного тебе слова сейчас никуда не доходит дальше одного захода в игру.</p>
+  <p class="src">Spaced repetition (Wikipedia); SuperMemo grading scale.</p>
+
+  <h2>4·3·2 и «четыре направления» (Nation)</h2>
+  <p>Есть устоявшаяся модель баланса в изучении языка — четыре направления примерно поровну: воспринимать новое (слушать/читать), производить (говорить/писать), целенаправленно разбирать язык (слова/грамматика) и <b>тренировать скорость того, что уже знаешь</b> (fluency). Пятничное упражнение «4·3·2» (тот же монолог, но время сжимается: 4 минуты → 3 → 2) — это ровно упражнение на четвёртое направление, и оно уже правильно сделано: оно тренирует именно быстрый доступ к уже знакомым словам, то есть именно то, что ломается при «знаю, но не уверена».</p>
+  <p class="src">The Four Strands of a Balanced Language Course (Nation / Boers).</p>
+
+  <h2>Рекомендации</h2>
+  <ol class="recs">
+    <li class="rec"><b>Ничего не выбрасывать</b> — и старые карточки, и новый recall делают правильную вещь (говоришь, а не узнаёшь). Смешивать их в игре — это и есть то, что советует наука, не промежуточный вариант.</li>
+    <li class="rec"><b>Главный следующий шаг — довести «не уверена» до настоящих карточек.</b> Сейчас это работает только в игре за один заход. Чтобы сигнал не терялся, ответ «сказала, но не уверена» в cards.html мог бы оставлять коробку на месте, но сокращать срок следующего показа (а не вести себя как полный провал или полный успех) — отдельная небольшая задача, на твоё «да».</li>
+    <li class="rec"><b>Не добавлять подсказки по буквам/звучанию</b> к recall-заданию — по науке они слабо помогают именно на твоём уровне, усмысловая подсказка (как сейчас) эффективнее.</li>
+    <li class="rec"><b>4·3·2 уже работает правильно</b> для твоей конкретной жалобы — если «застреваю, ища слово» происходит часто в реальных разговорах, стоит не бросать это упражнение, даже если оно кажется неудобным.</li>
+    <li class="rec"><b>Опросник ниже — не формальный тест</b>, а способ понять, где сейчас перекос: не хватает новых слов, или не хватает уверенности в тех, что уже есть.</li>
+  </ol>
+
+  <hr class="div">
+
+  <h2>Опросник — куда двигаться дальше</h2>
+  <p>Пять коротких вопросов. Результат — не оценка, а просто куда, судя по ответам, стоит сместить внимание в учебнике. Ответы сохраняются в этом браузере, можно вернуться позже.</p>
+
+  <form id="quiz">
+    <div class="card">
+      <h3>1. Сколько времени в последние пару недель идёт на каждое из четырёх направлений?</h3>
+      <div class="strand" data-strand="input"><span class="name">Воспринимать новое (слушать/читать)</span>
+        <div class="scale">
+          <label><input type="radio" name="input" value="0">почти нет</label>
+          <label><input type="radio" name="input" value="1">немного</label>
+          <label><input type="radio" name="input" value="2">средне</label>
+          <label><input type="radio" name="input" value="3">много</label>
+        </div></div>
+      <div class="strand" data-strand="output"><span class="name">Говорить/писать по-настоящему</span>
+        <div class="scale">
+          <label><input type="radio" name="output" value="0">почти нет</label>
+          <label><input type="radio" name="output" value="1">немного</label>
+          <label><input type="radio" name="output" value="2">средне</label>
+          <label><input type="radio" name="output" value="3">много</label>
+        </div></div>
+      <div class="strand" data-strand="study"><span class="name">Разбирать слова/грамматику</span>
+        <div class="scale">
+          <label><input type="radio" name="study" value="0">почти нет</label>
+          <label><input type="radio" name="study" value="1">немного</label>
+          <label><input type="radio" name="study" value="2">средне</label>
+          <label><input type="radio" name="study" value="3">много</label>
+        </div></div>
+      <div class="strand" data-strand="fluency"><span class="name">Тренировать скорость известного (карточки/игра/4·3·2)</span>
+        <div class="scale">
+          <label><input type="radio" name="fluency" value="0">почти нет</label>
+          <label><input type="radio" name="fluency" value="1">немного</label>
+          <label><input type="radio" name="fluency" value="2">средне</label>
+          <label><input type="radio" name="fluency" value="3">много</label>
+        </div></div>
+    </div>
+
+    <div class="card q">
+      <div class="qtext">2. Когда не находишь слово в разговоре — что происходит чаще?</div>
+      <div class="opts">
+        <label><input type="radio" name="gap" value="unknown">просто не знаю такого слова вообще</label>
+        <label><input type="radio" name="gap" value="slow">знаю, но долго вспоминаю — крутится на языке</label>
+        <label><input type="radio" name="gap" value="unsure">вспоминаю, но не уверена, что сказала правильно</label>
+      </div>
+    </div>
+
+    <div class="card q">
+      <div class="qtext">3. Как часто это происходит в обычном разговоре на английском?</div>
+      <div class="opts">
+        <label><input type="radio" name="freq" value="0">почти никогда</label>
+        <label><input type="radio" name="freq" value="1">иногда</label>
+        <label><input type="radio" name="freq" value="2">часто</label>
+        <label><input type="radio" name="freq" value="3">почти постоянно</label>
+      </div>
+    </div>
+
+    <div class="card q">
+      <div class="qtext">4. Что сейчас важнее?</div>
+      <div class="opts">
+        <label><input type="radio" name="need" value="breadth">больше новых слов — существующих не хватает</label>
+        <label><input type="radio" name="need" value="depth">увереннее использовать то, что уже знаю наполовину</label>
+      </div>
+    </div>
+
+    <div class="card q">
+      <div class="qtext">5. Что из этого трудно (можно отметить несколько)?</div>
+      <div class="opts">
+        <label><input type="checkbox" name="cando" value="story">рассказать историю без подготовки</label>
+        <label><input type="checkbox" name="cando" value="argue">защитить своё мнение в споре</label>
+        <label><input type="checkbox" name="cando" value="unexpected">выкрутиться в неожиданном разговоре не по плану</label>
+        <label><input type="checkbox" name="cando" value="stuck">сказать половину фразы и застрять, вспоминая слово</label>
+      </div>
+    </div>
+
+    <button type="button" class="btn" id="go">Показать, куда двигаться</button>
+  </form>
+
+  <div class="result" id="result"></div>
+
+  <footer>
+    <p>Источники:</p>
+    <ol>
+      <li><a href="https://www.mdpi.com/2226-471X/5/2/13">Relating Lexical Access and Second Language Speaking Performance</a></li>
+      <li><a href="https://www.sciencedirect.com/science/article/abs/pii/S0346251X21000750">Vocabulary size and depth as predictors of second language speaking ability</a></li>
+      <li><a href="https://www.researchgate.net/publication/353247937_Effects_of_Learning_Direction_in_Retrieval_Practice_on_EFL_Vocabulary_Learning_Journal_Studies_in_Second_Language_Acquisition">Effects of Learning Direction in Retrieval Practice on EFL Vocabulary Learning</a></li>
+      <li><a href="https://www.researchgate.net/publication/303939278_The_Effects_of_Receptive_and_Productive_Word_Retrieval_Practice_on_Second_Language_Vocabulary_Learning">The Effects of Receptive and Productive Word Retrieval Practice on L2 Vocabulary Learning</a></li>
+      <li><a href="https://en.wikipedia.org/wiki/Spaced_repetition">Spaced repetition — Wikipedia</a></li>
+      <li><a href="https://supermemo.guru/wiki/Grade">SuperMemo grading scale</a></li>
+      <li><a href="https://periodicos.ufsc.br/index.php/desterro/article/view/8283">Lexical retrieval stages of momentarily inaccessible foreign language words (TOT in L2)</a></li>
+      <li><a href="https://jonathanjarrettkerr.substack.com/p/bjorks-desirable-difficulties-in">Bjork's Desirable Difficulties in Learning and Memory</a></li>
+      <li><a href="https://www.sinosplice.com/life/archives/2019/06/12/the-four-strands-of-a-balanced-language-course">The Four Strands of a Balanced Language Course</a></li>
+      <li><a href="https://rm.coe.int/planning-and-teaching-with-the-cefr/1680a97197">Council of Europe — Planning and Teaching with the CEFR</a></li>
+    </ol>
+  </footer>
+</div>
+<script>
+(function () {
+  const KEY = 'wordRecallCheck2026';
+  const form = document.getElementById('quiz');
+  try {
+    const saved = JSON.parse(localStorage.getItem(KEY) || '{}');
+    Object.keys(saved).forEach(name => {
+      const v = saved[name];
+      (Array.isArray(v) ? v : [v]).forEach(val => {
+        const el = form.querySelector(`[name="${name}"][value="${val}"]`);
+        if (el) el.checked = true;
+      });
+    });
+  } catch (e) {}
+
+  function readForm() {
+    const data = new FormData(form), out = {};
+    for (const [k, v] of data.entries()) {
+      if (out[k] === undefined) out[k] = v;
+      else out[k] = Array.isArray(out[k]) ? out[k].concat(v) : [out[k], v];
+    }
+    return out;
+  }
+
+  document.getElementById('go').onclick = function () {
+    const a = readForm();
+    try { localStorage.setItem(KEY, JSON.stringify(a)); } catch (e) {}
+    const strands = {input: 'воспринимать новое', output: 'говорить/писать', study: 'разбирать слова и грамматику', fluency: 'тренировать скорость известного'};
+    const vals = Object.keys(strands).map(k => ({k, v: a[k] === undefined ? 1 : Number(a[k])}));
+    const min = Math.min(...vals.map(x => x.v));
+    const weakest = vals.filter(x => x.v === min).map(x => strands[x.k]);
+    const cando = Array.isArray(a.cando) ? a.cando : (a.cando ? [a.cando] : []);
+
+    const lines = [];
+    lines.push(`<li>Меньше всего времени сейчас уходит на: <b>${weakest.join(', ')}</b>.</li>`);
+
+    if (a.gap === 'unknown') {
+      lines.push('<li>Чаще всего слова просто <b>нет</b> — это говорит за расширение словаря (новые слова), а не за тренировку уже выученных.</li>');
+    } else if (a.gap === 'slow') {
+      lines.push('<li>Слово есть, но долго всплывает — это ровно то, для чего сделан <b>recall в игре</b> и пятничное <b>4·3·2</b>: тренировка скорости, не новых слов.</li>');
+    } else if (a.gap === 'unsure') {
+      lines.push('<li>Знаешь, но не уверена — используй кнопку <b>«Said it, not sure»</b> в recall по-настоящему: это ровно тот сигнал, который со временем стоит довести до карточек.</li>');
+    }
+
+    if (Number(a.freq || 0) >= 2) lines.push('<li>Это происходит часто — стоит делать раунд игры (с recall) и 4·3·2 чаще, не только по пятницам.</li>');
+
+    if (a.need === 'depth') lines.push('<li>Тебе важнее глубина, не ширина — можно временно снизить число новых карточек в день и чаще гонять то, что уже наполовину знаешь.</li>');
+    else lines.push('<li>Тебе важнее ширина — новые слова всё ещё в приоритете, тренировку уверенности можно оставить как есть.</li>');
+
+    if (cando.includes('stuck')) lines.push('<li>«Застреваю на полуфразе» отмечено — это прямое совпадение с tip-of-the-tongue, смысловой recall (не перевод) здесь особенно к месту.</li>');
+    if (cando.includes('unexpected')) lines.push('<li>Неожиданные повороты разговора трудны — это зона speaking-страйка (Friday Words day, ChatGPT Voice), не словарных карточек.</li>');
+
+    document.getElementById('result').innerHTML = `<h3>Куда сместить внимание</h3><ul>${lines.join('')}</ul>` +
+      `<p style="font-size:14px;color:#6b7a87;margin-top:10px">Не формальный результат — просто то, что видно из ответов. Можно прийти и переотметить в любой день.</p>`;
+    document.getElementById('result').className = 'result show';
+    document.getElementById('result').scrollIntoView({behavior: 'smooth'});
+  };
+})();
+</script>
+</body>
+</html>
