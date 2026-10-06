@@ -25,13 +25,7 @@ const BOOK = {
         '<p>The Russian meaning first — you say the English out loud, then turn the card over. ' +
         'This week’s 28 phrases, <strong>My world</strong> (studio, AI, the robot, working with people) and the phrases you add yourself.</p>' +
         '<div class="btns"><a class="btn" href="cards.html">Today’s cards</a></div>'},
-      {type: 'hub', cat: true, tag: 'This week’s pages', hint: 'a ✓ appears when the Core of a day is done · ◐ a short day'},
-      // her «1 да 2 да» (2026-10-02): a sample notebook page, made by source/redesign/notebook-sample.html
-      {type: 'card', tag: 'How to keep your notebook', tc: 'var(--lav)', sh: 'var(--lav)', html:
-        '<p>One page a day, and one page a week for the phrase log. You need a dark pen, pastel markers ' +
-        '(yellow, pink, lilac) and a ruler — only for the log.</p>' +
-        '<a class="nbsample" href="assets/notebook-sample.png" target="_blank"><img src="assets/notebook-sample.png" ' +
-        'alt="A sample notebook: the Day 1 page and the phrase log" loading="lazy"></a>'}
+      {type: 'hub', cat: true, tag: 'This week’s pages', hint: 'a ✓ appears when the Core of a day is done · ◐ a short day'}
     ]
   },
 
@@ -152,7 +146,13 @@ const BOOK = {
          {h: 'My day, in my own words', small: 'four sentences · real details, real times', lines: 6},
          {inline: 'One word I needed'}
        ]},
-      {type: 'felt'}
+      {type: 'felt'},
+      // moved here from the week hub, shown once on Day 1 (her wish, 2026-10-06): the rest of the week gets a line, not the picture
+      {type: 'card', tag: 'How to keep your notebook', tc: 'var(--lav)', sh: 'var(--lav)', html:
+        '<p>One page a day, and one page a week for the phrase log. You need a dark pen, pastel markers ' +
+        '(yellow, pink, lilac) and a ruler — only for the log.</p>' +
+        '<a class="nbsample" href="assets/notebook-sample.png" target="_blank"><img src="assets/notebook-sample.png" ' +
+        'alt="A sample notebook: the Day 1 page and the phrase log" loading="lazy"></a>'}
     ]
   },
   11: {
@@ -179,7 +179,7 @@ const BOOK = {
         'Listen to the same clip once more while doing something else. Notice what you catch now.',
         'Find a second clip on the same topic and see whether the same chunks come back.']},
       {type: 'notebook', cat: true, tag: 'In your notebook', tc: 'var(--yellow)', sh: '#F2D27E',
-       how: 'Rule this on one page, then write. Everything you write today goes here.',
+       how: 'Rule this on one page, then write. Everything you write today goes here — same layout as <a href="?page=10">Day 1</a>.',
        sheet: 'Week 1 · Day 2 · Listen', parts: [
          {h: 'Listen for these', small: 'the full sentence you heard', lines: 4, numbered: true},
          {h: 'What I heard', small: 'phrases, half-sentences, fillers — anything that sounded natural rather than correct', lines: 6},
@@ -208,7 +208,7 @@ const BOOK = {
         'Write the three-sentence retell down and compare it with the original. What did you drop?',
         'Read one paragraph out loud at the speed you would speak it.']},
       {type: 'notebook', cat: true, tag: 'In your notebook', tc: 'var(--yellow)', sh: '#F2D27E',
-       how: 'Rule this on one page, then write. Everything you write today goes here.',
+       how: 'Rule this on one page, then write. Everything you write today goes here — same layout as <a href="?page=10">Day 1</a>.',
        sheet: 'Week 1 · Day 3 · Read + retell', parts: [
          {h: 'Today’s phrases', small: 'your own version under each', rows: ['Apparently she…', 'What surprised me was…', 'The article says that…', 'In other words…']},
          {h: 'Three-sentence retell', small: 'beginning, middle, and the part that stayed with you', lines: 3, numbered: true},
@@ -238,7 +238,7 @@ const BOOK = {
         'Say the hardest sentence of the day three more times, slowly, until it comes out whole.',
         'The three expressions ChatGPT gave you: <a href="cards.html">add them to your cards</a>.']},
       {type: 'notebook', cat: true, tag: 'In your notebook', tc: 'var(--yellow)', sh: '#F2D27E',
-       how: 'Rule this on one page, then write. Everything you write today goes here.',
+       how: 'Rule this on one page, then write. Everything you write today goes here — same layout as <a href="?page=10">Day 1</a>.',
        sheet: 'Week 1 · Day 4 · Speaking day', parts: [
          {h: 'Today’s phrases', small: 'your own version under each', rows: ['This week has been…', 'The thing is…', 'I keep meaning to…', 'Honestly, I have no idea.']},
          {h: 'Where I got stuck', small: 'the sentences you could not finish — then finish them here, properly', lines: 5},
@@ -267,7 +267,7 @@ const BOOK = {
         'Record the 2-minute round and listen back once. Which phrase came out by itself?',
         'Three phrases you met this week: <a href="cards.html">add them to your cards</a>, each with your own sentence.']},
       {type: 'notebook', cat: true, tag: 'In your notebook', tc: 'var(--yellow)', sh: '#F2D27E',
-       how: 'Rule this on one page, then write. Everything you write today goes here.',
+       how: 'Rule this on one page, then write. Everything you write today goes here — same layout as <a href="?page=10">Day 1</a>.',
        sheet: 'Week 1 · Day 5 · Words day', parts: [
          {h: 'Today’s phrases', small: 'your own version under each', rows: ['So basically…', 'The funny thing is…', 'What I mean is…', 'Long story short…']},
          {h: '4 · 3 · 2', small: 'the topic, and the five phrases you used — tick the ones that came out by themselves', lines: 6},
@@ -304,7 +304,7 @@ const BOOK = {
         'Record 30 seconds of Monday’s monologue again and listen for the rhythm, not the words.',
         'Read one paragraph out loud, tapping the table on every stressed word.']},
       {type: 'notebook', cat: true, tag: 'In your notebook', tc: 'var(--yellow)', sh: '#F2D27E',
-       how: 'Rule this on one page, then write. Everything you write today goes here.',
+       how: 'Rule this on one page, then write. Everything you write today goes here — same layout as <a href="?page=10">Day 1</a>.',
        sheet: 'Week 1 · Day 6 · Sound natural', parts: [
          {h: 'Sound notes', small: 'what your mouth had to do differently — be physical about it', lines: 6},
          {inline: 'Sound to drill'}
@@ -333,7 +333,7 @@ const BOOK = {
         'Colour in this week on the 56-day poster and set out next week’s pages.',
         'Write 60 words about the best moment of the week. No corrections.']},
       {type: 'notebook', cat: true, tag: 'In your notebook', tc: 'var(--yellow)', sh: '#F2D27E',
-       how: 'Rule this on one page, then write. Everything you write today goes here.',
+       how: 'Rule this on one page, then write. Everything you write today goes here — same layout as <a href="?page=10">Day 1</a>.',
        sheet: 'Week 1 · Day 7 · Review + reset', parts: [
          {h: 'Today’s phrases', small: 'your own version under each', rows: ['This week I managed to…', 'What I found difficult was…', 'Next week I want to…', 'I’m starting to…']},
          {h: 'Week one, out loud', small: 'the two-minute summary you just said — not a better version, the one you said', lines: 6},
