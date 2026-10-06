@@ -39,7 +39,10 @@ function gapOf(item) {
 }
 
 // ---------- a round of the game: ten tasks of every kind from the items, wrong options from the whole pool ----------
-const GAME_PLAN = ['pairs', 'meaning', 'build', 'gap', 'english', 'listen', 'meaning', 'gap', 'build', 'english'];
+// "recall" (her wish, 2026-10-06): the cue is English only, never the Russian meaning — the book's own definition when
+// there is one (phrasal verbs, idioms), else the English example with the phrase itself as the gap (my-world examples
+// are already about her life, so this doubles as a situation cue).
+const GAME_PLAN = ['pairs', 'meaning', 'build', 'recall', 'english', 'listen', 'recall', 'gap', 'build', 'english'];
 function makeTask(type, item, items, pool) {
   // Russian is compared as it is written (drillNorm keeps Latin letters only)
   const kn = key => key === 'ru' ? s => String(s).trim().toLowerCase() : drillNorm;
@@ -64,6 +67,11 @@ function makeTask(type, item, items, pool) {
     return {type, item, target: t, tiles: dShuffle(own.concat(extra))};
   }
   if (type === 'gap') { const g = gapOf(item); return g ? {type, item, gap: g} : null; }
+  if (type === 'recall') {
+    if (item.def) return {type, item, mode: 'def'};
+    const g = gapOf(item);
+    return g ? {type, item, mode: 'gap', gap: g} : null;
+  }
   if (type === 'say') return {type, item};
   return null;
 }
@@ -81,7 +89,7 @@ function gameRound(items, pool, plan = GAME_PLAN) {
 
 // ---------- one round on the page ----------
 const TITLES = {pairs: 'Find the pairs', meaning: 'What does it mean?', english: 'Say it in English', build: 'Build the sentence',
-  listen: 'Listen and build', gap: 'Type the missing word', say: 'Say it out loud', speak: 'Your sentence, out loud', talk: 'One minute, out loud'};
+  listen: 'Listen and build', gap: 'Type the missing word', recall: 'Recall it', say: 'Say it out loud', speak: 'Your sentence, out loud', talk: 'One minute, out loud'};
 function runDrill(root, tasks, opts = {}) {
   const total = tasks.length, queue = tasks.slice(), missed = [];
   let pos = 0, right = 0, answered = false, picked = [], pairs = null, typed = '', clock = null, secs = 0;
@@ -116,6 +124,10 @@ function runDrill(root, tasks, opts = {}) {
       `placeholder="${dEsc(t.gap.answer[0])}…" style="width:${Math.max(4, t.gap.answer.length + 1)}ch" aria-label="the missing word">${dEsc(t.gap.after)}</div>`;
     if (t.type === 'say') return `<div class="dq">${dEsc(it.ru)}</div>${it.exRu ? `<div class="dsub">${dEsc(it.exRu)}</div>` : ''}` +
       (answered ? '' : `<p class="dhow">Say it in English, out loud — then check</p>`);
+    // no Russian anywhere: the cue is the book's own definition, or the English example with the phrase missing
+    if (t.type === 'recall') return (t.mode === 'def' ? `<div class="dq">${dEsc(it.def)}</div>`
+        : `<div class="dq gapq">${dEsc(t.gap.before)}…${dEsc(t.gap.after)}</div>`) +
+      (answered ? '' : `<p class="dhow">Say the word or phrase out loud — then check</p>`);
     // the day's phrase: she finishes it about herself, out loud; nothing to check
     if (t.type === 'speak') return `<div class="dq en">${dEsc(it.en)} ${playBtn(it.en)}</div><p class="dhow">${t.how || (/…\s*$/.test(it.en) ? 'Finish it out loud — about you, your real day. Say it twice.' : 'Say it out loud twice, then once inside a sentence about your day.')}</p>`;
     // a minute of talk on the day's topic, with a clock: no stopping, no restarting
@@ -125,17 +137,22 @@ function runDrill(root, tasks, opts = {}) {
   }
   function foot(t) {
     if (answered) {
-      const ok = answered === 'ok', text = answerText(t);
-      const head = t.type === 'say' ? 'Did you say it like this?' : t.type === 'pairs' ? `All pairs in ${Math.round((Date.now() - pairs.t0) / 1000)} s` +
-        (pairs.bad ? ` · ${pairs.bad} miss${pairs.bad > 1 ? 'es' : ''}` : '') : ok ? 'Right!' : 'The answer:';
-      return `<div class="dfoot ${t.type === 'say' ? 'say' : ok ? 'ok' : 'no'}"><div class="dres"><b>${head}</b>` +
-        (t.type === 'pairs' ? '' : `<span class="dans">${dEsc(text)} ${playBtn(text)}</span>`) + `</div>` +
+      const ok = answered === 'ok', text = answerText(t), selfJudged = t.type === 'say' || t.type === 'recall';
+      const head = t.type === 'say' ? 'Did you say it like this?' : t.type === 'recall' ? 'The word was:' :
+        t.type === 'pairs' ? `All pairs in ${Math.round((Date.now() - pairs.t0) / 1000)} s` + (pairs.bad ? ` · ${pairs.bad} miss${pairs.bad > 1 ? 'es' : ''}` : '') :
+        ok ? 'Right!' : 'The answer:';
+      return `<div class="dfoot ${selfJudged ? 'say' : ok ? 'ok' : 'no'}"><div class="dres"><b>${head}</b>` +
+        (t.type === 'pairs' ? '' : `<span class="dans">${dEsc(text)} ${playBtn(text)}</span>`) +
+        (t.type === 'recall' && t.mode === 'gap' ? `<div class="dsub">${dEsc(t.item.ex)}</div>` : '') + `</div>` +
         (t.type === 'say' ? `<div class="dbtns"><button type="button" class="btn light" data-said="0">Not quite</button><button type="button" class="btn" data-said="1">I said it</button></div>`
+       : t.type === 'recall' ? `<div class="dbtns"><button type="button" class="btn light" data-said="0">Not quite</button>` +
+                                `<button type="button" class="btn mid" data-said="unsure">Said it, not sure</button>` +
+                                `<button type="button" class="btn" data-said="1">I said it</button></div>`
                           : `<div class="dbtns"><button type="button" class="btn" data-next>Continue</button></div>`) + `</div>`;
     }
     if (t.type === 'build' || t.type === 'listen') return `<div class="dfoot"><div class="dbtns"><button type="button" class="btn" data-check${picked.length ? '' : ' disabled'}>Check</button></div></div>`;
     if (t.type === 'gap') return `<div class="dfoot"><div class="dbtns"><button type="button" class="btn" data-check>Check</button></div></div>`;
-    if (t.type === 'say') return `<div class="dfoot"><div class="dbtns"><button type="button" class="btn" data-check>Check</button></div></div>`;
+    if (t.type === 'say' || t.type === 'recall') return `<div class="dfoot"><div class="dbtns"><button type="button" class="btn" data-check>Check</button></div></div>`;
     if (t.type === 'speak') return `<div class="dfoot"><div class="dbtns"><button type="button" class="btn" data-said="1">I said it</button></div></div>`;
     if (t.type === 'talk') return `<div class="dfoot"><div class="dbtns">` + (clock === null ? `<button type="button" class="btn light" data-said="skip">Skip</button><button type="button" class="btn" data-go>Start ${t.seconds} s</button>`
       : clock ? `<button type="button" class="btn light" data-said="1">I’m done</button>` : `<button type="button" class="btn" data-said="1">Done ✓</button>`) + `</div></div>`;
@@ -176,7 +193,7 @@ function runDrill(root, tasks, opts = {}) {
       if (!typed.trim()) return g.focus();
       return finish(drillNorm(g.value) === drillNorm(t.gap.answer));
     }
-    if (t.type === 'say') { answered = 'ok'; render(false); speak(t.item.en); }
+    if (t.type === 'say' || t.type === 'recall') { answered = 'ok'; render(false); speak(t.item.en); }
   }
   root.onclick = e => {
     const b = e.target.closest('button'); if (!b || b.disabled) return;
@@ -195,7 +212,11 @@ function runDrill(root, tasks, opts = {}) {
       }, 1000);
       return render();
     }
-    if (b.dataset.said) { if (b.dataset.said === '1' && pos < total) right++; if (b.dataset.said === '0') missed.push(t.item); return next(); }
+    if (b.dataset.said) {
+      if (b.dataset.said === '1' && pos < total) right++;
+      if (b.dataset.said === '0' || b.dataset.said === 'unsure') missed.push(t.item);   // "unsure" — not a miss, but comes back same day via the round's list
+      return next();
+    }
     if (answered) return;
     if (b.dataset.opt) {
       const ok = t.options[b.dataset.opt] === (t.type === 'meaning' ? t.item.ru : t.item.en);

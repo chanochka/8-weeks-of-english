@@ -114,6 +114,7 @@ a { color: var(--starry); }
 .btn { border: var(--line); border-radius: 99px; background: var(--navy); color: #fff; padding: 7px 18px 6px;
        font: 600 16px/1.2 "Fredoka"; cursor: pointer; box-shadow: 3px 3px 0 var(--pink); }
 .btn.light { background: #fff; color: var(--navy); box-shadow: 3px 3px 0 var(--blue); }
+.btn.mid { background: #fff; color: var(--navy); box-shadow: 3px 3px 0 var(--lav); }
 a.btn { display: inline-block; text-decoration: none; }
 .score { font: 600 16px/1.2 "Fredoka"; color: var(--starry); }
 .note { font: 700 13px/1.4 "Nunito"; color: var(--slate); margin-top: 12px; }

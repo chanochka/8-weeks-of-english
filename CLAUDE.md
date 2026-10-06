@@ -102,6 +102,22 @@ exercises with answers check themselves. **Built one week at a time** (her words
    Premium › Enhanced/Natural › online › built-in); novelty Apple voices hidden; a tip in Russian
    how to download a better iPhone voice. ElevenLabs recordings (her «б») were declined for now. *Done, part 1.*
 
+### Recall it — her real gap (2026-10-06: not grammar, not simple words — words she half-knows don't come back to her
+in conversation; «не всплывает само» and «знаю, но не уверена»). Her plan answer «1 а б в 2 в 3 а»:
+
+- A sixth task in `game.html`'s rounds, `recall` in `GAME_PLAN` (`drill.js`): the cue is **English only, never the
+  Russian meaning** — the book's own definition (`item.def`, phrasal verbs and idioms from `words-data.js`, carried
+  into `deck.js`'s cards) when there is one, else the English example with the phrase itself blanked out (`gapOf`,
+  already used by the `gap` task) — for My world this is automatically a situation from her own life, since those
+  examples are written about her work. Collocations have no English definition in the book, so they always use the
+  gap form. She says the word or phrase out loud, then checks.
+- Three answers, not two («3 а»): **Not quite** / **Said it, not sure** / **I said it** (`.btn.mid` in `book.css`,
+  lavender shadow). Only «I said it» scores; both others land in that round's «Look at these again» — the game
+  never moves card boxes anyway, so «comes back the same day» is this list, not a box change.
+- Not yet built: a dedicated recall pass outside the game (she only asked for it inside `game.html` this round —
+  «2 в»). If she later wants it in `cards.html` or the short day too, it is the same `recall` task from `drill.js`,
+  just added to that page's own task list.
+
 - `days.js`: the day list (`bookDays` with `half` / `shortOn`, `currentDay`) shared by the home page, the cards and the
   short day.
 - `app.js` reloads a page restored by the Back button: its frozen ticks would overwrite the cards' tick.

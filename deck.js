@@ -24,7 +24,9 @@ function deckGroups(S) {
     for (const list of ['phrasal', 'idioms', 'colloc']) for (const x of WORDS[n][list]) {
       const ru = WORDS_RU[n][x[0]];
       if (!ru) continue;
-      cards.push({id: `w${n}:${x[0]}`, en: x[0], ex: list === 'colloc' ? x[1] : x[2], ru: ru[0], exRu: ru[1], src: `Week ${n} · ${KIND[list]}`});
+      // def: the book's own English definition (phrasal/idioms only) — the cue for the "recall it" task (drill.js), never the Russian meaning
+      cards.push({id: `w${n}:${x[0]}`, en: x[0], ex: list === 'colloc' ? x[1] : x[2], ru: ru[0], exRu: ru[1],
+        def: list === 'colloc' ? null : x[1], src: `Week ${n} · ${KIND[list]}`});
     }
     groups.push({id: 'w' + n, name: `Week ${n} · ${WORDS[n].theme}`, cards});
   });
