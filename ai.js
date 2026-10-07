@@ -1,7 +1,7 @@
 // The AI helper (2026-10-07): a small chat on every page that includes this file, and voice feedback for the
 // drills' "say it" and "talk" tasks (drill.js calls aiRecorder / aiTranscribe). Talks to the Cloudflare Worker in
 // worker/index.js, which holds the OpenAI key; nothing secret lives here. Empty AI_URL = everything stays hidden.
-const AI_URL = '';
+const AI_URL = 'https://workbook-ai.storyboard-review-cloud.workers.dev';
 const aiReady = () => !!AI_URL && 'MediaRecorder' in window && !!(navigator.mediaDevices && navigator.mediaDevices.getUserMedia);
 
 async function aiPost(path, body) {
